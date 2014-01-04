@@ -492,12 +492,13 @@ def main(arguments):
         logger.log('Wrong arguments', LogLevel.Error)
         print '-p --path             paths (seperated by "::")'
         print '-r --refresh          Do not delete existing files'
-        print '-u --update-xbmc     Clean/Update XBMC'
+        print '-u --update-xbmc      Clean/Update XBMC'
         sys.exit(2)
 
     single_path = ''
     refresh = False
     update = False
+
     for opt, arg in opts:
         if opt in ("-p", "--path"):
             path = arg
@@ -506,13 +507,10 @@ def main(arguments):
             except:
                 pass
             single_path = path
-        elif opt in ("-m", "--movie"):
-            pass
         elif opt in ("-r", "--refresh"):
             refresh = True
         elif opt in ("-u", "--update-xbmc"):
             update = True
-
 
     if single_path != '':
         if os.path.isdir(single_path):
@@ -524,8 +522,22 @@ def main(arguments):
             logger.log('Path not found!', LogLevel.Error)
             sys.exit()
 
+    if single_path == '':
+        for path in config.movie.paths:
+            if os.path.exists(path) and os.path.isdir(path):
+                for dir in os.listdir(path):
+                    if not os.path.isdir(path):
+                        continue
+                    if config.pyscrape.rename:
+                        path = utils.rename_dir(path)
+                        utils.rename_files(path)
+                    print path
+                    MovieScraper(path, single=False, refresh=refresh)
+            else:
+                logger.log(path + ' not found', LogLevel.Warning)
     if update:
         update_xbmc()
+
 
 
 try:
