@@ -454,8 +454,9 @@ class MovieScraper(object):
         # alle Dateien ausser den Film löschen
         logger.log('Delete old files')
         for item in os.listdir(movie.path):
+            ext = os.path.splitext(item)[1].lower()
             item = os.path.join(movie.path, item)
-            if item.endswith('.mkv') or item.endswith('.avi') or item.endswith('.idx') or item.endswith('.sub'):
+            if ext in utils.get_extensions():
                 continue
             elif os.path.isfile(item):
                 logger.log('Delete ' + item, LogLevel.Debug)
@@ -487,7 +488,7 @@ def update_xbmc():
 def main(arguments):
     try:
         opts, args = getopt.getopt(arguments, "p:r:u",
-                                   ["path=","refresh", "update-xbmc"])
+                                   ["path=", "refresh", "update-xbmc"])
     except getopt.GetoptError:
         logger.log('Wrong arguments', LogLevel.Error)
         print '-p --path             paths (seperated by "::")'
@@ -498,7 +499,7 @@ def main(arguments):
     single_path = ''
     refresh = False
     update = False
-    for opt,arg in opts:
+    for opt, arg in opts:
         if opt in ("-p", "--path"):
             path = arg
             try:

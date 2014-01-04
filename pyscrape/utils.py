@@ -29,6 +29,7 @@ def _getChars(file):
 
 def replace(string):
     import os
+
     root = os.path.dirname(os.path.realpath(__file__))
     chars = _getChars(os.path.join(root, 'system', 'replace'))
     try:
@@ -92,6 +93,15 @@ def rename_files(root, logger):
                 dst = os.path.join(root, replacedFile)
                 os.rename(src, dst)
 
+
 def get_root():
     import os
+
     return os.path.dirname(os.path.realpath(__file__))
+
+def get_extensions():
+    import os
+    result = []
+    for extension in [f for f in open(os.path.join(get_root(), 'system', 'extensions')).readlines() if f.startswith('.')]:
+        result.append(extension.lower().encode('utf8').replace('\n',''))
+    return result
