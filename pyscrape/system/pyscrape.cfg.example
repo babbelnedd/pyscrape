@@ -6,7 +6,7 @@ thumb_limit=0
 debug_log=true
 language=de
 fallback_language=en
-rename_movie=true
+rename=true
 
 [movie]
 paths=/mnt/Movies1::/mnt/Movies2

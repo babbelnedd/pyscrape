@@ -12,7 +12,6 @@ class Config(object):
         self.fanart = FanartConfig(cfg)
         self.codec = CodecConfig(cfg)
         self.movie = MovieConfig(cfg)
-        self.tv = TvConfig(cfg)
         self.pushover = PushoverConfig(cfg)
         self.xbmc = XbmcConfig(cfg)
 
@@ -45,12 +44,6 @@ class FanartConfig(object):
         self.api_key = cfg.get('fanarttv', 'api_key')
         self.image_base = cfg.get('fanarttv', 'image_base')
         self.url_base = cfg.get('fanarttv', 'url_base')
-
-
-class TvConfig(object):
-    def __init__(self, cfg):
-        self.paths = cfg.get('tv', 'paths').split('::')
-
 
 class CodecConfig(object):
     def __init__(self, cfg):
