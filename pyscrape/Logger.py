@@ -1,15 +1,19 @@
 # -*- coding: utf-8 -*-
-import httplib, urllib, datetime, os
+import httplib
+import urllib
+import datetime
+import os
+import utils
 from termcolor import colored
 
 
 class Logger(object):
     def __init__(self, logfile, cfg):
-        path = os.path.join(cfg.pyscrape.log_path, 'logs')
+        path = os.path.join(utils.get_root(), 'logs')
         if not os.path.exists(path):
             os.makedirs(path)
         self.logfile = os.path.join(path, logfile)
-        self.errofile = os.path.join(path, 'error.log')
+        self.errorfile = os.path.join(path, 'error.log')
         self.__cfg = cfg
         if os.path.isfile(self.logfile):
             if os.path.isfile(self.logfile + '.old'):
@@ -32,18 +36,18 @@ class Logger(object):
 
         with open(self.logfile, 'a') as logFile:
             if isinstance(output, unicode):
-                output = output.encode('ascii','replace')
+                output = output.encode('ascii', 'replace')
             logFile.write(output + '\n')
 
         if level == LogLevel.Error or level == LogLevel.Warning:
-            with open(self.errofile, 'a') as logFile:
+            with open(self.errorfile, 'a') as logFile:
                 logFile.write(output + '\n')
 
-        self.__print(output, level)
+        self._print(output, level)
 
     def pushover(self, notification):
-        token = 'atLSwx3VDcL2D5jhnB7SxBUwKm9KEK'
-        key = 'uhraPZVod5mdwAZpvDsfVLCzMuxH1C'
+        token = self.__cfg.pushover.token
+        key = self.__cfg.pushover.key
 
         conn = httplib.HTTPSConnection("api.pushover.net:443")
         conn.request("POST", "/1/messages.json",
@@ -58,7 +62,7 @@ class Logger(object):
             print('\n')
             logFile.write('\n')
 
-    def __print(self, msg, level):
+    def _print(self, msg, level):
         if level == LogLevel.Debug:
             print colored(msg, 'white')
         elif level == LogLevel.Info:

@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 import shutil
 import subprocess
-
-__author__ = 'LSC'
+import os
+import ConfigParser
 from Logger import LogLevel
-import os, ConfigParser
 
 
 class Codec(object):
@@ -20,7 +19,7 @@ class Codec(object):
             path = unicode(path).encode('utf8')
         except:
             pass
-        
+
         self.path = path
         if movie.file == '' or not os.path.isfile(os.path.join(movie.path, movie.file)):
             self.logger.log('No movie file found - skip Codec inforamtion', LogLevel.Warning)
@@ -28,18 +27,19 @@ class Codec(object):
 
         self.codec_config = ConfigParser.ConfigParser()
         open(self.file, 'a').close()
-        self.__runMediainfo()
+        self._run_mediainfo()
         self.codec_config.read(self.file)
 
-    def __runMediainfo(self):
+    def _run_mediainfo(self):
         self.logger.log('Start mediainfo', 'DEBUG')
-        
+
         parameter = ' --logfile="{0}" "{1}"'.format(self.file, self.path)
 
         import sys
+
         if 'linux' in sys.platform.lower():
             parameter += '  >/dev/null'
-        # elif 'win32' in sys.platform.lower():
+            # elif 'win32' in sys.platform.lower():
         #     parameter += ' > nul'
         cmd = self.config.codec.mediainfo_path + parameter
         os.system(cmd)
@@ -56,31 +56,31 @@ class Codec(object):
         with open(self.file, 'a') as f:
             f.writelines(newcontent)
 
-    def __get(self, sec, attr):
+    def _get(self, sec, attr):
         try:
             return self.codec_config.get(sec, attr)
         except:
             return ''
 
-    def getRuntime(self):
-        duration = self.__get('Video', 'Duration').replace(' ', '').replace('mn', '').lower().split('h')
+    def get_runtime(self):
+        duration = self._get('Video', 'Duration').replace(' ', '').replace('mn', '').lower().split('h')
         if duration != '' and duration != ['']:
             h = int(duration[0]) * 60
             m = int(duration[1])
             return h + m
         return 0
 
-    def getAudioXml(self):
-        def audioXml():
+    def get_audio_xml(self):
+        def audio_xml():
             xml = ''
             for section in self.codec_config.sections():
                 if 'Audio' in section:
                     audio = {}
-                    audio['codec'] = self.__get(section, 'Format')
+                    audio['codec'] = self._get(section, 'Format')
                     if 'AC-3' in audio['codec']:
                         audio['codec'] = 'AC3'
-                    audio['channels'] = self.__get(section, 'Channel count').replace('channels', '').replace(' ', '')
-                    audio['language'] = self.__get(section, 'Language')
+                    audio['channels'] = self._get(section, 'Channel count').replace('channels', '').replace(' ', '')
+                    audio['language'] = self._get(section, 'Language')
                     xml += '\n'
                     xml += '            <audio>\n'
                     xml += '                <channels>{0}</channels>\n'.format(audio['channels'])
@@ -93,32 +93,32 @@ class Codec(object):
         self.logger.log('Load Audio Codec Information')
         if not os.path.exists(self.file):
             return ''
-        return audioXml()
+        return audio_xml()
 
-    def getVideoXml(self):
-        def videoXml():
+    def get_video_xml(self):
+        def video_xml():
             video = {}
-            duration = self.__get('Video', 'Duration').replace(' ', '').replace('mn', '').lower().split('h')
+            duration = self._get('Video', 'Duration').replace(' ', '').replace('mn', '').lower().split('h')
             if duration != '' and duration != ['']:
                 h = int(duration[0]) * 60
                 m = int(duration[1])
                 video['duration'] = (h + m) * 60
             else:
                 video['duration'] = 0
-            video['width'] = self.__get('Video', 'Width').replace('pixels', '').replace(' ', '')
-            video['height'] = self.__get('Video', 'Height').replace('pixels', '').replace(' ', '')
-            video['bitrate'] = self.__get('Video', 'Bit rate')
-            video['fps'] = self.__get('Video', 'Frame rate')
-            video['aspect'] = self.__get('Video', 'Display aspect ratio')
-            video['scantype'] = self.__get('Video', 'Scan type')
-            video['codec'] = self.__get('Video', 'Writing library')
+            video['width'] = self._get('Video', 'Width').replace('pixels', '').replace(' ', '')
+            video['height'] = self._get('Video', 'Height').replace('pixels', '').replace(' ', '')
+            video['bitrate'] = self._get('Video', 'Bit rate')
+            video['fps'] = self._get('Video', 'Frame rate')
+            video['aspect'] = self._get('Video', 'Display aspect ratio')
+            video['scantype'] = self._get('Video', 'Scan type')
+            video['codec'] = self._get('Video', 'Writing library')
             if 'x264' in video['codec'].lower():
                 video['codec'] = 'h264'
             elif 'h264' in video['codec'].lower():
                 video['codec'] = 'h264'
             elif 'xvid' in video['codec'].lower():
-              video['codec'] = 'xvid'
-            # welche codecs gibt es noch...?
+                video['codec'] = 'xvid'
+                # welche codecs gibt es noch...?
 
             xml = '             <video>\n'
             xml += '                <aspect>{0}</aspect>\n'.format(video['aspect'])
@@ -133,9 +133,9 @@ class Codec(object):
         self.logger.log('Load Video Codec Information')
         if not os.path.exists(self.file):
             return ''
-        return videoXml()
+        return video_xml()
 
-    def deleteAudioTracks(self):
+    def delete_audio_tracks(self):
         if self.config.codec.mkvmerge == '':
             self.logger.log('mkvmerge is not set / installed', LogLevel.Warning)
             return
@@ -182,7 +182,7 @@ class Codec(object):
             #     delete_subtitles = ' --no-subtitles'
             delete_audiotracks = ' --audio-tracks !'
 
-            for n in range(0,len(deletable_tracks)):
+            for n in range(0, len(deletable_tracks)):
                 if n > 0:
                     delete_audiotracks += ','
                 delete_audiotracks += str(deletable_tracks[n])
@@ -223,7 +223,7 @@ class Codec(object):
             os.remove(self.file)
             self.codec_config = ConfigParser.ConfigParser()
             open(self.file, 'a').close()
-            self.__runMediainfo()
+            self._run_mediainfo()
             self.codec_config.read(self.file)
 
 

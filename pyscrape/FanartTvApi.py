@@ -1,5 +1,4 @@
-__author__ = 'LSC'
-import urllib2,urllib
+import urllib2
 try:
     import simplejson as json
 except:
@@ -24,7 +23,7 @@ class FanartTvApi(object):
             result = json.loads(response_body.decode('utf-8'))
         return result
 
-    def getAll(self, id):
+    def get_all(self, id):
         import time
         try_again = True
         n = 1
@@ -35,5 +34,5 @@ class FanartTvApi(object):
             except:
                 n += 1
                 try_again = True
-                print '\a Ooops.. FanartTV Error - Try again'
+                print 'Ooops.. FanartTV Error - Try again'
                 time.sleep(2)

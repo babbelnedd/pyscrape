@@ -1,4 +1,3 @@
-__author__ = 'LSC'
 import urllib2
 import operator
 
@@ -15,7 +14,7 @@ class TmdbApi():
         self.api_key = self.config.tmdb.api_key
         self.logger = logger
 
-    def __request(self, request):
+    def _request(self, request):
         if request.startswith('/'):
             request = request[1:]
 
@@ -35,7 +34,7 @@ class TmdbApi():
             result = json.loads(response_body.decode('utf-8'))
         return result
 
-    def __loadImages(self, images, poster=False):
+    def _loadImages(self, images, poster=False):
         result = {}
         for image in images:
             if poster:
@@ -45,7 +44,7 @@ class TmdbApi():
             result[url] = image['vote_average']
         return result
 
-    def __getResolution(self, images, width, height):
+    def _getResolution(self, images, width, height):
         result = []
         for image in images:
             if image == (): continue
@@ -53,18 +52,18 @@ class TmdbApi():
                 result.append(image)
         return result
 
-    def searchByTitle(self, title, lang, year=None):
+    def search_title(self, title, lang, year=None):
         title = title.replace(' ', '%20')
         req = 'search/movie?query=' + title
         req = req + '&language=' + lang
         if not year is None and not year == 'unknown':
             req = req + '&year=' + year
-        result = self.__request(req)
+        result = self._request(req)
         return result
 
-    def getTrailer(self, movie):
+    def get_trailer(self, movie):
         if movie.id != '':
-            trailers = self.__request('movie/{0}/trailers'.format(movie.id))
+            trailers = self._request('movie/{0}/trailers'.format(movie.id))
             yt_trailers = trailers['youtube']
 
             hd_trailers = {}
@@ -102,45 +101,45 @@ class TmdbApi():
 
         return ''
 
-    def getMovie(self, id, lang='de'):
-        return self.__request('movie/' + str(id) + '?language=' + lang)
+    def get_movie(self, id, lang='de'):
+        return self._request('movie/' + str(id) + '?language=' + lang)
 
-    def getCertification(self, movie):
+    def get_certification(self, movie):
         # holt die Altersfreigabe
         r = 'movie/{0}/releases'.format(movie.id)
-        result = self.__request(r)
+        result = self._request(r)
         rating = 'unknown'
         for r in result['countries']:
             if r['iso_3166_1'] == 'DE':
                 rating = r['certification']
         return rating
 
-    def getImages(self, id):
-        return self.__request('movie/{0}/images'.format(id))
+    def get_images(self, id):
+        return self._request('movie/{0}/images'.format(id))
 
-    def getBackdrops(self, id):
-        allImages = self.getImages(id)
-        backdrops = self.__getResolution(allImages['backdrops'], 1920, 1080)
+    def get_backdrops(self, id):
+        allImages = self.get_images(id)
+        backdrops = self._getResolution(allImages['backdrops'], 1920, 1080)
         if len(backdrops) == 0:
-            backdrops = self.__getResolution(allImages['backdrops'], 1280, 720)
+            backdrops = self._getResolution(allImages['backdrops'], 1280, 720)
         if len(backdrops) == 0:
             backdrops = allImages['backdrops']
-        return self.__loadImages(backdrops)
+        return self._loadImages(backdrops)
 
-    def getPosters(self, id):
+    def get_posters(self, id):
         self.logger.log('Load Posters', 'DEBUG')
-        posters = self.__request('movie/{0}/images?language={1}'.format(id, self.config.pyscrape.language))['posters']
+        posters = self._request('movie/{0}/images?language={1}'.format(id, self.config.pyscrape.language))['posters']
         if posters == []:
             posters = \
-                self.__request('movie/{0}/images?language={1}'.format(id, self.config.pyscrape.fallback_language))[
+                self._request('movie/{0}/images?language={1}'.format(id, self.config.pyscrape.fallback_language))[
                     'posters']
         if posters == []:
-            posters = self.getImages(id)['posters']
-        return sorted(self.__loadImages(posters, True).iteritems(), key=operator.itemgetter(1), reverse=True)
+            posters = self.get_images(id)['posters']
+        return sorted(self._loadImages(posters, True).iteritems(), key=operator.itemgetter(1), reverse=True)
 
-    def getCredits(self, id):
+    def get_credits(self, id):
         self.logger.log('Load Credits', 'DEBUG')
-        credits = self.__request('movie/{0}/credits'.format(id))
+        credits = self._request('movie/{0}/credits'.format(id))
         cast = credits['cast']
         crew = credits['crew']
 
@@ -168,14 +167,11 @@ class TmdbApi():
 
         return xml
 
-    def getThumb(self, id):
+    def get_thumb(self, id):
         self.logger.log('Load Thumb', 'DEBUG')
-        posters = self.getPosters(id)
+        posters = self.get_posters(id)
         for poster in posters:
             return poster[0] # 1. poster ist das best bewerteste poster, deshalb hier rausspringen
 
-    def getChanges(self):
-        return self.__request('movies/changes?start_date=2000-01-01')
-
-    def ____pycharm_bugfix(self):
-        pass
+    def get_changes(self):
+        return self._request('movies/changes?start_date=2000-01-01')

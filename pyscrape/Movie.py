@@ -36,5 +36,5 @@ class Movie(object):
         self.thumb = ''
         self.credits = ''
         self.audio_xml = ''
-        self.video_xml =''
+        self.video_xml = ''
         self.popularity = 0

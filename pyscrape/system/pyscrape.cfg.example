@@ -1,14 +1,12 @@
 [pyscrape]
+; limit=0 is unlimited
 backdrop_limit=0
 poster_limit=0
 thumb_limit=0
-log_path=/home/pyscrape/
 debug_log=true
 language=de
 fallback_language=en
-file_permissions=777
-folder_permissions=777
-rename_movie=false
+rename_movie=true
 
 [movie]
 paths=/mnt/Movies1::/mnt/Movies2
@@ -17,7 +15,7 @@ paths=/mnt/Movies1::/mnt/Movies2
 mediainfo_path=mediainfo
 mkvmerge=mkvmerge
 
-; deletes all audio tracks but the given from a mkv file - be careful
+; deletes all audio tracks but the given from a mkv file - be careful (needs mkvmerge (installed by mkvtoolnix))
 ; usage: german::english:: ..
 ; uncomment to activate removing of audio tracks
 keep_tracks=german
@@ -32,3 +30,14 @@ url_base=http://api.themoviedb.org/3/
 api_key=
 image_base=
 url_base=http://api.fanart.tv/webservice/movie/
+
+[pushover]
+token=
+key=
+
+[xbmc]
+protocol=http
+ip=192.168.178.50
+port=8080
+user=xbmc
+pass=xbmc

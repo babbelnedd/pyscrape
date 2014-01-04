@@ -1,7 +1,3 @@
-from Logger import LogLevel
-
-__author__ = 'LSC'
-
 # from http://stackoverflow.com/a/1823101/1922357
 def intWithCommas(x):
     if type(x) not in [type(0), type(0L)]:
@@ -15,7 +11,7 @@ def intWithCommas(x):
     return "%d%s" % (x, result)
 
 
-def __getChars(file):
+def _getChars(file):
     chars = {}
     with open(file) as f:
         content = f.readlines()
@@ -32,9 +28,9 @@ def __getChars(file):
 
 
 def replace(string):
-    #import os
-    #chars = __getChars('system/replace')
-    chars = __getChars('/home/pyscrape/src/pyscrape/system/replace')
+    import os
+    root = os.path.dirname(os.path.realpath(__file__))
+    chars = _getChars(os.path.join(root, 'system', 'replace'))
     try:
         string = string.encode('utf8')
     except:
@@ -45,7 +41,7 @@ def replace(string):
     return string
 
 
-def renameSubfolder(root, logger):
+def rename_subfolder(root, logger):
     logger = logger
     import os
 
@@ -59,8 +55,9 @@ def renameSubfolder(root, logger):
                 os.rename(src, dst)
 
 
-def renameDirectory(folder, logger):
+def rename_dir(folder, logger):
     import os
+
     folder = unicode(folder, encoding='utf8')
     while folder.endswith('/'):
         folder = folder[0:(len(folder) - 1)]
@@ -84,7 +81,7 @@ def renameDirectory(folder, logger):
     return dst
 
 
-def renameFiles(root, logger):
+def rename_files(root, logger):
     import os
 
     for file in os.listdir(root.decode('utf8')):
@@ -94,3 +91,7 @@ def renameFiles(root, logger):
                 src = os.path.join(root, file)
                 dst = os.path.join(root, replacedFile)
                 os.rename(src, dst)
+
+def get_root():
+    import os
+    return os.path.dirname(os.path.realpath(__file__))

@@ -4,15 +4,17 @@ class Config(object):
 
         cfg = ConfigParser()
         cfg.read(file)
-        self.pyscrape = pyscrapeConfig(cfg)
-        self.tmdb = tmdbConfig(cfg)
-        self.fanart = fanartConfig(cfg)
-        self.codec = Codec(cfg)
+        self.pyscrape = PyscrapeConfig(cfg)
+        self.tmdb = TmdbConfig(cfg)
+        self.fanart = FanartConfig(cfg)
+        self.codec = CodecConfig(cfg)
         self.movie = MovieConfig(cfg)
         self.tv = TvConfig(cfg)
+        self.pushover = PushoverConfig(cfg)
+        self.xbmc = XbmcConfig(cfg)
 
 
-class pyscrapeConfig(object):
+class PyscrapeConfig(object):
     def __init__(self, cfg):
         self.language = cfg.get('pyscrape', 'language')
         self.fallback_language = cfg.get('pyscrape', 'fallback_language')
@@ -20,9 +22,7 @@ class pyscrapeConfig(object):
         self.poster_limit = int(cfg.get('pyscrape', 'poster_limit'))
         self.thumb_limit = int(cfg.get('pyscrape', 'thumb_limit'))
         self.debug_log = cfg.get('pyscrape', 'debug_log').lower().strip() == 'true'
-        self.file_permissions = int(cfg.get('pyscrape', 'file_permissions'))
-        self.folder_permissions = int(cfg.get('pyscrape', 'folder_permissions'))
-        self.log_path = cfg.get('pyscrape', 'log_path')
+        self.rename = cfg.get('pyscrape', 'rename').lower().strip() == 'true'
 
 
 class MovieConfig(object):
@@ -30,14 +30,14 @@ class MovieConfig(object):
         self.paths = cfg.get('movie', 'paths').split('::')
 
 
-class tmdbConfig(object):
+class TmdbConfig(object):
     def __init__(self, cfg):
         self.api_key = cfg.get('tmdb', 'api_key')
         self.image_base = cfg.get('tmdb', 'image_base')
         self.url_base = cfg.get('tmdb', 'url_base')
 
 
-class fanartConfig(object):
+class FanartConfig(object):
     def __init__(self, cfg):
         self.api_key = cfg.get('fanarttv', 'api_key')
         self.image_base = cfg.get('fanarttv', 'image_base')
@@ -49,7 +49,7 @@ class TvConfig(object):
         self.paths = cfg.get('tv', 'paths').split('::')
 
 
-class Codec(object):
+class CodecConfig(object):
     def __init__(self, cfg):
         self.mediainfo_path = cfg.get('codec', 'mediainfo_path')
         self.mkvmerge = cfg.get('codec', 'mkvmerge')
@@ -62,3 +62,17 @@ class Codec(object):
             self.keep_tracks = cfg.get('codec', 'keep_tracks').split('::')
         except:
             pass
+
+
+class PushoverConfig(object):
+    def __init__(self, cfg):
+        self.token = cfg.get('pushover', 'token')
+        self.key = cfg.get('pushover', 'key')
+
+class XbmcConfig(object):
+    def __init__(self,cfg):
+        self.protocol = cfg.get('xbmc', 'protocol')
+        self.ip = cfg.get('xbmc', 'ip')
+        self.port = cfg.get('xbmc', 'port')
+        self.user = cfg.get('xbmc', 'user')
+        self.password = cfg.get('xbmc', 'pass')
