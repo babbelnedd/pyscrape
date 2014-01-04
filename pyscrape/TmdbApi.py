@@ -107,7 +107,6 @@ class TmdbApi():
         return self._request('movie/' + str(id) + '?language=' + lang)
 
     def get_certification(self, movie):
-        # holt die Altersfreigabe
         r = 'movie/{0}/releases'.format(movie.id)
         result = self._request(r)
         rating = 'unknown'
@@ -131,41 +130,47 @@ class TmdbApi():
     def get_posters(self, id):
         self.logger.log('Load Posters', 'DEBUG')
         posters = self._request('movie/{0}/images?language={1}'.format(id, self.config.pyscrape.language))['posters']
-        if posters == []:
-            posters = \
-                self._request('movie/{0}/images?language={1}'.format(id, self.config.pyscrape.fallback_language))[
-                    'posters']
-        if posters == []:
+        if posters == []:  # get images of fallback language
+            req = 'movie/{0}/images?language={1}'.format(id, self.config.pyscrape.fallback_language)
+            posters = self._request(req)['posters']
+        if posters == []:  # get all images if there aren't images for primary/fallback language
             posters = self.get_images(id)['posters']
+
         return sorted(self._loadImages(posters, True).iteritems(), key=operator.itemgetter(1), reverse=True)
 
     def get_credits(self, id):
+        def get_crew(crew):
+            xml = u''
+            for c in crew:
+                if c['department'] == 'Writing' and c['name'] != '':
+                    xml += u'    <credits>{0}</credits>\n'.format(c['name'])
+                if c['department'] == 'Directing' and c['name'] != '':
+                    xml += u'    <director>{0}</director>\n'.format(c['name'])
+
+            return xml
+
+        def get_cast(cast):
+            xml = u''
+            for actor in cast:
+                try:
+                    image = 'http://image.tmdb.org/t/p/w500' + actor['profile_path']
+                except:
+                    continue # skip actore if there is no image
+                xml += '    <actor>\n'
+                if not actor is None and not actor['name'] is None:
+                    xml += u'       <name>{0}</name>\n'.format(actor['name'].replace('"', "'"))
+                if not actor is None and not actor['character'] is None:
+                    xml += u'       <role>{0}</role>\n'.format(actor['character'].replace('"', "'"))
+                xml += u'       <thumb>{0}</thumb>\n'.format(image)
+                xml += '    </actor>\n'
+
+            return xml
+
         self.logger.log('Load Credits', 'DEBUG')
         credits = self._request('movie/{0}/credits'.format(id))
-        cast = credits['cast']
-        crew = credits['crew']
 
-        xml = u''
-        # write credits
-        for c in crew:
-            if c['department'] == 'Writing' and c['name'] != '':
-                xml += u'    <credits>{0}</credits>\n'.format(c['name'])
-            if c['department'] == 'Directing' and c['name'] != '':
-                xml += u'    <director>{0}</director>\n'.format(c['name'])
-
-        #write actors
-        for actor in cast:
-            try:
-                image = 'http://image.tmdb.org/t/p/w500' + actor['profile_path']
-            except:
-                continue # falls es kein Bild gibt
-            xml += '    <actor>\n'
-            if not actor is None and not actor['name'] is None:
-                xml += u'       <name>{0}</name>\n'.format(actor['name'].replace('"', "'"))
-            if not actor is None and not actor['character'] is None:
-                xml += u'       <role>{0}</role>\n'.format(actor['character'].replace('"', "'"))
-            xml += u'       <thumb>{0}</thumb>\n'.format(image)
-            xml += '    </actor>\n'
+        xml = get_crew(credits['crew'])
+        xml += get_cast(credits['cast'])
 
         return xml
 
@@ -173,7 +178,7 @@ class TmdbApi():
         self.logger.log('Load Thumb', 'DEBUG')
         posters = self.get_posters(id)
         for poster in posters:
-            return poster[0] # 1. poster ist das best bewerteste poster, deshalb hier rausspringen
+            return poster[0] # first poster is the poster with highest popularity
 
     def get_changes(self):
         return self._request('movies/changes?start_date=2000-01-01')

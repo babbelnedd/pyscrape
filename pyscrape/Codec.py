@@ -3,6 +3,7 @@ import shutil
 import subprocess
 import os
 import ConfigParser
+import sys
 from Logger import LogLevel
 
 
@@ -32,18 +33,16 @@ class Codec(object):
 
     def _run_mediainfo(self):
         self.logger.log('Start mediainfo', 'DEBUG')
-
         parameter = ' --logfile="{0}" "{1}"'.format(self.file, self.path)
 
-        import sys
-
         if 'linux' in sys.platform.lower():
-            parameter += '  >/dev/null'
-            # elif 'win32' in sys.platform.lower():
-        #     parameter += ' > nul'
+            parameter += '  >/dev/null'  # do not work - why? :/
+        elif 'win32' in sys.platform.lower():
+            parameter += ' > nul'
         cmd = self.config.codec.mediainfo_path + parameter
         os.system(cmd)
-        # create section headers
+
+        # create section headers for ConfigParser
         newcontent = []
         with open(self.file) as f:
             content = f.readlines()
@@ -118,7 +117,7 @@ class Codec(object):
                 video['codec'] = 'h264'
             elif 'xvid' in video['codec'].lower():
                 video['codec'] = 'xvid'
-                # welche codecs gibt es noch...?
+                # what codes are there and how to name it for xbmc?
 
             xml = '             <video>\n'
             xml += '                <aspect>{0}</aspect>\n'.format(video['aspect'])
@@ -164,6 +163,10 @@ class Codec(object):
 
         deletable_tracks = []
         keep_tracks_count = 0
+
+        if len(audio_tracks) < 2:  # If there is only one audio-track do not try do delete any tracks
+            return
+
         for track in audio_tracks:
             _language = audio_tracks[track]
             if _language == '':
@@ -172,14 +175,9 @@ class Codec(object):
                 keep_tracks_count += 1
             else:
                 deletable_tracks.append(track)
-                #delete_tracks_count += 1
 
         # check if we have to delete audio tracks
         if len(deletable_tracks) > 0 and keep_tracks_count > 0:
-            # build cmd-string
-            delete_subtitles = ''
-            # if self.config.codec.keep_subs == 'none':
-            #     delete_subtitles = ' --no-subtitles'
             delete_audiotracks = ' --audio-tracks !'
 
             for n in range(0, len(deletable_tracks)):
@@ -187,21 +185,16 @@ class Codec(object):
                     delete_audiotracks += ','
                 delete_audiotracks += str(deletable_tracks[n])
 
-            # for track in deletable_tracks:
-            #     delete_audiotracks += '{0}'.format(track)
-
             dst = os.path.join(self.movie.path, 'new.mkv')
 
-            cmd = '{0} -o "{1}"{2}{3} "{4}"'.format(self.config.codec.mkvmerge, dst, delete_subtitles,
-                                                    delete_audiotracks,
-                                                    src)
+            cmd = '{0} -o "{1}"{2} "{3}"'.format(self.config.codec.mkvmerge, dst,
+                                                 delete_audiotracks,
+                                                 src)
 
-            # warn / exec cmd
             self.logger.log("Remove {0} audio-tracks".format(keep_tracks_count))
             self.logger.log('\a === DO NOT STOP THE PROCCESS - IT WILL DELETE YOUR MOVIE ===', LogLevel.Warning)
             self.logger.log('Execute mkvmerge: ' + cmd, LogLevel.Debug)
             open(dst, 'a').close()
-            #os.system(cmd)
             try:
                 subprocess.check_call(cmd, shell=True)
             except:

@@ -33,6 +33,7 @@ class MovieScraper(object):
         self.tmdb = TmdbApi()
         self.fanart = FanartTvApi()
         self.codec = None
+        self.config = config
 
         def scrapeMovies(movies):
             total_elapsed = 0
@@ -61,7 +62,6 @@ class MovieScraper(object):
                 logger.log("%.2f s total" % total_elapsed, 'TIME')
                 logger.whiteline()
 
-        self.config = config
         if single:
             movies = []
             root, dir = os.path.split(path)
@@ -123,7 +123,7 @@ class MovieScraper(object):
                 logger.log(movie.path, 'WARNING')
 
             for r in results:
-                if movie.title != '':    # falls der titel mehrmals vorkommt, den mit der höchsten popularity nehmen
+                if movie.title != '':    # if the title occurs more than once, take the one with the highest popularity
                     if not (movie.search_title == r['title'] or movie.search_title == r['original_title']):
                         if movie.title == r[u'title'] and movie.popularity < float(r['popularity']):
                             logger.log('Found movie with higher popularity')
@@ -137,15 +137,15 @@ class MovieScraper(object):
                 movie.rating = r['vote_average']
                 movie.popularity = float(r['popularity'])
 
-                #break   # das erste ergebnis muss ab jetzt richtig sein :S
-
             return movie
 
         def get_advanced_metadata(movie):
             logger.log('Get advanced informations')
             info = self.tmdb.get_movie(movie.id, lang=self.config.pyscrape.language)
-            if info is None:   # todo: hmm verbessern.. falls plot == "" ist? :/
+            if info is None:   # If there is no information get information for fallback language
                 info = self.tmdb.get_movie(movie.id, lang=self.config.pyscrape.fallback_language)
+            if info is None:
+                pass           # What to do if there is no info for fallback language?
 
             movie.imdbID = info['imdb_id']
             movie.plot = info[u'overview']
@@ -198,7 +198,7 @@ class MovieScraper(object):
         xml += u'    <set>{0}</set>\n'.format(movie.collection)
         xml += '    <rating>{0}</rating>\n'.format(movie.rating)
         xml += '    <year>{0}</year>\n'.format(movie.year)
-        #xml += '    <top250>{0}</top250>\n'.format(0)                           # INFORMATION FEHLT NOCH - ANPASSEN!!!
+        #xml += '    <top250>{0}</top250>\n'.format(0)      # information is still missing
         xml += '    <votes>{0}</votes>\n'.format(movie.vote_count)
         xml += u'    <outline>{0}</outline>\n'.format(movie.outline)
         xml += u'    <tagline>{0}</tagline>\n'.format(movie.tagline)
@@ -436,9 +436,9 @@ class MovieScraper(object):
             fanart = self.fanart.get_all(movie.imdbID)
             if fanart is None:
                 return
-            for f in fanart:     # JSON gibt mehrere einträge zurück, aber es gibt keine tmdb id 'doppelt' ??
+            for f in fanart:     # Fanart gives sometimes more than one result - but there are no double tmdbID's???
                 fanart = fanart[f]
-                break            # falls es doch mehrere einträge gibt, nimm bitte das erste!
+                break            # just take the first result, if there are more than 1
 
             logger.log('Download Fanart')
             download_banner()
@@ -454,8 +454,8 @@ class MovieScraper(object):
     def cleanup_dir(self, movie):
         logger.log('Delete old files')
         for item in os.listdir(movie.path):
-            ext = os.path.splitext(item)[1].lower()
             item = os.path.join(movie.path, item)
+            ext = os.path.splitext(item)[1].lower()
             if ext in utils.get_extensions():
                 continue
             elif os.path.isfile(item):
@@ -464,14 +464,14 @@ class MovieScraper(object):
             elif os.path.isdir(item):
                 deletable = True
                 for d in os.listdir(item):     # Prüfe ob der Ordner keine .mkv datei enthält
-                    if d.endswith('.mkv') or d.endswith('.avi'):
+                    ext = os.path.splitext(d)[1].lower()
+                    if ext in utils.get_extensions():
                         deletable = False
                 if deletable:
                     shutil.rmtree(item)
 
 
 def update_xbmc():
-    # clean db
     logger.log('Clean XBMC database')
     xbmc = config.xbmc
     url_base = '{0}://{1}:{2}@{3}:{4}'.format(xbmc.protocol, xbmc.user, xbmc.password, xbmc.ip, xbmc.port)
@@ -479,7 +479,6 @@ def update_xbmc():
     urllib.urlretrieve(url)
     time.sleep(120)
 
-    # update db
     logger.log('Update XBMC database')
     url = url_base + '/jsonrpc?request={"jsonrpc":"2.0","method":"VideoLibrary.Scan"}'
     urllib.urlretrieve(url)
@@ -515,7 +514,6 @@ def main(arguments):
             update = True
 
 
-    # scrape movies
     if single_path != '':
         if os.path.isdir(single_path):
             if config.pyscrape.rename:
