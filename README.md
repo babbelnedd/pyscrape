@@ -8,7 +8,7 @@ PyScrape is a cross platform aaplication that collects information and media art
 ##SETUP / REQUIREMENTS
  - Install [pip](http://www.pip-installer.org/en/latest/installing.html "pip")    
  - Install [mkvtoolnix](http://www.bunkus.org/videotools/mkvtoolnix/downloads.html "mkvtoolnix")    
- - Install [mediainfo](http://mediaarea.net/de/MediaInfo/Download "mediainfo")    
+ - Install [mediainfo](http://mediaarea.net/de/MediaInfo/Download "mediainfo") (CLI)   
  - Run setup.py  
  - Copy pyscrape.cfg.example to pyscrape.cfg and set it up (explanation will follow..)
   
