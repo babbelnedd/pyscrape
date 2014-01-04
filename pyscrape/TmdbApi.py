@@ -5,14 +5,16 @@ try:
     import simplejson as json
 except:
     import json
+from Config import Config
+from Logger import Logger
 
 
 class TmdbApi():
-    def __init__(self, config, logger):
-        self.config = config
+    def __init__(self):
+        self.config = Config()
+        self.logger = Logger()
         self.url_base = self.config.tmdb.url_base
         self.api_key = self.config.tmdb.api_key
-        self.logger = logger
 
     def _request(self, request):
         if request.startswith('/'):

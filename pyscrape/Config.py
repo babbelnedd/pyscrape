@@ -1,7 +1,10 @@
 class Config(object):
-    def __init__(self, file):
+    def __init__(self):
+        import utils
+        import os
         from ConfigParser import ConfigParser
 
+        file = os.path.join(utils.get_root(), 'system', 'pyscrape.cfg')
         cfg = ConfigParser()
         cfg.read(file)
         self.pyscrape = PyscrapeConfig(cfg)
@@ -69,8 +72,9 @@ class PushoverConfig(object):
         self.token = cfg.get('pushover', 'token')
         self.key = cfg.get('pushover', 'key')
 
+
 class XbmcConfig(object):
-    def __init__(self,cfg):
+    def __init__(self, cfg):
         self.protocol = cfg.get('xbmc', 'protocol')
         self.ip = cfg.get('xbmc', 'ip')
         self.port = cfg.get('xbmc', 'port')

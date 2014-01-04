@@ -4,17 +4,22 @@ import urllib
 import datetime
 import os
 import utils
+import sys
+from Config import Config
 from termcolor import colored
 
 
 class Logger(object):
-    def __init__(self, logfile, cfg):
-        path = os.path.join(utils.get_root(), 'logs')
-        if not os.path.exists(path):
-            os.makedirs(path)
-        self.logfile = os.path.join(path, logfile)
-        self.errorfile = os.path.join(path, 'error.log')
-        self.__cfg = cfg
+    def __init__(self):
+        self.path = os.path.join(utils.get_root(), 'logs')
+        self.logfile = os.path.join(self.path, 'pyscrape.cfg')
+        self.errorfile = os.path.join(self.path, 'error.log')
+        self.__cfg = Config()
+
+    def init(self):
+        if not os.path.exists(self.path):
+            os.makedirs(self.path)
+
         if os.path.isfile(self.logfile):
             if os.path.isfile(self.logfile + '.old'):
                 os.remove(self.logfile + '.old')
@@ -63,16 +68,19 @@ class Logger(object):
             logFile.write('\n')
 
     def _print(self, msg, level):
-        if level == LogLevel.Debug:
-            print colored(msg, 'white')
-        elif level == LogLevel.Info:
-            print colored(msg, 'green')
-        elif level == LogLevel.Warning:
-            print colored(msg, 'yellow')
-        elif level == LogLevel.Error:
-            print colored(msg, 'red')
+        if 'linux' in sys.platform:
+            if level == LogLevel.Debug:
+                print colored(msg, 'white')
+            elif level == LogLevel.Info:
+                print colored(msg, 'green')
+            elif level == LogLevel.Warning:
+                print colored(msg, 'yellow')
+            elif level == LogLevel.Error:
+                print colored(msg, 'red')
+            else:
+                print colored(msg, 'cyan')
         else:
-            print colored(msg, 'cyan')
+            print msg
 
 
 class LogLevel(object):

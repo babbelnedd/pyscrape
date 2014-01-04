@@ -42,8 +42,9 @@ def replace(string):
     return string
 
 
-def rename_subfolder(root, logger):
-    logger = logger
+def rename_subfolder(root):
+    from Logger import Logger
+    logger = Logger()
     import os
 
     for path in os.listdir(root.decode('utf8')):
@@ -56,9 +57,10 @@ def rename_subfolder(root, logger):
                 os.rename(src, dst)
 
 
-def rename_dir(folder, logger):
+def rename_dir(folder):
     import os
-
+    from Logger import Logger
+    logger = Logger()
     folder = unicode(folder, encoding='utf8')
     while folder.endswith('/'):
         folder = folder[0:(len(folder) - 1)]
@@ -82,8 +84,10 @@ def rename_dir(folder, logger):
     return dst
 
 
-def rename_files(root, logger):
+def rename_files(root):
     import os
+    from Logger import Logger
+    logger = Logger()
 
     for file in os.listdir(root.decode('utf8')):
         if os.path.isfile(os.path.join(root, file)):
@@ -91,6 +95,7 @@ def rename_files(root, logger):
             if file != replacedFile:
                 src = os.path.join(root, file)
                 dst = os.path.join(root, replacedFile)
+                logger.log(u'Move {0} to {1}'.format(src, dst), 'MOVE')
                 os.rename(src, dst)
 
 
@@ -101,6 +106,9 @@ def get_root():
 
 def get_extensions():
     import os
+    from Logger import Logger, LogLevel
+    logger = Logger()
+    logger.log('Import extensions', LogLevel.Debug)
     result = []
     for extension in [f for f in open(os.path.join(get_root(), 'system', 'extensions')).readlines() if f.startswith('.')]:
         result.append(extension.lower().encode('utf8').replace('\n',''))

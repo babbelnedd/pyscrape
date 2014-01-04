@@ -1,13 +1,17 @@
 import urllib2
+
 try:
     import simplejson as json
 except:
     import json
+from Config import Config
+from Logger import Logger
+
 
 class FanartTvApi(object):
-    def __init__(self, config, logger):
-        self.config = config
-        self.logger = logger
+    def __init__(self):
+        self.config = Config()
+        self.logger = Logger()
 
     def __request(self, id):
         format = 'JSON'
@@ -15,7 +19,7 @@ class FanartTvApi(object):
 
         self.logger.log('Send Fanart Request: ' + req.replace(self.config.fanart.api_key, 'XXX'), 'DEBUG')
         headers = {'Accept': 'application/json'}
-        request = urllib2.Request(req, headers=headers)        
+        request = urllib2.Request(req, headers=headers)
         response_body = urllib2.urlopen(request).read()
         try:
             result = json.loads(response_body)
@@ -25,6 +29,7 @@ class FanartTvApi(object):
 
     def get_all(self, id):
         import time
+
         try_again = True
         n = 1
         while try_again:

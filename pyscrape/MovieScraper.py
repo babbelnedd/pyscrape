@@ -21,16 +21,17 @@ try:
 except:
     import json
 
-config = Config(os.path.join(utils.get_root(), 'system', 'pyscrape.cfg'))
-logger = Logger('pyscrape.log', config)
+config = Config()
+logger = Logger()
+logger.init()
 image_base_url = 'http://image.tmdb.org/t/p/w1920'
 
 
 class MovieScraper(object):
     def __init__(self, path, single=False, refresh=False):
         self.refresh = refresh
-        self.tmdb = TmdbApi(config, logger)
-        self.fanart = FanartTvApi(config, logger)
+        self.tmdb = TmdbApi()
+        self.fanart = FanartTvApi()
         self.codec = None
 
         def scrapeMovies(movies):
@@ -451,7 +452,6 @@ class MovieScraper(object):
         download_fanart()
 
     def cleanup_dir(self, movie):
-        # alle Dateien ausser den Film löschen
         logger.log('Delete old files')
         for item in os.listdir(movie.path):
             ext = os.path.splitext(item)[1].lower()
@@ -519,8 +519,8 @@ def main(arguments):
     if single_path != '':
         if os.path.isdir(single_path):
             if config.pyscrape.rename:
-                single_path = utils.rename_dir(single_path, logger)
-                utils.rename_files(single_path, logger)
+                single_path = utils.rename_dir(single_path)
+                utils.rename_files(single_path)
             MovieScraper(single_path, single=True, refresh=refresh)
         else:
             logger.log('Path not found!', LogLevel.Error)
