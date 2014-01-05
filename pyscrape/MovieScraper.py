@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 import sys
 import os
-import re
 import shutil
 import time
 import operator
 import utils
 import getopt
 import traceback
+import RegEx
+
 from Xbmc import Xbmc
 from TmdbApi import TmdbApi
 from FanartTvApi import FanartTvApi
@@ -65,6 +66,9 @@ class MovieScraper(object):
                 else:
                     self.codec.delete_audio_tracks()
                     movie = self.get_metadata(m)
+                    if movie == -1:   # no movie found
+                        continue
+
                     self.download_images(movie)
                 end = time.time()
                 elapsed = end - start
@@ -93,15 +97,12 @@ class MovieScraper(object):
         movie = Movie()
         dir = path
         movie.path = path
-        rx = re.search('\([0-9]{4}\)', path)
-        if rx:
-            year = rx.group()
-            path = path.replace(year, '')
-            movie.search_year = year.replace('(', '').replace(')', '')
 
-        title = path.strip()
-        movie.search_title = title
-        movie.search_alternative_title = utils.replace(movie.search_title)
+        regex = RegEx.get_movie(path)
+        movie.search_year = regex['year']
+        movie.imdbID = regex['imdbID']
+        movie.search_title = regex['title']
+        movie.search_alternative_title = utils.replace(regex['title'])
         movie.path = os.path.join(root, dir)
 
         files = get_movie_files(movie.path)
@@ -129,30 +130,38 @@ class MovieScraper(object):
         def get_basic_metadata(movie):
             logger.log('Get basic informations')
             result = self.tmdb.search_title(title=movie.search_title, year=movie.search_year,
-                                            lang=self.config.pyscrape.language)
-            results = result['results']
-            if results == []:
+                                            lang=self.config.pyscrape.language, imdbID =movie.imdbID)
+            #results = result['results']
+            if result == []:
                 logger.log('No Results', LogLevel.Warning)
                 return movie
 
-            logger.log(str(len(results)) + ' Result(s) found')
-            if len(results) > 1:
-                logger.log('MORE THAN ONE RESULT FOUND - PLEASE CHECK THE RETRIEVED DATA!', LogLevel.Warning)
+            if movie.imdbID is None or movie.imdbID == '':
+                logger.log(str(len(result)) + ' Result(s) found')
+                if len(result) > 1:
+                    logger.log('MORE THAN ONE RESULT FOUND - PLEASE CHECK THE RETRIEVED DATA!', LogLevel.Warning)
 
-            for r in results:
-                if movie.title != '':    # if the title occurs more than once, take the one with the highest popularity
-                    if not (movie.search_title == r['title'] or movie.search_title == r['original_title']):
-                        if movie.title == r[u'title'] and movie.popularity < float(r['popularity']):
-                            logger.log('Found movie with higher popularity')
-                        else:
-                            continue
+                for r in result:
+                    if movie.title != '':    # if the title occurs more than once, take the one with the highest popularity
+                        if not (movie.search_title == r['title'] or movie.search_title == r['original_title']):
+                            if movie.title == r[u'title'] and movie.popularity < float(r['popularity']):
+                                logger.log('Found movie with higher popularity')
+                            else:
+                                continue
 
-                movie.title = r[u'title']
-                movie.year = r[u'release_date'][:4]
-                movie.orig_title = r[u'original_title']
-                movie.id = r['id']
-                movie.rating = r['vote_average']
-                movie.popularity = float(r['popularity'])
+                    movie.title = r[u'title']
+                    movie.year = r[u'release_date'][:4]
+                    movie.orig_title = r[u'original_title']
+                    movie.id = r['id']
+                    movie.rating = r['vote_average']
+                    movie.popularity = float(r['popularity'])
+            else:
+                movie.title = result[u'title']
+                movie.year = result[u'release_date'][:4]
+                movie.orig_title = result[u'original_title']
+                movie.id = result['id']
+                movie.rating = result['vote_average']
+                movie.popularity = float(result['popularity'])
 
             return movie
 
@@ -192,7 +201,8 @@ class MovieScraper(object):
         movie = get_basic_metadata(movie)
         if movie.id == '':
             logger.log('No match for {0}'.format(movie.search_title), LogLevel.Warning)
-            return
+            return -1
+
         movie.trailer = self.tmdb.get_trailer(movie)
         movie = get_advanced_metadata(movie)
         movie.posters = self.tmdb.get_posters(movie.id)

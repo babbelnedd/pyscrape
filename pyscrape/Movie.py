@@ -12,7 +12,7 @@ class Movie(object):
         self.fanart = ()                                # URLs zu Fanart
         self.rating = ''                                # Durchschnittliche Bewertung   (TMDB)
         self.vote_count = ''                            # Anzahl der agegebenen Stimmen (TMDB)
-        self.search_year = 'unknown'                    # Jahresangabe aus dem Ordnernamen
+        self.search_year = ''                    # Jahresangabe aus dem Ordnernamen
         self.search_title = 'unknown'                   # Ordner Name ohne Jahresangabe
         self.search_alternative_title = 'unknown'       # Titel mit Umlauten
         self.path = ''                                  # Pfad des Films

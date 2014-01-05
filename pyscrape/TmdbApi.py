@@ -54,14 +54,20 @@ class TmdbApi():
                 result.append(image)
         return result
 
-    def search_title(self, title, lang, year=None):
-        title = title.replace(' ', '%20')
-        req = 'search/movie?query=' + title
-        req = req + '&language=' + lang
-        if not year is None and not year == 'unknown':
-            req = req + '&year=' + year
-        result = self._request(req)
-        return result
+    def search_title(self, title, lang, year=None, imdbID=''):
+        if imdbID is None or imdbID == '':
+            title = title.replace(' ', '%20')
+            req = 'search/movie?query=' + title
+            req += '&language=' + lang
+            if not year is None and not year == '':
+                req = req + '&year=' + year
+            result = self._request(req)
+            return result['results']
+        else:
+            req = 'movie/' + imdbID
+            req += '?language=' + lang
+            result = self._request(req)
+            return result
 
     def get_trailer(self, movie):
         if movie.id != '':
