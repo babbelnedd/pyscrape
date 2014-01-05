@@ -1,9 +1,10 @@
 # Files with one of the following extensions won't be deleted
-# Extensions have to start with a dot '.'
+# movie extensions have to start with one dot '.'
+# other extensions have to start with two dots '..'
 
 # Sub extensions
-.idx
-.sub
+..idx
+..sub
 
 # Movie extensions
 .264

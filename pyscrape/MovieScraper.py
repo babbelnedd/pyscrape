@@ -92,7 +92,7 @@ class MovieScraper(object):
     def get_movie(self, root, path):
         def get_movie_files(path):
             return [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))
-            and (os.path.splitext(f)[1] in utils.get_extensions())]
+            and (os.path.splitext(f)[1] in utils.get_movie_extensions())]
 
         movie = Movie()
         dir = path
@@ -453,7 +453,7 @@ class MovieScraper(object):
         for item in os.listdir(movie.path):
             item = os.path.join(movie.path, item)
             ext = os.path.splitext(item)[1].lower()
-            if ext in utils.get_extensions():
+            if ext in utils.get_all_extensions():
                 continue
             elif os.path.isfile(item):
                 logger.log('Delete ' + item, LogLevel.Debug)
@@ -462,7 +462,7 @@ class MovieScraper(object):
                 deletable = True
                 for d in os.listdir(item):     # Prüfe ob der Ordner keine .mkv datei enthält
                     ext = os.path.splitext(d)[1].lower()
-                    if ext in utils.get_extensions():
+                    if ext in utils.get_all_extensions():
                         deletable = False
                     else:
                         file = os.path.join(item, d)

@@ -108,11 +108,25 @@ def get_root():
     return os.path.dirname(os.path.realpath(__file__))
 
 
-def get_extensions():
+def get_movie_extensions():
     import os
 
     result = []
     for extension in [f for f in open(os.path.join(get_root(), 'system', 'extensions')).readlines() if
-                      f.startswith('.')]:
-        result.append(extension.lower().encode('utf8').replace('\n', ''))
+                      f.startswith('.') and not f.startswith('..')]:
+        result.append(extension.lower().replace('\n', ''))
+    return result
+
+
+def get_all_extensions():
+    return (get_movie_extensions() + get_other_extensions())
+
+
+def get_other_extensions():
+    import os
+
+    result = []
+    for extension in [f for f in open(os.path.join(get_root(), 'system', 'extensions')).readlines() if
+                      f.startswith('..')]:
+        result.append(extension[1:].lower().replace('\n', ''))
     return result
