@@ -1,10 +1,18 @@
+import utils
+import os
+import sys
+from ConfigParser import ConfigParser
+
+
 class Config(object):
     def __init__(self):
-        import utils
-        import os
-        from ConfigParser import ConfigParser
-
         file = os.path.join(utils.get_root(), 'system', 'pyscrape.cfg')
+        if not os.path.exists(file):
+            from TerminalColor import print_colored, Foreground
+            print_colored('Config file not found', Foreground.Red)
+            print_colored('See instructions: http://bit.ly/1g97yqR', Foreground.Red)
+            sys.exit(-1)
+
         cfg = ConfigParser()
         cfg.read(file)
         self.pyscrape = PyscrapeConfig(cfg)
@@ -44,6 +52,7 @@ class FanartConfig(object):
         self.api_key = cfg.get('fanarttv', 'api_key')
         self.image_base = cfg.get('fanarttv', 'image_base')
         self.url_base = cfg.get('fanarttv', 'url_base')
+
 
 class CodecConfig(object):
     def __init__(self, cfg):
