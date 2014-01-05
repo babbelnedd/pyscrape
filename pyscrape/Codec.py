@@ -4,13 +4,14 @@ import subprocess
 import os
 import ConfigParser
 import sys
-from Logger import LogLevel
+from Logger import Logger,LogLevel
+from Config import Config
 
 
 class Codec(object):
-    def __init__(self, logger, config, movie):
-        self.logger = logger
-        self.config = config
+    def __init__(self, movie):
+        self.logger = Logger()
+        self.config = Config()
         self.movie = movie
 
         fileName, fileExtension = os.path.splitext(movie.file)

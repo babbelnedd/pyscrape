@@ -29,13 +29,14 @@ image_base_url = 'http://image.tmdb.org/t/p/w1920'
 
 
 class MovieScraper(object):
-    def __init__(self, path, single=False, refresh=False, force=False):
+    def __init__(self, path, single=False, refresh=False, force=False, nfo_only=False):
         self.refresh = refresh
         self.tmdb = TmdbApi()
         self.fanart = FanartTvApi()
         self.codec = None
         self.config = config
         self.force = force
+        self.nfo_only = nfo_only
 
         def scrape_movies(movies):
             total_elapsed = 0
@@ -51,13 +52,20 @@ class MovieScraper(object):
                     if not os.path.isfile(os.path.join(m.path, m.file)):
                         logger.log('Skip - No file found', LogLevel.Warning)
                         continue
+
                 start = time.time()
+
                 if not self.refresh:
                     self.cleanup_dir(m)
-                self.codec = Codec(logger, config, m)
-                self.codec.delete_audio_tracks()
-                movie = self.get_metadata(m)
-                self.download_images(movie)
+
+                self.codec = Codec(m)
+
+                if self.nfo_only:
+                    self.get_metadata(m)
+                else:
+                    self.codec.delete_audio_tracks()
+                    movie = self.get_metadata(m)
+                    self.download_images(movie)
                 end = time.time()
                 elapsed = end - start
                 total_elapsed += elapsed
@@ -462,14 +470,16 @@ def main(arguments):
                 continue
             if config.pyscrape.rename:
                 utils.rename_subfolder(path)
-            MovieScraper(path, single=False, refresh=parameter['refresh'], force=parameter['force'])
+            MovieScraper(path, single=False, refresh=parameter['refresh'], force=parameter['force'],
+                         nfo_only=parameter['nfo_only'])
 
     def scrape_single_path(path):
         if os.path.isdir(path):
             if config.pyscrape.rename:
                 path = utils.rename_dir(path)
                 utils.rename_files(path)
-            MovieScraper(path, single=True, refresh=parameter['refresh'], force=parameter['force'])
+            MovieScraper(path, single=True, refresh=parameter['refresh'], force=parameter['force'],
+                         nfo_only=parameter['nfo_only'])
         else:
             logger.log('Path not found!', LogLevel.Error)
             sys.exit()
@@ -477,19 +487,21 @@ def main(arguments):
     def get_parameter(arguments):
         try:
             opts, args = getopt.getopt(arguments, "p:r:u:f",
-                                       ["path=", "refresh", "update-xbmc", "force"])
+                                       ["path=", "refresh", "update-xbmc", "force", "nfo-only"])
         except getopt.GetoptError:
             logger.log('Wrong arguments', LogLevel.Error)
             print '-p --path             paths (seperated by "::")'
             print '-r --refresh          Do not delete existing files'
             print '-u --update-xbmc      Clean/Update XBMC'
             print '-f --force            Do not skip even if no movie file was found'
+            print '   --nfo-only         Only creates a .nfo file'
             sys.exit(2)
 
         single_path = ''
         refresh = False
         update = False
         force = False
+        nfo_only = False
 
         for opt, arg in opts:
             if opt in ("-p", "--path"):
@@ -505,8 +517,10 @@ def main(arguments):
                 update = True
             elif opt in ("-f", "--force"):
                 force = True
+            elif opt in "--nfo-only":
+                nfo_only = True
 
-        return {'single_path': single_path, 'refresh': refresh, 'update': update, 'force': force}
+        return {'single_path': single_path, 'refresh': refresh, 'update': update, 'force': force, 'nfo_only': nfo_only}
 
     parameter = get_parameter(arguments)
 
