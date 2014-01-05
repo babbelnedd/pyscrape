@@ -130,7 +130,7 @@ class MovieScraper(object):
         def get_basic_metadata(movie):
             logger.log('Get basic informations')
             result = self.tmdb.search_title(title=movie.search_title, year=movie.search_year,
-                                            lang=self.config.pyscrape.language, imdbID =movie.imdbID)
+                                            lang=self.config.pyscrape.language, imdbID=movie.imdbID)
             #results = result['results']
             if result == []:
                 logger.log('No Results', LogLevel.Warning)
@@ -544,8 +544,29 @@ def main(arguments):
         xbmc.full_scan()
 
 
+def requirements_satisfied():
+    if not __name__ == '__main__':
+        logger.log('Do not import me', LogLevel.Error)
+        sys.exit()
+
+    result = True
+    if config.fanart.api_key == '':
+        logger.log('FanarTV Api Key is missing', LogLevel.Error)
+        result = False
+    if config.tmdb.api_key == '':
+        logger.log('TMDB Api Key is missing', LogLevel.Error)
+        result = False
+    if config.codec.mediainfo_path == '':
+        logger.log('Mediainfo is not set', LogLevel.Warning)
+    if config.codec.mkvmerge == '':
+        logger.log('MkvMerge is not set', LogLevel.Warning)
+
+    return result
+
+
 try:
-    main(sys.argv[1:])
+    if requirements_satisfied():
+        main(sys.argv[1:])
 except Exception, e:
     logger.log('oops something went wrong :/', LogLevel.Error)
     logger.log('sys.argv:', LogLevel.Error)
