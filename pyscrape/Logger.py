@@ -12,7 +12,7 @@ from termcolor import colored
 class Logger(object):
     def __init__(self):
         self.path = os.path.join(utils.get_root(), 'logs')
-        self.logfile = os.path.join(self.path, 'pyscrape.cfg')
+        self.logfile = os.path.join(self.path, 'pyscrape.log')
         self.errorfile = os.path.join(self.path, 'error.log')
         self.__cfg = Config()
 
