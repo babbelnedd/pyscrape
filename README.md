@@ -14,20 +14,29 @@ PyScrape is a cross platform aaplication that collects information and media art
   
   
 
-##RESTRICTION
-A movie have to be in a folder  
-Folder layout: Name (Year); example: Ice Age (2001)  
+##RESTRICTION / FOLDER NAME
+A movie file **have to be** in a folder  
+The name of the folder has some conditions that must be met  
+Name (Year) (imdbID); example: Ice Age (2001) (tt0268380)  
+The order of year and imdb id do not matter  
+Neither year nor imdb id are necessary  
+**But it is highly recommend to use one of both** (id is better than year)  
+  
+The name of the movie file do not matter  
+Files with extensions from [this](https://github.com/SchadLucas/pyscrape/blob/master/pyscrape/system/extensions "this") list won't be deleted - other files **will be deleted** (unless you specify the --refresh parameter)  
+You can add extensions - it is important that you start movie extensions with *one* dot and extensions from other files with *two* dots  
+
 
 
 
 ##USAGE
 **Scrape a single movie**  
-python MovieScraper.py -p "c:\movies\Ice Age (2001)"  
-python MovieScraper.py -p "/media/movies/Ice Age (2001)"  
+python MovieScraper.py -p "c:\movies\Ice Age (2002)"  
+python MovieScraper.py -p "/media/movies/Ice Age (2002)"  
   
 **Scrape all movies of a folder**
 Set the path(s) of your movies in *pyscrape.cfg*  
-python MovieScraper.py  
+python MovieScraper.py  [--r, --u, --f, --nfo-only]
 
 
 ##CLI
