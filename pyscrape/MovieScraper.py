@@ -35,7 +35,7 @@ class MovieScraper(object):
         self.codec = None
         self.config = config
 
-        def scrapeMovies(movies):
+        def scrape_movies(movies):
             total_elapsed = 0
             progressed = 0
             count_movies = len(movies)
@@ -70,10 +70,14 @@ class MovieScraper(object):
         else:
             movies = self.get_movies(path)
 
-        scrapeMovies(movies)
+        scrape_movies(movies)
         logger.log('Scraping done - have fun')
 
     def get_movie(self, root, path):
+        def get_movie_files(path):
+            return [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))
+            and (os.path.splitext(f)[1] in utils.get_extensions())]
+
         movie = Movie()
         dir = path
         movie.path = path
@@ -87,15 +91,18 @@ class MovieScraper(object):
         movie.search_title = title
         movie.search_alternative_title = utils.replace(movie.search_title)
         movie.path = os.path.join(root, dir)
-        files = [f for f in os.listdir(movie.path) if
-                 os.path.isfile(os.path.join(movie.path, f)) and (f.endswith('.mkv') or f.endswith('.avi'))]
-        if len(files) > 0:
-            if 'new.mkv' in files and len(files) > 1:
-                os.remove(os.path.join(movie.path, 'new.mkv'))
-            if len(files) < 2 and len(files) > 0:
-                files = [f for f in os.listdir(movie.path) if
-                         os.path.isfile(os.path.join(movie.path, f)) and (f.endswith('.mkv') or f.endswith('.avi'))]
-                movie.file = files[0]
+
+
+        files = get_movie_files(movie.path)
+        if len(files) < 1:
+            return movie
+
+        if 'new.mkv' in files and len(files) > 1:
+            os.remove(os.path.join(movie.path, 'new.mkv'))
+            files = get_movie_files(movie.path)
+
+        if len(files) < 2 and len(files) > 0:
+            movie.file = files[0]
         return movie
 
     def get_movies(self, path):
@@ -493,6 +500,7 @@ def main(arguments):
         print '-p --path             paths (seperated by "::")'
         print '-r --refresh          Do not delete existing files'
         print '-u --update-xbmc      Clean/Update XBMC'
+        print '-i --ignore-files     Do not skip if there is no movie file'
         sys.exit(2)
 
     single_path = ''
@@ -524,20 +532,14 @@ def main(arguments):
 
     if single_path == '':
         for path in config.movie.paths:
-            if os.path.exists(path) and os.path.isdir(path):
-                for dir in os.listdir(path):
-                    if not os.path.isdir(path):
-                        continue
-                    if config.pyscrape.rename:
-                        path = utils.rename_dir(path)
-                        utils.rename_files(path)
-                    print path
-                    MovieScraper(path, single=False, refresh=refresh)
-            else:
-                logger.log(path + ' not found', LogLevel.Warning)
+            if not os.path.isdir(path):
+                continue
+            if config.pyscrape.rename:
+                utils.rename_subfolder(path)
+            MovieScraper(path, single=False, refresh=refresh)
+
     if update:
         update_xbmc()
-
 
 
 try:
