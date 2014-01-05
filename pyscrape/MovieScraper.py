@@ -28,12 +28,13 @@ image_base_url = 'http://image.tmdb.org/t/p/w1920'
 
 
 class MovieScraper(object):
-    def __init__(self, path, single=False, refresh=False):
+    def __init__(self, path, single=False, refresh=False, force=False):
         self.refresh = refresh
         self.tmdb = TmdbApi()
         self.fanart = FanartTvApi()
         self.codec = None
         self.config = config
+        self.force = force
 
         def scrape_movies(movies):
             total_elapsed = 0
@@ -45,9 +46,10 @@ class MovieScraper(object):
                 logger.whiteline()
                 logger.log(m.path)
                 logger.log('====================================')
-                if not os.path.isfile(os.path.join(m.path, m.file)):
-                    logger.log('Skip - No file found', LogLevel.Warning)
-                    continue
+                if not self.force:
+                    if not os.path.isfile(os.path.join(m.path, m.file)):
+                        logger.log('Skip - No file found', LogLevel.Warning)
+                        continue
                 start = time.time()
                 if not self.refresh:
                     self.cleanup_dir(m)
@@ -91,7 +93,6 @@ class MovieScraper(object):
         movie.search_title = title
         movie.search_alternative_title = utils.replace(movie.search_title)
         movie.path = os.path.join(root, dir)
-
 
         files = get_movie_files(movie.path)
         if len(files) < 1:
@@ -493,19 +494,20 @@ def update_xbmc():
 
 def main(arguments):
     try:
-        opts, args = getopt.getopt(arguments, "p:r:u",
-                                   ["path=", "refresh", "update-xbmc"])
+        opts, args = getopt.getopt(arguments, "p:r:u:f",
+                                   ["path=", "refresh", "update-xbmc", "force"])
     except getopt.GetoptError:
         logger.log('Wrong arguments', LogLevel.Error)
         print '-p --path             paths (seperated by "::")'
         print '-r --refresh          Do not delete existing files'
         print '-u --update-xbmc      Clean/Update XBMC'
-        print '-i --ignore-files     Do not skip if there is no movie file'
+        print '-f --force            Do not skip even if no movie file was found'
         sys.exit(2)
 
     single_path = ''
     refresh = False
     update = False
+    ignore_existing_files = False
 
     for opt, arg in opts:
         if opt in ("-p", "--path"):
@@ -519,13 +521,15 @@ def main(arguments):
             refresh = True
         elif opt in ("-u", "--update-xbmc"):
             update = True
+        elif opt in ("-f", "--force"):
+            force = True
 
     if single_path != '':
         if os.path.isdir(single_path):
             if config.pyscrape.rename:
                 single_path = utils.rename_dir(single_path)
                 utils.rename_files(single_path)
-            MovieScraper(single_path, single=True, refresh=refresh)
+            MovieScraper(single_path, single=True, refresh=refresh, force=force)
         else:
             logger.log('Path not found!', LogLevel.Error)
             sys.exit()
@@ -536,7 +540,7 @@ def main(arguments):
                 continue
             if config.pyscrape.rename:
                 utils.rename_subfolder(path)
-            MovieScraper(path, single=False, refresh=refresh)
+            MovieScraper(path, single=False, refresh=refresh, force=force)
 
     if update:
         update_xbmc()

@@ -31,6 +31,7 @@ python MovieScraper.py
 
 
 ##CLI
-**-p** Ignore Path from config and scrape a single movie dir  
-**--r** Don't delete exisiting files, refresh NFO and download *new* images  
-**--u** Clean and update XBMC library  
+**-p path** Ignore 'paths' from config and scrape a single movie dir
+**--r** Don't delete existing files, refresh NFO and download *new* images
+**--u** Clean and update XBMC library
+**--f** Forces to scrape a folder - even is there no movie file
