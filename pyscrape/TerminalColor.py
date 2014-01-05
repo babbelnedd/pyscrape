@@ -1,7 +1,12 @@
+# Credits
+# Konstantin Lepa   <konstantin.lepa@gmail.com>   Termcolor 1.1.0     http://bit.ly/1dCtM52       (MIT LICENSE)
+# Andre Burgaud                                                       http://bit.ly/1iEUduA       (MIT LICENSE)
+
 import sys
 
+#region Windows
+
 if 'win' in sys.platform:
-    #http://www.burgaud.com/bring-colors-to-the-windows-console-with-python/
     from ctypes import windll, Structure, c_short, c_ushort, byref
 
     SHORT = c_short
@@ -9,29 +14,16 @@ if 'win' in sys.platform:
 
 
     class COORD(Structure):
-        """struct in wincon.h."""
-        _fields_ = [
-            ("X", SHORT),
-            ("Y", SHORT)]
+        _fields_ = [("X", SHORT), ("Y", SHORT)]
 
 
     class SMALL_RECT(Structure):
-        """struct in wincon.h."""
-        _fields_ = [
-            ("Left", SHORT),
-            ("Top", SHORT),
-            ("Right", SHORT),
-            ("Bottom", SHORT)]
+        _fields_ = [("Left", SHORT), ("Top", SHORT), ("Right", SHORT), ("Bottom", SHORT)]
 
 
     class CONSOLE_SCREEN_BUFFER_INFO(Structure):
-        """struct in wincon.h."""
-        _fields_ = [
-            ("dwSize", COORD),
-            ("dwCursorPosition", COORD),
-            ("wAttributes", WORD),
-            ("srWindow", SMALL_RECT),
-            ("dwMaximumWindowSize", COORD)]
+        _fields_ = [("dwSize", COORD), ("dwCursorPosition", COORD), ("wAttributes", WORD),
+                    ("srWindow", SMALL_RECT), ("dwMaximumWindowSize", COORD)]
 
     # winbase.h
     STD_INPUT_HANDLE = -10
@@ -62,18 +54,18 @@ if 'win' in sys.platform:
     stdout_handle = windll.kernel32.GetStdHandle(STD_OUTPUT_HANDLE)
     SetConsoleTextAttribute = windll.kernel32.SetConsoleTextAttribute
     GetConsoleScreenBufferInfo = windll.kernel32.GetConsoleScreenBufferInfo
-elif 'linux' in sys.platform:
-    from termcolor import colored
 
 
-def get_text_attr():
-    csbi = CONSOLE_SCREEN_BUFFER_INFO()
-    GetConsoleScreenBufferInfo(stdout_handle, byref(csbi))
-    return csbi.wAttributes
+    def get_text_attr():
+        csbi = CONSOLE_SCREEN_BUFFER_INFO()
+        GetConsoleScreenBufferInfo(stdout_handle, byref(csbi))
+        return csbi.wAttributes
 
 
-def set_text_attr(color):
-    SetConsoleTextAttribute(stdout_handle, color)
+    def set_text_attr(color):
+        SetConsoleTextAttribute(stdout_handle, color)
+
+#endregion
 
 
 class Foreground(object):
@@ -96,14 +88,41 @@ class Foreground(object):
 
 
 def print_colored(msg, foreground):
+    def _print_colored_nix(text, color=None, on_color=None, attrs=None):
+        ATTRIBUTES = dict(
+            list(zip(['bold', 'dark', '', 'underline', 'blink', '', 'reverse', 'concealed'], list(range(1, 9)))))
+        del ATTRIBUTES['']
+        HIGHLIGHTS = dict(list(
+            zip(['on_grey', 'on_red', 'on_green', 'on_yellow', 'on_blue', 'on_magenta', 'on_cyan', 'on_white'],
+                list(range(40, 48)))))
+        COLORS = dict(
+            list(zip(['grey', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white', ], list(range(30, 38)))))
+        RESET = '\033[0m'
+
+        import os
+
+        if os.getenv('ANSI_COLORS_DISABLED') is None:
+            fmt_str = '\033[%dm%s'
+            if color is not None:
+                text = fmt_str % (COLORS[color], text)
+
+            if on_color is not None:
+                text = fmt_str % (HIGHLIGHTS[on_color], text)
+
+            if attrs is not None:
+                for attr in attrs:
+                    text = fmt_str % (ATTRIBUTES[attr], text)
+
+            text += RESET
+        print(text)
+
     if 'linux' in sys.platform:
-        print colored(msg, foreground)
+        _print_colored_nix(msg, foreground)
     elif 'win' in sys.platform:
         default_colors = get_text_attr()
 
         set_text_attr(foreground | default_colors & 0x0070)
-        print msg
+        print(msg)
         set_text_attr(default_colors)
     else:
-        print msg
-
+        print(msg)
