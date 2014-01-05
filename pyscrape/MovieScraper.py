@@ -5,16 +5,17 @@ import re
 import shutil
 import time
 import operator
-import urllib
 import utils
 import getopt
 import traceback
+from Xbmc import Xbmc
 from TmdbApi import TmdbApi
 from FanartTvApi import FanartTvApi
 from Movie import Movie
 from Logger import Logger, LogLevel
 from Config import Config
 from Codec import Codec
+from Downloader import Downloader
 
 try:
     import simplejson as json
@@ -56,6 +57,7 @@ class MovieScraper(object):
                 self.codec = Codec(logger, config, m)
                 self.codec.delete_audio_tracks()
                 movie = self.get_metadata(m)
+                self.download_images(movie)
                 end = time.time()
                 elapsed = end - start
                 total_elapsed += elapsed
@@ -128,7 +130,6 @@ class MovieScraper(object):
             logger.log(str(len(results)) + ' Result(s) found')
             if len(results) > 1:
                 logger.log('MORE THAN ONE RESULT FOUND - PLEASE CHECK THE RETRIEVED DATA!', LogLevel.Warning)
-                logger.log(movie.path, 'WARNING')
 
             for r in results:
                 if movie.title != '':    # if the title occurs more than once, take the one with the highest popularity
@@ -193,7 +194,6 @@ class MovieScraper(object):
         movie.audio_xml = self.codec.get_audio_xml()
         movie.video_xml = self.codec.get_video_xml()
         self.create_nfo(movie)
-        self.download_images(movie)
         return movie
 
     def create_nfo(self, movie):
@@ -245,36 +245,6 @@ class MovieScraper(object):
         file(f, 'w').write(xml.encode("utf8"))
 
     def download_images(self, movie, rights='777'):
-        def try_download(src, dst):
-            if os.path.exists(dst):
-                logger.log('File exists already - skip', LogLevel.Debug)
-                return
-            tryAgain = True
-            count = 0
-            while tryAgain:
-                try:
-                    urllib.urlretrieve(src, dst)
-                    tryAgain = False
-                except Exception, e:
-                    logger.log(dst + " could not be downloaded", LogLevel.Error)
-                    logger.log(e.message, 'ERROR')
-                    if count < 10:
-                        logger.log('Wait 10 Seconds and try it again', LogLevel.Error)
-                        time.sleep(10)
-                    else:
-                        tryAgain = False
-                finally:
-                    count += 1
-
-        def download(src, dst):
-            start = time.time()
-            try_download(src, dst)
-            elapsed = time.time() - start
-            kbps = '[%.2f kbps]' % ((os.path.getsize(dst) / 1024) / elapsed)
-            elapsed = '[%.2f s]' % elapsed
-            msg = src + ' {0} {1}'.format(kbps, elapsed)
-            logger.log('Downloaded: ' + msg, LogLevel.Debug)
-
         def download_backdrops():
             logger.log('Download Backdrops')
             path = movie.path
@@ -292,11 +262,11 @@ class MovieScraper(object):
 
                 url = backdrop[0]
                 if n == 0:
-                    dst = '{0}/fanart.jpg'.format(path)
+                    dst = os.path.join(path, 'fanart.jpg')
                 else:
-                    dst = '{0}/{1}'.format(path, os.path.basename(backdrop[0]))
+                    dst = os.path.join(path, os.path.basename(backdrop[0]))
 
-                download(url, dst)
+                downloader.download(url, dst)
                 n += 1
 
         def download_posters():
@@ -312,8 +282,8 @@ class MovieScraper(object):
                     number = n
                 else:
                     number = ''
-                dst = '{0}/poster{1}.jpg'.format(path, number)
-                download(url, dst)
+                dst = os.path.join(path, 'poster{0}.jpg'.format(number))
+                downloader.download(url, dst)
                 n += 1
 
         def download_fanart():
@@ -329,23 +299,23 @@ class MovieScraper(object):
                     for fa in get_fanart('hdmovielogo'):
                         if fa['lang'] == self.config.pyscrape.language:
                             dst = os.path.join(movie.path, 'logo.png')
-                            download(fa['url'], dst)
+                            downloader.download(fa['url'], dst)
                             return
                     for fa in get_fanart('hdmovielogo'):
                         if fa['lang'] == self.config.pyscrape.fallback_language:
                             dst = os.path.join(movie.path, 'logo.png')
-                            download(fa['url'], dst)
+                            downloader.download(fa['url'], dst)
                             return
                 elif len(get_fanart('movielogo')) > 0:
                     for fa in get_fanart('movielogo'):
                         if fa['lang'] == self.config.pyscrape.language:
                             dst = os.path.join(movie.path, 'logo.png')
-                            download(fa['url'], dst)
+                            downloader.download(fa['url'], dst)
                             return
                     for fa in get_fanart('movielogo'):
                         if fa['lang'] == self.config.pyscrape.fallback_language:
                             dst = os.path.join(movie.path, 'logo.png')
-                            download(fa['url'], dst)
+                            downloader.download(fa['url'], dst)
                             return
 
             def download_banner():
@@ -359,7 +329,7 @@ class MovieScraper(object):
                         banner = sorted(banner.iteritems(), key=operator.itemgetter(1), reverse=True)
                         dst = os.path.join(movie.path, 'banner.jpg')
                         for b in banner:
-                            download(b[0], dst)
+                            downloader.download(b[0], dst)
                             break                               # nur einen banner laden
 
             def download_thumbs():
@@ -394,7 +364,7 @@ class MovieScraper(object):
                             name = 'thumb{0}.jpg'.format(str(int(n - 3)))
 
                         dst = os.path.join(path, name)
-                        download(url, dst)
+                        downloader.download(url, dst)
 
             def download_disc():
                 logger.log('Download Disc Art', LogLevel.Debug)
@@ -413,7 +383,7 @@ class MovieScraper(object):
                     for disc in discs:
                         url = disc[0]
                         dst = os.path.join(movie.path, 'disc.png')
-                        download(url, dst)
+                        downloader.download(url, dst)
                         break
 
             def download_clearart():
@@ -438,7 +408,7 @@ class MovieScraper(object):
                 clearart = sorted(clearart.iteritems(), key=operator.itemgetter(1), reverse=True)
                 for art in clearart:
                     dst = os.path.join(movie.path, 'clearart.png')
-                    download(art[0], dst)
+                    downloader.download(art[0], dst)
                     break
 
             fanart = self.fanart.get_all(movie.imdbID)
@@ -455,6 +425,7 @@ class MovieScraper(object):
             download_disc()
             download_clearart()
 
+        downloader = Downloader(refresh=self.refresh)
         download_backdrops()
         download_posters()
         download_fanart()
@@ -475,75 +446,78 @@ class MovieScraper(object):
                     ext = os.path.splitext(d)[1].lower()
                     if ext in utils.get_extensions():
                         deletable = False
+                    else:
+                        file = os.path.join(item, d)
+                        logger.log('Delete ' + file, LogLevel.Debug)
+                        os.remove(file)
                 if deletable:
+                    logger.log('Delete ' + item, LogLevel.Debug)
                     shutil.rmtree(item)
 
 
-def update_xbmc():
-    logger.log('Clean XBMC database')
-    xbmc = config.xbmc
-    url_base = '{0}://{1}:{2}@{3}:{4}'.format(xbmc.protocol, xbmc.user, xbmc.password, xbmc.ip, xbmc.port)
-    url = url_base + '/jsonrpc?request={"jsonrpc":"2.0","method":"VideoLibrary.Clean"}'
-    urllib.urlretrieve(url)
-    time.sleep(120)
-
-    logger.log('Update XBMC database')
-    url = url_base + '/jsonrpc?request={"jsonrpc":"2.0","method":"VideoLibrary.Scan"}'
-    urllib.urlretrieve(url)
-
-
 def main(arguments):
-    try:
-        opts, args = getopt.getopt(arguments, "p:r:u:f",
-                                   ["path=", "refresh", "update-xbmc", "force"])
-    except getopt.GetoptError:
-        logger.log('Wrong arguments', LogLevel.Error)
-        print '-p --path             paths (seperated by "::")'
-        print '-r --refresh          Do not delete existing files'
-        print '-u --update-xbmc      Clean/Update XBMC'
-        print '-f --force            Do not skip even if no movie file was found'
-        sys.exit(2)
-
-    single_path = ''
-    refresh = False
-    update = False
-    ignore_existing_files = False
-
-    for opt, arg in opts:
-        if opt in ("-p", "--path"):
-            path = arg
-            try:
-                path = unicode(arg).encode('utf-8')
-            except:
-                pass
-            single_path = path
-        elif opt in ("-r", "--refresh"):
-            refresh = True
-        elif opt in ("-u", "--update-xbmc"):
-            update = True
-        elif opt in ("-f", "--force"):
-            force = True
-
-    if single_path != '':
-        if os.path.isdir(single_path):
-            if config.pyscrape.rename:
-                single_path = utils.rename_dir(single_path)
-                utils.rename_files(single_path)
-            MovieScraper(single_path, single=True, refresh=refresh, force=force)
-        else:
-            logger.log('Path not found!', LogLevel.Error)
-            sys.exit()
-
-    if single_path == '':
+    def scrape_from_config(parameter):
         for path in config.movie.paths:
             if not os.path.isdir(path):
                 continue
             if config.pyscrape.rename:
                 utils.rename_subfolder(path)
-            MovieScraper(path, single=False, refresh=refresh, force=force)
+            MovieScraper(path, single=False, refresh=parameter['refresh'], force=parameter['force'])
 
-    if update:
-        update_xbmc()
+    def scrape_single_path(path):
+        if os.path.isdir(path):
+            if config.pyscrape.rename:
+                path = utils.rename_dir(path)
+                utils.rename_files(path)
+            MovieScraper(path, single=True, refresh=parameter['refresh'], force=parameter['force'])
+        else:
+            logger.log('Path not found!', LogLevel.Error)
+            sys.exit()
+
+    def get_parameter(arguments):
+        try:
+            opts, args = getopt.getopt(arguments, "p:r:u:f",
+                                       ["path=", "refresh", "update-xbmc", "force"])
+        except getopt.GetoptError:
+            logger.log('Wrong arguments', LogLevel.Error)
+            print '-p --path             paths (seperated by "::")'
+            print '-r --refresh          Do not delete existing files'
+            print '-u --update-xbmc      Clean/Update XBMC'
+            print '-f --force            Do not skip even if no movie file was found'
+            sys.exit(2)
+
+        single_path = ''
+        refresh = False
+        update = False
+        force = False
+
+        for opt, arg in opts:
+            if opt in ("-p", "--path"):
+                path = arg
+                try:
+                    path = unicode(arg).encode('utf-8')
+                except:
+                    pass
+                single_path = path
+            elif opt in ("-r", "--refresh"):
+                refresh = True
+            elif opt in ("-u", "--update-xbmc"):
+                update = True
+            elif opt in ("-f", "--force"):
+                force = True
+
+        return {'single_path': single_path, 'refresh': refresh, 'update': update, 'force': force}
+
+    parameter = get_parameter(arguments)
+
+    if parameter['single_path'] != '':
+        scrape_single_path(parameter['single_path'])
+    else:
+        scrape_from_config(parameter)
+
+    if parameter['update']:
+        xbmc = Xbmc()
+        xbmc.full_scan()
 
 
 try:
