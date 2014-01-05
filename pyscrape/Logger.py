@@ -4,9 +4,7 @@ import urllib
 import datetime
 import os
 import utils
-import sys
 from Config import Config
-from termcolor import colored
 
 
 class Logger(object):
@@ -69,19 +67,18 @@ class Logger(object):
             logFile.write('\n')
 
     def _print(self, msg, level):
-        if 'linux' in sys.platform:
-            if level == LogLevel.Debug:
-                print colored(msg, 'white')
-            elif level == LogLevel.Info:
-                print colored(msg, 'green')
-            elif level == LogLevel.Warning:
-                print colored(msg, 'yellow')
-            elif level == LogLevel.Error:
-                print colored(msg, 'red')
-            else:
-                print colored(msg, 'cyan')
+        from TerminalColor import print_colored as print_colored, Foreground
+        if level == LogLevel.Debug:
+            print_colored(msg, Foreground.White)
+        elif level == LogLevel.Info:
+            print_colored(msg, Foreground.Green)
+        elif level == LogLevel.Warning:
+            print_colored(msg, Foreground.Yellow)
+        elif level == LogLevel.Error:
+            print_colored(msg, Foreground.Red)
         else:
-            print msg
+            print_colored(msg, Foreground.Cyan)
+
 
 
 class LogLevel(object):
