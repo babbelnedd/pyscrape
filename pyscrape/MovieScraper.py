@@ -18,16 +18,6 @@ from Config import Config
 from Codec import Codec
 from Downloader import Downloader
 
-try:
-    import simplejson as json
-except:
-    import json
-
-config = Config()
-logger = Logger()
-logger.init()
-image_base_url = 'http://image.tmdb.org/t/p/w1920'
-
 
 class MovieScraper(object):
     def __init__(self, path, single=False, refresh=False, force=False, nfo_only=False):
@@ -473,103 +463,110 @@ class MovieScraper(object):
                     shutil.rmtree(item)
 
 
-def main(arguments):
-    def scrape_from_config(parameter):
-        for path in config.movie.paths:
-            if not os.path.isdir(path):
-                continue
-            if config.pyscrape.rename:
-                utils.rename_subfolder(path)
-            MovieScraper(path, single=False, refresh=parameter['refresh'], force=parameter['force'],
-                         nfo_only=parameter['nfo_only'])
-
-    def scrape_single_path(path):
-        if os.path.isdir(path):
-            if config.pyscrape.rename:
-                path = utils.rename_dir(path)
-                utils.rename_files(path)
-            MovieScraper(path, single=True, refresh=parameter['refresh'], force=parameter['force'],
-                         nfo_only=parameter['nfo_only'])
-        else:
-            logger.log('Path not found!', LogLevel.Error)
+def start():
+    def requirements_satisfied():
+        if not __name__ == '__main__':
+            logger.log('Do not import me', LogLevel.Error)
             sys.exit()
 
-    def get_parameter(arguments):
-        try:
-            opts, args = getopt.getopt(arguments, "p:r:u:f",
-                                       ["path=", "refresh", "update-xbmc", "force", "nfo-only"])
-        except getopt.GetoptError:
-            logger.log('Wrong arguments', LogLevel.Error)
-            print '-p --path             paths (seperated by "::")'
-            print '-r --refresh          Do not delete existing files'
-            print '-u --update-xbmc      Clean/Update XBMC'
-            print '-f --force            Do not skip even if no movie file was found'
-            print '   --nfo-only         Only creates a .nfo file'
-            sys.exit(2)
+        result = True
+        if config.fanart.api_key == '':
+            logger.log('FanarTV Api Key is missing', LogLevel.Error)
+            result = False
+        if config.tmdb.api_key == '':
+            logger.log('TMDB Api Key is missing', LogLevel.Error)
+            result = False
+        if config.codec.mediainfo_path == '':
+            logger.log('Mediainfo is not set', LogLevel.Warning)
+        if config.codec.mkvmerge == '':
+            logger.log('MkvMerge is not set', LogLevel.Warning)
 
-        single_path = ''
-        refresh = False
-        update = False
-        force = False
-        nfo_only = False
+        return result
 
-        for opt, arg in opts:
-            if opt in ("-p", "--path"):
-                path = arg
-                try:
-                    path = unicode(arg).encode('utf-8')
-                except:
-                    pass
-                single_path = path
-            elif opt in ("-r", "--refresh"):
-                refresh = True
-            elif opt in ("-u", "--update-xbmc"):
-                update = True
-            elif opt in ("-f", "--force"):
-                force = True
-            elif opt in "--nfo-only":
-                nfo_only = True
+    def main(arguments):
+        def scrape_from_config(parameter):
+            for path in config.movie.paths:
+                if not os.path.isdir(path):
+                    continue
+                if config.pyscrape.rename:
+                    utils.rename_subfolder(path)
+                MovieScraper(path, single=False, refresh=parameter['refresh'], force=parameter['force'],
+                             nfo_only=parameter['nfo_only'])
 
-        return {'single_path': single_path, 'refresh': refresh, 'update': update, 'force': force, 'nfo_only': nfo_only}
+        def scrape_single_path(path):
+            if os.path.isdir(path):
+                if config.pyscrape.rename:
+                    path = utils.rename_dir(path)
+                    utils.rename_files(path)
+                MovieScraper(path, single=True, refresh=parameter['refresh'], force=parameter['force'],
+                             nfo_only=parameter['nfo_only'])
+            else:
+                logger.log('Path not found!', LogLevel.Error)
+                sys.exit()
 
-    parameter = get_parameter(arguments)
+        def get_parameter(arguments):
+            try:
+                opts, args = getopt.getopt(arguments, "p:r:u:f",
+                                           ["path=", "refresh", "update-xbmc", "force", "nfo-only"])
+            except getopt.GetoptError:
+                logger.log('Wrong arguments', LogLevel.Error)
+                print '-p --path             paths (seperated by "::")'
+                print '-r --refresh          Do not delete existing files'
+                print '-u --update-xbmc      Clean/Update XBMC'
+                print '-f --force            Do not skip even if no movie file was found'
+                print '   --nfo-only         Only creates a .nfo file'
+                sys.exit(2)
 
-    if parameter['single_path'] != '':
-        scrape_single_path(parameter['single_path'])
-    else:
-        scrape_from_config(parameter)
+            single_path = ''
+            refresh = False
+            update = False
+            force = False
+            nfo_only = False
 
-    if parameter['update']:
-        xbmc = Xbmc()
-        xbmc.full_scan()
+            for opt, arg in opts:
+                if opt in ("-p", "--path"):
+                    path = arg
+                    try:
+                        path = unicode(arg).encode('utf-8')
+                    except:
+                        pass
+                    single_path = path
+                elif opt in ("-r", "--refresh"):
+                    refresh = True
+                elif opt in ("-u", "--update-xbmc"):
+                    update = True
+                elif opt in ("-f", "--force"):
+                    force = True
+                elif opt in "--nfo-only":
+                    nfo_only = True
+
+            return {'single_path': single_path, 'refresh': refresh, 'update': update, 'force': force,
+                    'nfo_only': nfo_only}
+
+        parameter = get_parameter(arguments)
+
+        if parameter['single_path'] != '':
+            scrape_single_path(parameter['single_path'])
+        else:
+            scrape_from_config(parameter)
+
+        if parameter['update']:
+            xbmc = Xbmc()
+            xbmc.full_scan()
 
 
-def requirements_satisfied():
-    if not __name__ == '__main__':
-        logger.log('Do not import me', LogLevel.Error)
-        sys.exit()
-
-    result = True
-    if config.fanart.api_key == '':
-        logger.log('FanarTV Api Key is missing', LogLevel.Error)
-        result = False
-    if config.tmdb.api_key == '':
-        logger.log('TMDB Api Key is missing', LogLevel.Error)
-        result = False
-    if config.codec.mediainfo_path == '':
-        logger.log('Mediainfo is not set', LogLevel.Warning)
-    if config.codec.mkvmerge == '':
-        logger.log('MkvMerge is not set', LogLevel.Warning)
-
-    return result
+    try:
+        if requirements_satisfied():
+            main(sys.argv[1:])
+    except Exception, e:
+        logger.log('oops something went wrong :/', LogLevel.Error)
+        logger.log(unicode(e), LogLevel.Error)
+        logger.log('sys.argv:', LogLevel.Error)
+        for a in sys.argv:
+            logger.log(a, LogLevel.Error)
+        logger.log(traceback.format_exc(), LogLevel.Error)
 
 
-try:
-    if requirements_satisfied():
-        main(sys.argv[1:])
-except Exception, e:
-    logger.log('oops something went wrong :/', LogLevel.Error)
-    logger.log('sys.argv:', LogLevel.Error)
-    for a in sys.argv:
-        logger.log(a, LogLevel.Error)
-    logger.log(traceback.format_exc(), LogLevel.Error)
+config = Config()
+logger = Logger().init()
+start()

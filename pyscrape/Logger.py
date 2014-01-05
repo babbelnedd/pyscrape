@@ -24,6 +24,7 @@ class Logger(object):
             if os.path.isfile(self.logfile + '.old'):
                 os.remove(self.logfile + '.old')
             os.rename(self.logfile, self.logfile + '.old')
+        return self
 
     def log(self, text, level=''):
         if level == '': level = LogLevel.Info
