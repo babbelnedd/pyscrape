@@ -16,8 +16,10 @@ PyScrape is a cross platform aaplication that collects information and media art
 A movie file **have to be** in a folder  
 The name of the folder has some conditions that must be met  
 Name (Year) (imdbID); example: Ice Age (2001) (tt0268380)  
-The order of year and imdb id do not matter  
-Neither year nor imdb id are necessary  
+
+The order of year and imdb id do not matter
+Neither year nor imdb id are necessary
+Values can be in parentheses `(` `)` or in square brackets `[` `]`
 **But it is highly recommend to use one of both** (id is better than year)  
   
 The name of the movie file do not matter  

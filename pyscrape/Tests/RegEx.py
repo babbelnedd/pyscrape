@@ -44,3 +44,18 @@ result = RegEx.get_movie('Paranormal Investigations 3 - Toedliche Geister (2009)
 assert result['title'] == 'Paranormal Investigations 3 - Toedliche Geister'
 assert result['year'] == '2009'
 assert result['imdbID'] == ''
+
+result = RegEx.get_movie('Ice Age (2001) [tt0268380]')
+assert result['title'] == 'Ice Age'
+assert result['year'] == '2001'
+assert result['imdbID'] == 'tt0268380'
+
+result = RegEx.get_movie('Ice Age [2001] [tt0268380]')
+assert result['title'] == 'Ice Age'
+assert result['year'] == '2001'
+assert result['imdbID'] == 'tt0268380'
+
+result = RegEx.get_movie('Ice Age [2001] (tt0268380)')
+assert result['title'] == 'Ice Age'
+assert result['year'] == '2001'
+assert result['imdbID'] == 'tt0268380'
