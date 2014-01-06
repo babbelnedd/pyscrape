@@ -130,3 +130,15 @@ def get_other_extensions():
                       f.startswith('..')]:
         result.append(extension[1:].lower().replace('\n', ''))
     return result
+
+
+def ping(ip, port):
+    import socket
+
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect((ip, port))
+        sock.close()
+        return True
+    except socket.error:
+        return False

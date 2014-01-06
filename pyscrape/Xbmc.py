@@ -1,7 +1,8 @@
 import urllib
 import time
-from Logger import Logger
+from Logger import Logger, LogLevel
 from Config import Config
+from utils import ping
 
 
 class Xbmc(object):
@@ -14,17 +15,27 @@ class Xbmc(object):
 
     def update(self):
         self.logger.log('Update XBMC database')
+        if not ping(self.config.xbmc.ip, self.config.xbmc.port):
+            self.logger.log('XBMC host is no available')
+            return -1
+
         url = self.url_base + '/jsonrpc?request={"jsonrpc":"2.0","method":"VideoLibrary.Scan"}'
         urllib.urlretrieve(url)
+        return 0
 
 
     def clean(self):
         self.logger.log('Clean XBMC database')
+        if not ping(self.config.xbmc.ip, self.config.xbmc.port):
+            self.logger.log('XBMC host is no available', LogLevel.Warning)
+            return -1
+
         url = self.url_base + '/jsonrpc?request={"jsonrpc":"2.0","method":"VideoLibrary.Clean"}'
         urllib.urlretrieve(url)
+        return 0
 
 
     def full_scan(self, sleep=120):
-        self.clean()
-        time.sleep(sleep)
-        self.update()
+        if self.clean() == 0:
+            time.sleep(sleep)
+            self.update()
