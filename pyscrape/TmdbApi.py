@@ -1,10 +1,6 @@
 import urllib2
 import operator
-
-try:
-    import simplejson as json
-except:
-    import json
+import json
 from Config import Config
 from Logger import Logger
 
