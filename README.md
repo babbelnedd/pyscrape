@@ -1,11 +1,12 @@
 #README
-PyScrape is a cross platform aaplication that collects information and media artwork for movies  
+PyScrape is a cross platform aplication that collects information and media artwork for movies in XBMC format  
  - Create NFO files
  - Download artwork from TheMovieDB.org / Fanart.tv
  - Delete unwanted audio-tracks from matroska files
 
 
 ##SETUP / REQUIREMENTS
+ - Install [python 2.7.6](http://python.org/download/releases/2.7.6/ "python 2.7.6")
  - Install [mkvtoolnix](http://www.bunkus.org/videotools/mkvtoolnix/downloads.html "mkvtoolnix")
  - Install [mediainfo](http://mediaarea.net/de/MediaInfo/Download "mediainfo") (CLI)   
  - Copy pyscrape.cfg.example to pyscrape.cfg and set it up (explanation will follow..)
