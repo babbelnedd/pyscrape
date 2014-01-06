@@ -11,7 +11,7 @@ def intWithCommas(x):
     return "%d%s" % (x, result)
 
 
-def _getChars(file):
+def _get_chars(file):
     chars = {}
     with open(file) as f:
         content = f.readlines()
@@ -31,7 +31,7 @@ def replace(string):
     import os
 
     root = os.path.dirname(os.path.realpath(__file__))
-    chars = _getChars(os.path.join(root, 'system', 'replace'))
+    chars = _get_chars(os.path.join(root, 'system', 'replace'))
     try:
         string = string.encode('utf8')
     except:
@@ -135,8 +135,9 @@ def get_other_extensions():
 def ping(ip, port):
     import socket
 
+    port = int(port)
     try:
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock = socket.socket()
         sock.connect((ip, port))
         sock.close()
         return True
