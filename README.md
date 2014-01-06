@@ -1,5 +1,5 @@
 #README
-PyScrape is a cross platform aaplication that collects information and media artwork for movies  
+PyScrape is a cross platform aplication that collects information and media artwork for movies in XBMC format  
  - Create NFO files
  - Download artwork from TheMovieDB.org / Fanart.tv
  - Delete unwanted audio-tracks from matroska files
