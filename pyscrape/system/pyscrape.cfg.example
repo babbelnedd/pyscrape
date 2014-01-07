@@ -24,7 +24,7 @@ keep_tracks=german
 [tmdb]
 api_key=
 image_base=
-url_base=http://api.themoviedb.org/3/
+url_base=http://private-255e9-themoviedb.apiary.io/3/
 
 [fanarttv]
 api_key=
