@@ -328,14 +328,24 @@ class MovieScraper(object):
                 if len(get_fanart('moviebanner')) > 0:
                     banner = {}
                     for b in get_fanart('moviebanner'):
-                        if b['lang'] == 'de':
+                        if b['lang'] == config.pyscrape.language:
                             banner[b['url']] = b['likes']
                     if len(banner) > 0:
                         banner = sorted(banner.iteritems(), key=operator.itemgetter(1), reverse=True)
                         dst = os.path.join(movie.path, 'banner.jpg')
                         for b in banner:
                             downloader.download(b[0], dst)
-                            break                               # nur einen banner laden
+                            return
+                    else:
+                        for b in get_fanart('moviebanner'):
+                            if b['lang'] == config.pyscrape.fallback_language:
+                                banner[b['url']] = b['likes']
+                            if len(banner) > 0:
+                                banner = sorted(banner.iteritems(), key=operator.itemgetter(1), reverse=True)
+                                dst = os.path.join(movie.path, 'banner.jpg')
+                                for b in banner:
+                                    downloader.download(b[0], dst)
+                                    return
 
             def download_thumbs():
                 logger.log('Download Thumbs', LogLevel.Debug)
