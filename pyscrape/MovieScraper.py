@@ -10,7 +10,7 @@ import traceback
 import RegEx
 
 from Xbmc import Xbmc
-from TmdbApi import TmdbApi
+from TmdbApi import *
 from FanartTvApi import FanartTvApi
 from Movie import Movie
 from Logger import Logger, LogLevel
@@ -22,7 +22,6 @@ from Downloader import Downloader
 class MovieScraper(object):
     def __init__(self, path, single=False, refresh=False, force=False, nfo_only=False):
         self.refresh = refresh
-        self.tmdb = TmdbApi()
         self.fanart = FanartTvApi()
         self.codec = None
         self.config = config
@@ -119,8 +118,8 @@ class MovieScraper(object):
     def get_metadata(self, movie):
         def get_basic_metadata(movie):
             logger.log('Get basic informations')
-            result = self.tmdb.search_title(title=movie.search_title, year=movie.search_year,
-                                            lang=self.config.pyscrape.language, imdbID=movie.imdbID)
+            result = search_title(title=movie.search_title, year=movie.search_year,
+                                            lang=self.config.pyscrape.language, imdb_id=movie.imdbID)
             #results = result['results']
             if result == []:
                 logger.log('No Results', LogLevel.Warning)
@@ -157,9 +156,9 @@ class MovieScraper(object):
 
         def get_advanced_metadata(movie):
             logger.log('Get advanced informations')
-            info = self.tmdb.get_movie(movie.id, lang=self.config.pyscrape.language)
+            info = get_movie(movie.id, lang=self.config.pyscrape.language)
             if info is None:   # If there is no information get information for fallback language
-                info = self.tmdb.get_movie(movie.id, lang=self.config.pyscrape.fallback_language)
+                info = get_movie(movie.id, lang=self.config.pyscrape.fallback_language)
             if info is None:
                 pass           # What to do if there is no info for fallback language?
 
@@ -170,7 +169,7 @@ class MovieScraper(object):
             movie.revenue = info['revenue']
             if info['belongs_to_collection']:
                 movie.collection = info['belongs_to_collection'][u'name']
-            movie.mpaa = self.tmdb.get_certification(movie)
+            movie.mpaa = get_certification(movie)
             movie.sorted_title = movie.title
             movie.budget = info['budget']
             for country in info['production_countries']:
@@ -193,11 +192,11 @@ class MovieScraper(object):
             logger.log('No match for {0}'.format(movie.search_title), LogLevel.Warning)
             return -1
 
-        movie.trailer = self.tmdb.get_trailer(movie)
+        movie.trailer = get_trailer(movie)
         movie = get_advanced_metadata(movie)
-        movie.posters = self.tmdb.get_posters(movie.id)
-        movie.thumb = self.tmdb.get_thumb(movie.id)
-        movie.credits = self.tmdb.get_credits(movie.id)
+        movie.posters = get_posters(movie.id)
+        movie.thumb = get_thumb(movie.id)
+        movie.credits = get_credits(movie.id)
         movie.runtime = self.codec.get_runtime()
         movie.audio_xml = self.codec.get_audio_xml()
         movie.video_xml = self.codec.get_video_xml()
@@ -256,7 +255,7 @@ class MovieScraper(object):
         def download_backdrops():
             logger.log('Download Backdrops')
             path = movie.path
-            movie.backdrops = self.tmdb.get_backdrops(movie.id)
+            movie.backdrops = get_backdrops(movie.id)
             backdrops = sorted(movie.backdrops.iteritems(), key=operator.itemgetter(1), reverse=True)
             n = 0
             for backdrop in backdrops:
