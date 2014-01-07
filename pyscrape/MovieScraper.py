@@ -3,15 +3,14 @@ import sys
 import os
 import shutil
 import time
-import operator
-import utils
 import getopt
 import traceback
-import RegEx
 
+import utils
+import RegEx
+import FanartTvApi
 from Xbmc import Xbmc
 from TmdbApi import *
-from FanartTvApi import FanartTvApi
 from Movie import Movie
 from Logger import Logger, LogLevel
 from Config import Config
@@ -22,7 +21,6 @@ from Downloader import Downloader
 class MovieScraper(object):
     def __init__(self, path, single=False, refresh=False, force=False, nfo_only=False):
         self.refresh = refresh
-        self.fanart = FanartTvApi()
         self.codec = None
         self.config = config
         self.force = force
@@ -119,7 +117,7 @@ class MovieScraper(object):
         def get_basic_metadata(movie):
             logger.log('Get basic informations')
             result = search_title(title=movie.search_title, year=movie.search_year,
-                                            lang=self.config.pyscrape.language, imdb_id=movie.imdbID)
+                                  lang=self.config.pyscrape.language, imdb_id=movie.imdbID)
             #results = result['results']
             if result == []:
                 logger.log('No Results', LogLevel.Warning)
@@ -418,7 +416,7 @@ class MovieScraper(object):
                     downloader.download(art[0], dst)
                     break
 
-            fanart = self.fanart.get_all(movie.imdbID)
+            fanart = FanartTvApi.get_movie(movie.imdbID)
             if fanart is None:
                 return
             for f in fanart:     # Fanart gives sometimes more than one result - but there are no double tmdbID's???
