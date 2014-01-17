@@ -1,3 +1,4 @@
+# this list is used by the --delete-existing parameter
 # Files with one of the following extensions won't be deleted
 # movie extensions have to start with one dot '.'
 # other extensions have to start with two dots '..'

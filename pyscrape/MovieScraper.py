@@ -17,6 +17,8 @@ from Config import Config
 from Codec import Codec
 from Downloader import Downloader
 
+delete_existing = False
+
 
 class MovieScraper(object):
     def __init__(self, path, single=False, refresh=False, force=False, nfo_only=False):
@@ -232,7 +234,7 @@ class MovieScraper(object):
             if len(movie.production_companies) > 0:
                 xml += u'    <studio>{0}</studio>\n'.format(movie.production_companies.split('/')[0].strip())
         except:
-            pass;
+            pass
         xml += movie.credits
         if movie.video_xml != '' or movie.audio_xml != '':
             xml += '    <fileinfo>\n'
@@ -440,12 +442,21 @@ class MovieScraper(object):
             download_disc()
             download_clearart()
 
-        downloader = Downloader(refresh=self.refresh)
+        global delete_existing
+        _refresh = True
+        if self.refresh or delete_existing:
+            _refresh = False
+
+        downloader = Downloader(refresh=_refresh)
         download_backdrops()
         download_posters()
         download_fanart()
 
     def cleanup_dir(self, movie):
+        global delete_existing
+        if not delete_existing:
+            return
+
         logger.log('Delete old files')
         for item in os.listdir(movie.path):
             item = os.path.join(movie.path, item)
@@ -513,8 +524,9 @@ def start():
 
         def get_parameter(arguments):
             try:
-                opts, args = getopt.getopt(arguments, "p:r:u:f",
-                                           ["path=", "refresh", "update-xbmc", "force", "nfo-only"])
+                opts, args = getopt.getopt(arguments, "p:r:u:f:d",
+                                           ["path=", "refresh", "update-xbmc", "force", "nfo-only",
+                                            "delete-existing"])
             except getopt.GetoptError:
                 logger.log('Wrong arguments', LogLevel.Error)
                 print '-p --path             paths (seperated by "::")'
@@ -522,8 +534,11 @@ def start():
                 print '-u --update-xbmc      Clean/Update XBMC'
                 print '-f --force            Do not skip even if no movie file was found'
                 print '   --nfo-only         Only creates a .nfo file'
-                sys.exit(2)
+                print '-d --delete-existing  Delete all files from a movie except ' \
+                      'for these with a extenstion from the extension list'
 
+                sys.exit(2)
+            global delete_existing
             single_path = ''
             refresh = False
             update = False
@@ -546,6 +561,8 @@ def start():
                     force = True
                 elif opt in "--nfo-only":
                     nfo_only = True
+                elif opt in ("-d", "--delete-existing"):
+                    delete_existing = True
 
             return {'single_path': single_path, 'refresh': refresh, 'update': update, 'force': force,
                     'nfo_only': nfo_only}
@@ -560,7 +577,6 @@ def start():
         if parameter['update']:
             xbmc = Xbmc()
             xbmc.full_scan()
-
 
     try:
         if requirements_satisfied():

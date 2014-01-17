@@ -15,12 +15,12 @@ class Downloader(object):
                 self.logger.log('File {0} exists already - skip'.format(dst), LogLevel.Debug)
                 return 0
 
-        tryAgain = True
+        try_again = True
         count = 0
-        while tryAgain:
+        while try_again:
             try:
                 urllib.urlretrieve(src, dst)
-                tryAgain = False
+                try_again = False
             except IOError, e:
                 self.logger.log(dst + " could not be downloaded", LogLevel.Error)
                 self.logger.log(unicode(e), 'ERROR')
@@ -28,7 +28,7 @@ class Downloader(object):
                     self.logger.log('Wait 10 Seconds and try it again', LogLevel.Error)
                     time.sleep(10)
                 else:
-                    tryAgain = False
+                    try_again = False
             finally:
                 count += 1
         return 1
