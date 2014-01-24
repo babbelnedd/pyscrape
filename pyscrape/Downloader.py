@@ -1,7 +1,8 @@
-from Logger import Logger, LogLevel
 import os
 import urllib
 import time
+
+from Logger import Logger, LogLevel
 
 
 class Downloader(object):
@@ -41,4 +42,12 @@ class Downloader(object):
         kbps = '[%.2f kbps]' % ((os.path.getsize(dst) / 1024) / elapsed)
         elapsed = '[%.2f s]' % elapsed
         msg = src + ' {0} {1}'.format(kbps, elapsed)
+
+        f = urllib.urlopen(src)
+        size = f.headers["Content-Length"]
+
+        if int(os.path.getsize(dst)) < int(size):
+            self.logger.log('Downloaded file is corrupt - download it again', LogLevel.Warning)
+            self.download(src, dst)
+
         self.logger.log('Downloaded: ' + msg, LogLevel.Debug)
