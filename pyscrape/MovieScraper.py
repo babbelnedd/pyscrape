@@ -592,4 +592,7 @@ def start():
 
 config = Config()
 logger = Logger().init()
-start()
+try:
+    start()
+except KeyboardInterrupt:
+    logger.log("MovieScraper was interrupted by user", LogLevel.Warning)
