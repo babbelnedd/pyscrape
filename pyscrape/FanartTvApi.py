@@ -7,24 +7,29 @@ from Logger import Logger, LogLevel
 
 config = Config()
 logger = Logger()
+cached = {}
 
 
 def __request(request):
     logger.log('Send Fanart Request: ' + request.replace(config.fanart.api_key, 'XXX'), 'DEBUG')
     headers = {'Accept': 'application/json'}
-    request = urllib2.Request(request, headers=headers)
-    response_body = urllib2.urlopen(request).read()
+    if request in cached:
+        logger.log('Found cached result', LogLevel.Debug)
+        return cached[request]
+
+    _request = urllib2.Request(request, headers=headers)
+    response_body = urllib2.urlopen(_request).read()
     try:
         result = json.loads(response_body)
     except:
         result = json.loads(response_body.decode('utf-8'))
 
+    cached[request] = result
     return result
 
 
-def get_movie(id):
-    result_format = 'JSON'
-    req = '{0}movie/{1}/{2}/{3}'.format(config.fanart.url_base, config.fanart.api_key, id, result_format)
+def _get(type, id, format='JSON'):
+    req = '{0}{1}/{2}/{3}/{4}'.format(config.fanart.url_base, type, config.fanart.api_key, id, format)
     try_again = True
     n = 0
     while try_again and n < 10:
@@ -35,3 +40,11 @@ def get_movie(id):
             try_again = True
             logger.log('Ooops.. FanartTV Error - Try again', LogLevel.Warning)
             time.sleep(2)
+
+
+def get_movie(tmdb_id):
+    return _get(type='movie', id=tmdb_id)
+
+
+def get_show(tvdb_id):
+    return _get(type='series', id=tvdb_id)
