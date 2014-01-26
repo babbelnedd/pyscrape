@@ -24,17 +24,16 @@ class Codec(object):
 
         self.path = path
         if movie.file == '' or not os.path.isfile(os.path.join(movie.path, movie.file)):
-            self.logger.log('No movie file found - skip Codec inforamtion', LogLevel.Warning)
+            self.logger.log('No movie file found - skip Codec information', LogLevel.Warning)
             return
 
         self.codec_config = ConfigParser.ConfigParser()
         open(self.file, 'a').close()
         self._run_mediainfo()
-        self.codec_config.read(self.file)
 
-    def _run_mediainfo(self):
+    def _run_mediainfo(self, extra_attribute=''):
         self.logger.log('Start mediainfo', 'DEBUG')
-        parameter = ' --logfile="{0}" "{1}"'.format(self.file, self.path)
+        parameter = ' {0} --logfile="{1}" "{2}"'.format(extra_attribute, self.file, self.path)
 
         if 'linux' in sys.platform.lower():
             parameter += '  >/dev/null'  # do not work - why? :/
@@ -55,11 +54,15 @@ class Codec(object):
         os.remove(self.file)
         with open(self.file, 'a') as f:
             f.writelines(newcontent)
+        self.codec_config.read(self.file)
 
     def _get(self, sec, attr):
         try:
-            return self.codec_config.get(sec, attr)
-        except:
+            result = self.codec_config.get(sec, attr)
+            self.logger.log('Key "{0}" found in "{1}", value: {2}'.format(attr, sec, result), LogLevel.Debug)
+            return result
+        except ConfigParser.NoOptionError:
+            self.logger.log('Key "{0}" not found in "{1}"'.format(attr, sec), LogLevel.Debug)
             return ''
 
     def get_runtime(self):
@@ -119,6 +122,11 @@ class Codec(object):
             video['aspect'] = self._get('Video', 'Display aspect ratio')
             video['scantype'] = self._get('Video', 'Scan type')
             video['codec'] = self._get('Video', 'Writing library')
+
+            if video['codec'] == '':
+                self._run_mediainfo(extra_attribute='--fullscan')
+                video['codec'] = self._get('Video', 'Internet media type')
+
             if 'x264' in video['codec'].lower():
                 video['codec'] = 'h264'
             elif 'h264' in video['codec'].lower():
