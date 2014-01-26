@@ -107,7 +107,7 @@ class Codec(object):
                 m = int(duration[1])
                 video['duration'] = (h + m) * 60
             elif len(duration) == 1:
-                return duration[0].replace('s', '').strip()
+                video['duration'] = duration[0].replace('s', '').strip()
             else:
                 video['duration'] = 0
             video['width'] = self._get('Video', 'Width').replace('pixels', '').replace(' ', '')
