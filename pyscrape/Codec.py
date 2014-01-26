@@ -82,6 +82,8 @@ class Codec(object):
                         audio['codec'] = 'AC3'
 
                     audio['channels'] = self._get(section, 'Channel count').replace('channels', '').replace(' ', '')
+                    if audio['channels'] == '':
+                        audio['channels'] = self._get(section, 'Channel(s)').replace('channels', '').replace(' ', '')
                     audio['language'] = self._get(section, 'Language')
 
                     xml += '\n'
@@ -224,7 +226,6 @@ class Codec(object):
             open(self.file, 'a').close()
             self._run_mediainfo()
             self.codec_config.read(self.file)
-
 
     def __del__(self):
         if os.path.exists(self.file):
