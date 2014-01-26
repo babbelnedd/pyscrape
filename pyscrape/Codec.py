@@ -4,7 +4,7 @@ import subprocess
 import os
 import ConfigParser
 import sys
-from Logger import Logger,LogLevel
+from Logger import Logger, LogLevel
 from Config import Config
 
 
@@ -14,8 +14,8 @@ class Codec(object):
         self.config = Config()
         self.movie = movie
 
-        fileName, fileExtension = os.path.splitext(movie.file)
-        self.file = os.path.join(movie.path, fileName + '.nfo.tmp')
+        filename, file_extension = os.path.splitext(movie.file)
+        self.file = os.path.join(movie.path, filename + '.nfo.tmp')
         path = os.path.join(movie.path, movie.file)
         try:
             path = unicode(path).encode('utf8')
@@ -64,10 +64,12 @@ class Codec(object):
 
     def get_runtime(self):
         duration = self._get('Video', 'Duration').replace(' ', '').replace('mn', '').lower().split('h')
-        if duration != '' and duration != ['']:
+        if len(duration) == 2:
             h = int(duration[0]) * 60
             m = int(duration[1])
             return h + m
+        elif len(duration) == 1:
+            return duration[0].replace('s', '').strip()
         return 0
 
     def get_audio_xml(self):
@@ -75,12 +77,13 @@ class Codec(object):
             xml = ''
             for section in self.codec_config.sections():
                 if 'Audio' in section:
-                    audio = {}
-                    audio['codec'] = self._get(section, 'Format')
+                    audio = {'codec': self._get(section, 'Format')}
                     if 'AC-3' in audio['codec']:
                         audio['codec'] = 'AC3'
+
                     audio['channels'] = self._get(section, 'Channel count').replace('channels', '').replace(' ', '')
                     audio['language'] = self._get(section, 'Language')
+
                     xml += '\n'
                     xml += '            <audio>\n'
                     xml += '                <channels>{0}</channels>\n'.format(audio['channels'])
@@ -99,10 +102,12 @@ class Codec(object):
         def video_xml():
             video = {}
             duration = self._get('Video', 'Duration').replace(' ', '').replace('mn', '').lower().split('h')
-            if duration != '' and duration != ['']:
+            if len(duration) == 2:
                 h = int(duration[0]) * 60
                 m = int(duration[1])
                 video['duration'] = (h + m) * 60
+            elif len(duration) == 1:
+                return duration[0].replace('s', '').strip()
             else:
                 video['duration'] = 0
             video['width'] = self._get('Video', 'Width').replace('pixels', '').replace(' ', '')
