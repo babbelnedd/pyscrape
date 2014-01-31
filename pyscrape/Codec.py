@@ -217,6 +217,28 @@ class Codec(object):
                 self.logger.log('Not able to merge MKV: ' + self.movie.file, LogLevel.Error)
                 return
 
+            # check if new file is valid
+            cmd = 'mediainfo "--Inform=General;%FileName%,%Duration/String3%,%FileSize%" "' + src + '"'
+            output = os.popen(cmd).read()
+            path, filename = os.path.split(src)
+            name, ext = os.path.splitext(filename)
+            output = output.replace(name, '')
+            old_runtime = output.replace(',', '', 1).split(':')
+            old_runtime = old_runtime[0] + ':' + old_runtime[1]
+
+            cmd = 'mediainfo "--Inform=General;%FileName%,%Duration/String3%,%FileSize%" "' + dst + '"'
+            output = os.popen(cmd).read()
+            path, filename = os.path.split(dst)
+            name, ext = os.path.splitext(filename)
+            output = output.replace(name, '')
+            new_runtime = output.replace(',', '', 1).split(':')
+            new_runtime = new_runtime[0] + ':' + new_runtime[1]
+
+            if old_runtime != new_runtime:
+                self.logger.log('File merging goes wrong', LogLevel.Error)
+                os.remove(dst)
+                return
+
             old_filesize = os.path.getsize(src)
             new_filesize = os.path.getsize(dst)
             percent = 100 - (new_filesize / (old_filesize / 100))
