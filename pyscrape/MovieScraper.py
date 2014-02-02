@@ -244,6 +244,7 @@ class MovieScraper(object):
             xml += '        </streamdetails>\n'
             xml += '    </fileinfo>\n'
 
+        xml += '    <dateadded>{0}</dateadded>'.format(time.strftime("%Y-%m-%d %H:%M:%S"))
         xml += '</movie>'
 
         logger.log('Write NFO')
