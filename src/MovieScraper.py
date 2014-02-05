@@ -102,7 +102,7 @@ class MovieScraper(object):
             os.remove(os.path.join(movie.path, 'new.mkv'))
             files = get_movie_files(movie.path)
 
-        if len(files) < 2 and len(files) > 0:
+        if len(files) == 1:  # todo: implement multi cd support
             movie.file = files[0]
         return movie
 
