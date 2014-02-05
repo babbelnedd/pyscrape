@@ -15,7 +15,7 @@ from Movie import Movie
 from Logger import log, LogLevel, whiteline
 from Config import Config
 from Codec import Codec
-from Downloader import Downloader
+from utils import download
 
 delete_existing = False
 
@@ -274,7 +274,7 @@ class MovieScraper(object):
                 else:
                     dst = os.path.join(path, os.path.basename(backdrop[0]))
 
-                downloader.download(url, dst)
+                download(src=url, dst=dst, refresh=_refresh)
                 n += 1
 
         def download_posters():
@@ -291,14 +291,14 @@ class MovieScraper(object):
                 else:
                     number = ''
                 dst = os.path.join(path, 'poster{0}.jpg'.format(number))
-                downloader.download(url, dst)
+                download(src=url, dst=dst, refresh=_refresh)
                 n += 1
 
         def download_fanart():
             def get_fanart(category):
                 try:
                     return fanart[category]
-                except:
+                except KeyError:
                     return []
 
             def download_logo():
@@ -307,23 +307,23 @@ class MovieScraper(object):
                     for fa in get_fanart('hdmovielogo'):
                         if fa['lang'] == self.config.pyscrape.language:
                             dst = os.path.join(movie.path, 'logo.png')
-                            downloader.download(fa['url'], dst)
+                            download(src=fa['url'], dst=dst, refresh=_refresh)
                             return
                     for fa in get_fanart('hdmovielogo'):
                         if fa['lang'] == self.config.pyscrape.fallback_language:
                             dst = os.path.join(movie.path, 'logo.png')
-                            downloader.download(fa['url'], dst)
+                            download(src=fa['url'], dst=dst, refresh=_refresh)
                             return
                 elif len(get_fanart('movielogo')) > 0:
                     for fa in get_fanart('movielogo'):
                         if fa['lang'] == self.config.pyscrape.language:
                             dst = os.path.join(movie.path, 'logo.png')
-                            downloader.download(fa['url'], dst)
+                            download(src=fa['url'], dst=dst, refresh=_refresh)
                             return
                     for fa in get_fanart('movielogo'):
                         if fa['lang'] == self.config.pyscrape.fallback_language:
                             dst = os.path.join(movie.path, 'logo.png')
-                            downloader.download(fa['url'], dst)
+                            download(src=fa['url'], dst=dst, refresh=_refresh)
                             return
 
             def download_banner():
@@ -337,7 +337,7 @@ class MovieScraper(object):
                         banner = sorted(banner.iteritems(), key=operator.itemgetter(1), reverse=True)
                         dst = os.path.join(movie.path, 'banner.jpg')
                         for b in banner:
-                            downloader.download(b[0], dst)
+                            download(src=b[0], dst=dst, refresh=_refresh)
                             return
                     else:
                         for b in get_fanart('moviebanner'):
@@ -347,7 +347,7 @@ class MovieScraper(object):
                                 banner = sorted(banner.iteritems(), key=operator.itemgetter(1), reverse=True)
                                 dst = os.path.join(movie.path, 'banner.jpg')
                                 for b in banner:
-                                    downloader.download(b[0], dst)
+                                    download(src=b[0], dst=dst, refresh=_refresh)
                                     return
 
             def download_thumbs():
@@ -382,7 +382,7 @@ class MovieScraper(object):
                             name = 'thumb{0}.jpg'.format(str(int(n - 3)))
 
                         dst = os.path.join(path, name)
-                        downloader.download(url, dst)
+                        download(src=url, dst=dst, refresh=_refresh)
 
             def download_disc():
                 log('Download Disc Art', LogLevel.Debug)
@@ -401,7 +401,7 @@ class MovieScraper(object):
                     for disc in discs:
                         url = disc[0]
                         dst = os.path.join(movie.path, 'disc.png')
-                        downloader.download(url, dst)
+                        download(src=url, dst=dst, refresh=_refresh)
                         break
 
             def download_clearart():
@@ -426,7 +426,7 @@ class MovieScraper(object):
                 clearart = sorted(clearart.iteritems(), key=operator.itemgetter(1), reverse=True)
                 for art in clearart:
                     dst = os.path.join(movie.path, 'clearart.png')
-                    downloader.download(art[0], dst)
+                    download(src=art[0], dst=dst, refresh=_refresh)
                     break
 
             fanart = FanartTvApi.get_movie(movie.imdbID)
@@ -448,7 +448,6 @@ class MovieScraper(object):
         if self.refresh or delete_existing:
             _refresh = False
 
-        downloader = Downloader(refresh=_refresh)
         download_backdrops()
         download_posters()
         download_fanart()
