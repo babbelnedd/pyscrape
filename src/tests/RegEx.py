@@ -1,4 +1,4 @@
-from pyscrape import RegEx
+from src import RegEx
 
 result = RegEx.get_movie('Ice Age (2001) (tt0268380)')
 assert result['title'] == 'Ice Age'
