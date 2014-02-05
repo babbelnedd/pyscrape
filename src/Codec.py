@@ -215,7 +215,7 @@ class Codec(object):
             open(dst, 'a').close()
             try:
                 subprocess.check_call(cmd, shell=True)
-            except:
+            except subprocess.CalledProcessError:
                 self.logger.log('Not able to merge MKV: ' + self.movie.file, LogLevel.Error)
                 return
 
