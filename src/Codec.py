@@ -210,7 +210,7 @@ class Codec(object):
                                                  src)
 
             self.logger.log("Remove {0} audio-tracks".format(keep_tracks_count))
-            self.logger.log('\a === DO NOT STOP THE PROCCESS - IT WILL DELETE YOUR MOVIE ===', LogLevel.Warning)
+            self.logger.log('\a === DO NOT STOP THE PROCESS ===', LogLevel.Warning)
             self.logger.log('Execute mkvmerge: ' + cmd, LogLevel.Debug)
             open(dst, 'a').close()
             try:
