@@ -19,7 +19,9 @@ class Codec(object):
         path = os.path.join(movie.path, movie.file)
         try:
             path = unicode(path).encode('utf8')
-        except:
+        except UnicodeEncodeError:
+            pass
+        except UnicodeDecodeError:
             pass
 
         self.path = path
