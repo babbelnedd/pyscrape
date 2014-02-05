@@ -2,18 +2,17 @@ import os
 import urllib
 import time
 
-from Logger import Logger, LogLevel
+from Logger import log, LogLevel
 
 
 class Downloader(object):
     def __init__(self, refresh=False):
-        self.logger = Logger()
         self.refresh = refresh
 
     def _try_download(self, src, dst, attempts=10):
         if self.refresh:
             if os.path.exists(dst):
-                self.logger.log('File {0} exists already - skip'.format(dst), LogLevel.Debug)
+                log('File {0} exists already - skip'.format(dst), LogLevel.Debug)
                 return 0
 
         try_again = True
@@ -23,10 +22,10 @@ class Downloader(object):
                 urllib.urlretrieve(src, dst)
                 try_again = False
             except IOError, e:
-                self.logger.log(dst + " could not be downloaded", LogLevel.Error)
-                self.logger.log(unicode(e), 'ERROR')
+                log(dst + " could not be downloaded", LogLevel.Error)
+                log(unicode(e), 'ERROR')
                 if count < attempts:
-                    self.logger.log('Wait 10 Seconds and try it again', LogLevel.Error)
+                    log('Wait 10 Seconds and try it again', LogLevel.Error)
                     time.sleep(10)
                 else:
                     try_again = False
@@ -47,7 +46,7 @@ class Downloader(object):
         size = f.headers["Content-Length"]
 
         if int(os.path.getsize(dst)) < int(size):
-            self.logger.log('Downloaded file is corrupt - download it again', LogLevel.Warning)
+            log('Downloaded file is corrupt - download it again', LogLevel.Warning)
             self.download(src, dst)
 
-        self.logger.log('Downloaded: ' + msg, LogLevel.Debug)
+        log('Downloaded: ' + msg, LogLevel.Debug)

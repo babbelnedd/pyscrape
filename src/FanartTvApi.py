@@ -2,19 +2,18 @@ import urllib2
 import json
 import time
 from Config import Config
-from Logger import Logger, LogLevel
+from Logger import log, LogLevel
 
 
 config = Config()
-logger = Logger()
 cached = {}
 
 
 def __request(request):
-    logger.log('Send Fanart Request: ' + request.replace(config.fanart.api_key, 'XXX'), 'DEBUG')
+    log('Send Fanart Request: ' + request.replace(config.fanart.api_key, 'XXX'), 'DEBUG')
     headers = {'Accept': 'application/json'}
     if request in cached:
-        logger.log('Found cached result', LogLevel.Debug)
+        log('Found cached result', LogLevel.Debug)
         return cached[request]
 
     _request = urllib2.Request(request, headers=headers)
@@ -38,7 +37,7 @@ def _get(type, id, format='JSON'):
         except urllib2.HTTPError:
             n += 1
             try_again = True
-            logger.log('Ooops.. FanartTV Error - Try again', LogLevel.Warning)
+            log('Ooops.. FanartTV Error - Try again', LogLevel.Warning)
             time.sleep(2)
 
 
