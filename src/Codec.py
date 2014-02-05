@@ -5,13 +5,12 @@ import os
 import ConfigParser
 import sys
 
-from Logger import Logger, LogLevel
+from Logger import log, LogLevel
 from Config import Config
 
 
 class Codec(object):
     def __init__(self, movie):
-        self.logger = Logger()
         self.config = Config()
         self.movie = movie
 
@@ -27,7 +26,7 @@ class Codec(object):
 
         self.path = path
         if movie.file == '' or not os.path.isfile(os.path.join(movie.path, movie.file)):
-            self.logger.log('No movie file found - skip Codec information', LogLevel.Warning)
+            log('No movie file found - skip Codec information', LogLevel.Warning)
             return
 
         self.codec_config = ConfigParser.ConfigParser()
@@ -35,7 +34,7 @@ class Codec(object):
         self._run_mediainfo()
 
     def _run_mediainfo(self, extra_attribute=''):
-        self.logger.log('Start mediainfo', 'DEBUG')
+        log('Start mediainfo', 'DEBUG')
         parameter = ' {0} --logfile="{1}" "{2}"'.format(extra_attribute, self.file, self.path)
 
         if 'linux' in sys.platform.lower():
@@ -62,10 +61,10 @@ class Codec(object):
     def _get(self, sec, attr):
         try:
             result = self.codec_config.get(sec, attr)
-            self.logger.log('Key "{0}" found in "{1}", value: {2}'.format(attr, sec, result), LogLevel.Debug)
+            log('Key "{0}" found in "{1}", value: {2}'.format(attr, sec, result), LogLevel.Debug)
             return result
         except ConfigParser.NoOptionError:
-            self.logger.log('Key "{0}" not found in "{1}"'.format(attr, sec), LogLevel.Debug)
+            log('Key "{0}" not found in "{1}"'.format(attr, sec), LogLevel.Debug)
             return ''
         except AttributeError:
             return ''
@@ -103,7 +102,7 @@ class Codec(object):
             xml += '\n'
             return xml
 
-        self.logger.log('Load Audio Codec Information')
+        log('Load Audio Codec Information')
         if not os.path.exists(self.file):
             return ''
         return audio_xml()
@@ -150,23 +149,23 @@ class Codec(object):
             xml += '            </video>'
             return xml
 
-        self.logger.log('Load Video Codec Information')
+        log('Load Video Codec Information')
         if not os.path.exists(self.file):
             return ''
         return video_xml()
 
     def delete_audio_tracks(self):
         if self.config.codec.mkvmerge == '':
-            self.logger.log('mkvmerge is not set / installed', LogLevel.Warning)
+            log('mkvmerge is not set / installed', LogLevel.Warning)
             return
         if not self.movie.file.endswith('.mkv'):
-            self.logger.log('Movie is not a matroska file - skip', LogLevel.Warning)
+            log('Movie is not a matroska file - skip', LogLevel.Warning)
             return
         src = os.path.join(self.movie.path, self.movie.file)
         if not os.path.exists(src) or not os.path.isfile(src):
             return
 
-        self.logger.log('Look for removable Audio-Tracks')
+        log('Look for removable Audio-Tracks')
         keep_tracks = self.config.codec.keep_tracks
         audio_tracks = {}
 
@@ -212,14 +211,14 @@ class Codec(object):
                                                  delete_audiotracks,
                                                  src)
 
-            self.logger.log("Remove {0} audio-tracks".format(keep_tracks_count))
-            self.logger.log('\a === DO NOT STOP THE PROCESS ===', LogLevel.Warning)
-            self.logger.log('Execute mkvmerge: ' + cmd, LogLevel.Debug)
+            log("Remove {0} audio-tracks".format(keep_tracks_count))
+            log('\a === DO NOT STOP THE PROCESS ===', LogLevel.Warning)
+            log('Execute mkvmerge: ' + cmd, LogLevel.Debug)
             open(dst, 'a').close()
             try:
                 subprocess.check_call(cmd, shell=True)
             except subprocess.CalledProcessError:
-                self.logger.log('Not able to merge MKV: ' + self.movie.file, LogLevel.Error)
+                log('Not able to merge MKV: ' + self.movie.file, LogLevel.Error)
                 return
 
             # check if new file is valid
@@ -240,7 +239,7 @@ class Codec(object):
             new_runtime = new_runtime[0] + ':' + new_runtime[1]
 
             if old_runtime != new_runtime:
-                self.logger.log('File merging goes wrong', LogLevel.Error)
+                log('File merging goes wrong', LogLevel.Error)
                 os.remove(dst)
                 return
 
@@ -248,8 +247,8 @@ class Codec(object):
             new_filesize = os.path.getsize(dst)
             percent = 100 - (new_filesize / (old_filesize / 100))
             mb = (old_filesize - new_filesize) / 1024 / 1024
-            self.logger.log('{0}% ({1} mb)saved'.format(percent, mb))
-            self.logger.log('REPLACE {0}'.format(src), LogLevel.Debug)
+            log('{0}% ({1} mb)saved'.format(percent, mb))
+            log('REPLACE {0}'.format(src), LogLevel.Debug)
             os.remove(src)
             try:
                 os.rename(dst, src)

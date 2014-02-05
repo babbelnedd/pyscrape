@@ -43,26 +43,17 @@ def replace(string):
 
 
 def rename_subfolder(root):
-    from Logger import Logger
-
-    logger = Logger()
-    import os
-
     for path in os.listdir(root.decode('utf8')):
         src = os.path.join(root, path)
         if os.path.isdir(src):
             new = replace(path)
             dst = os.path.join(root, new)
             if src != dst:
-                logger.log(u'Move {0} to {1}'.format(src, dst), 'MOVE')
+                log(u'Move {0} to {1}'.format(src, dst), 'MOVE')
                 os.rename(src, dst)
 
 
 def rename_dir(folder):
-    import os
-    from Logger import Logger
-
-    logger = Logger()
     folder = unicode(folder, encoding='utf8')
     while folder.endswith('/'):
         folder = folder[0:(len(folder) - 1)]
@@ -76,7 +67,7 @@ def rename_dir(folder):
         new = replace(dir)
         dst = os.path.join(root, new)
         if src != dst:
-            logger.log(u'Move {0} to {1}'.format(src, dst), 'MOVE')
+            log(u'Move {0} to {1}'.format(src, dst), 'MOVE')
             os.rename(src, dst)
     try:
         dst = unicode(dst, encoding='utf8')
@@ -87,18 +78,13 @@ def rename_dir(folder):
 
 
 def rename_files(root):
-    import os
-    from Logger import Logger
-
-    logger = Logger()
-
     for file in os.listdir(root.decode('utf8')):
         if os.path.isfile(os.path.join(root, file)):
             replacedFile = replace(file)
             if file != replacedFile:
                 src = os.path.join(root, file)
                 dst = os.path.join(root, replacedFile)
-                logger.log(u'Move {0} to {1}'.format(src, dst), 'MOVE')
+                log(u'Move {0} to {1}'.format(src, dst), 'MOVE')
                 os.rename(src, dst)
 
 
@@ -143,3 +129,54 @@ def ping(ip, port):
         return True
     except socket.error:
         return False
+
+
+def _try_download(src, dst, attempts=10, refresh=False):
+    if refresh:
+        if os.path.exists(dst):
+            log('File {0} exists already - skip'.format(dst), LogLevel.Debug)
+            return 0
+
+    try_again = True
+    count = 0
+    while try_again:
+        try:
+            urllib.urlretrieve(src, dst)
+            try_again = False
+        except IOError, e:
+            log(dst + " could not be downloaded", LogLevel.Error)
+            log(unicode(e), 'ERROR')
+            if count < attempts:
+                log('Wait 10 Seconds and try it again', LogLevel.Error)
+                time.sleep(10)
+            else:
+                try_again = False
+        finally:
+            count += 1
+    return 1
+
+
+def download(src, dst, refresh=False):
+    start = time.time()
+    if _try_download(src=src, dst=dst, refresh=refresh) == 0:
+        return
+    elapsed = time.time() - start
+    kbps = '[%.2f kbps]' % ((os.path.getsize(dst) / 1024) / elapsed)
+    elapsed = '[%.2f s]' % elapsed
+    msg = src + ' {0} {1}'.format(kbps, elapsed)
+
+    f = urllib.urlopen(src)
+    size = f.headers["Content-Length"]
+
+    if int(os.path.getsize(dst)) < int(size):
+        log('Downloaded file is corrupt - download it again', LogLevel.Warning)
+        download(src, dst)
+
+    log('Downloaded: ' + msg, LogLevel.Debug)
+
+
+if __name__ != 'main':
+    from Logger import log, LogLevel
+    import os
+    import urllib
+    import time

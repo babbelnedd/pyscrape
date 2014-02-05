@@ -2,10 +2,9 @@ import urllib2
 import operator
 import json
 from Config import Config
-from Logger import Logger, LogLevel
+from Logger import log, LogLevel
 
 config = Config()
-logger = Logger()
 url_base = config.tmdb.url_base
 api_key = config.tmdb.api_key
 cached = {}
@@ -42,10 +41,10 @@ def _request(request_string):
         req = req + '?api_key=' + api_key
 
     if req in cached:
-        logger.log('Found cached result', LogLevel.Debug)
+        log('Found cached result', LogLevel.Debug)
         return cached[req]
 
-    logger.log('Send TMDB Request: ' + req.replace(config.tmdb.api_key, 'XXX'), 'DEBUG')
+    log('Send TMDB Request: ' + req.replace(config.tmdb.api_key, 'XXX'), 'DEBUG')
     headers = {'Accept': 'application/json'}
     _req = urllib2.Request(req, headers=headers)
     response_body = urllib2.urlopen(_req).read()
@@ -145,7 +144,7 @@ def get_backdrops(tmdb_id):
 
 
 def get_posters(tmdb_id):
-    logger.log('Load Posters', 'DEBUG')
+    log('Load Posters', 'DEBUG')
     posters = _request('movie/{0}/images?language={1}'.format(tmdb_id, config.pyscrape.language))['posters']
     if posters == []:  # get images of fallback language
         req = 'movie/{0}/images?language={1}'.format(tmdb_id, config.pyscrape.fallback_language)
@@ -184,7 +183,7 @@ def get_credits(tmdb_id):
 
         return xml
 
-    logger.log('Load Credits', 'DEBUG')
+    log('Load Credits', 'DEBUG')
     credits = _request('movie/{0}/credits'.format(tmdb_id))
 
     xml = get_crew(credits['crew'])
@@ -194,7 +193,7 @@ def get_credits(tmdb_id):
 
 
 def get_thumb(tmdb_id):
-    logger.log('Load Thumb', 'DEBUG')
+    log('Load Thumb', 'DEBUG')
     posters = get_posters(tmdb_id)
     for poster in posters:
         return poster[0] # first poster is the poster with highest popularity

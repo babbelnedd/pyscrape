@@ -12,7 +12,7 @@ import FanartTvApi
 from Xbmc import Xbmc
 from TmdbApi import *
 from Movie import Movie
-from Logger import Logger, LogLevel
+from Logger import log, LogLevel, whiteline
 from Config import Config
 from Codec import Codec
 from Downloader import Downloader
@@ -35,12 +35,12 @@ class MovieScraper(object):
             for m in movies:
                 progressed += 1
 
-                logger.whiteline()
-                logger.log(m.path)
-                logger.log('====================================')
+                whiteline()
+                log(m.path)
+                log('====================================')
                 if not self.force:
                     if not os.path.isfile(os.path.join(m.path, m.file)):
-                        logger.log('Skip - No file found', LogLevel.Warning)
+                        log('Skip - No file found', LogLevel.Warning)
                         continue
 
                 start = time.time()
@@ -62,10 +62,10 @@ class MovieScraper(object):
                 end = time.time()
                 elapsed = end - start
                 total_elapsed += elapsed
-                logger.log('{0} / {1} movies progressed'.format(progressed, count_movies))
-                logger.log("%.2f s " % elapsed, 'TIME')
-                logger.log("%.2f s total" % total_elapsed, 'TIME')
-                logger.whiteline()
+                log('{0} / {1} movies progressed'.format(progressed, count_movies))
+                log("%.2f s " % elapsed, 'TIME')
+                log("%.2f s total" % total_elapsed, 'TIME')
+                whiteline()
 
         if single:
             movies = []
@@ -76,7 +76,7 @@ class MovieScraper(object):
             movies = self.get_movies(path)
 
         scrape_movies(movies)
-        logger.log('Scraping done - have fun')
+        log('Scraping done - have fun')
 
     def get_movie(self, root, path):
         def get_movie_files(path):
@@ -117,24 +117,24 @@ class MovieScraper(object):
 
     def get_metadata(self, movie):
         def get_basic_metadata(movie):
-            logger.log('Get basic informations')
+            log('Get basic informations')
             result = search_title(title=movie.search_title, year=movie.search_year,
                                   lang=self.config.pyscrape.language, imdb_id=movie.imdbID)
             #results = result['results']
             if result == []:
-                logger.log('No Results', LogLevel.Warning)
+                log('No Results', LogLevel.Warning)
                 return movie
 
             if movie.imdbID is None or movie.imdbID == '':
-                logger.log(str(len(result)) + ' Result(s) found')
+                log(str(len(result)) + ' Result(s) found')
                 if len(result) > 1:
-                    logger.log('MORE THAN ONE RESULT FOUND - PLEASE CHECK THE RETRIEVED DATA!', LogLevel.Warning)
+                    log('MORE THAN ONE RESULT FOUND - PLEASE CHECK THE RETRIEVED DATA!', LogLevel.Warning)
 
                 for r in result:
                     if movie.title != '':    # if the title occurs more than once, take the one with the highest popularity
                         if not (movie.search_title == r['title'] or movie.search_title == r['original_title']):
                             if movie.title == r[u'title'] and movie.popularity < float(r['popularity']):
-                                logger.log('Found movie with higher popularity')
+                                log('Found movie with higher popularity')
                             else:
                                 continue
 
@@ -155,7 +155,7 @@ class MovieScraper(object):
             return movie
 
         def get_advanced_metadata(movie):
-            logger.log('Get advanced informations')
+            log('Get advanced informations')
             info = get_movie(movie.id, lang=self.config.pyscrape.language)
             if info is None:   # If there is no information get information for fallback language
                 info = get_movie(movie.id, lang=self.config.pyscrape.fallback_language)
@@ -189,7 +189,7 @@ class MovieScraper(object):
 
         movie = get_basic_metadata(movie)
         if movie.id == '':
-            logger.log('No match for {0}'.format(movie.search_title), LogLevel.Warning)
+            log('No match for {0}'.format(movie.search_title), LogLevel.Warning)
             return -1
 
         movie.trailer = get_trailer(movie)
@@ -204,7 +204,7 @@ class MovieScraper(object):
         return movie
 
     def create_nfo(self, movie):
-        logger.log('Prepare NFO')
+        log('Prepare NFO')
         xml = '<?xml version="1.0" encoding="utf-8"?>\n'
         xml += '<movie>\n'
         xml += u'    <title>{0}</title>\n'.format(movie.title)
@@ -247,14 +247,14 @@ class MovieScraper(object):
         xml += '    <dateadded>{0}</dateadded>'.format(time.strftime("%Y-%m-%d %H:%M:%S"))
         xml += '</movie>'
 
-        logger.log('Write NFO')
+        log('Write NFO')
         fileName, fileExtension = os.path.splitext(movie.file)
         f = os.path.join(movie.path, fileName + '.nfo')
         file(f, 'w').write(xml.encode("utf8"))
 
     def download_images(self, movie, rights='777'):
         def download_backdrops():
-            logger.log('Download Backdrops')
+            log('Download Backdrops')
             path = movie.path
             movie.backdrops = get_backdrops(movie.id)
             backdrops = sorted(movie.backdrops.iteritems(), key=operator.itemgetter(1), reverse=True)
@@ -278,7 +278,7 @@ class MovieScraper(object):
                 n += 1
 
         def download_posters():
-            logger.log('Download posters')
+            log('Download posters')
             path = movie.path
             n = 0
             for poster in movie.posters:
@@ -302,7 +302,7 @@ class MovieScraper(object):
                     return []
 
             def download_logo():
-                logger.log('Download Logo', LogLevel.Debug)
+                log('Download Logo', LogLevel.Debug)
                 if len(get_fanart('hdmovielogo')) > 0:
                     for fa in get_fanart('hdmovielogo'):
                         if fa['lang'] == self.config.pyscrape.language:
@@ -327,7 +327,7 @@ class MovieScraper(object):
                             return
 
             def download_banner():
-                logger.log('Download Banner', LogLevel.Debug)
+                log('Download Banner', LogLevel.Debug)
                 if len(get_fanart('moviebanner')) > 0:
                     banner = {}
                     for b in get_fanart('moviebanner'):
@@ -351,7 +351,7 @@ class MovieScraper(object):
                                     return
 
             def download_thumbs():
-                logger.log('Download Thumbs', LogLevel.Debug)
+                log('Download Thumbs', LogLevel.Debug)
                 _thumbs = get_fanart('moviethumb')
                 thumbs = {}
 
@@ -385,7 +385,7 @@ class MovieScraper(object):
                         downloader.download(url, dst)
 
             def download_disc():
-                logger.log('Download Disc Art', LogLevel.Debug)
+                log('Download Disc Art', LogLevel.Debug)
                 _discs = get_fanart('moviedisc')
                 discs = {}
                 if len(_discs) > 0:
@@ -405,7 +405,7 @@ class MovieScraper(object):
                         break
 
             def download_clearart():
-                logger.log('Download ClearArt', LogLevel.Debug)
+                log('Download ClearArt', LogLevel.Debug)
                 ca = get_fanart('hdmovieclearart')
                 clearart = {}
 
@@ -436,7 +436,7 @@ class MovieScraper(object):
                 fanart = fanart[f]
                 break            # just take the first result, if there are more than 1
 
-            logger.log('Download Fanart')
+            log('Download Fanart')
             download_banner()
             download_logo()
             download_thumbs()
@@ -458,14 +458,14 @@ class MovieScraper(object):
         if not delete_existing:
             return
 
-        logger.log('Delete old files')
+        log('Delete old files')
         for item in os.listdir(movie.path):
             item = os.path.join(movie.path, item)
             ext = os.path.splitext(item)[1].lower()
             if ext in utils.get_all_extensions():
                 continue
             elif os.path.isfile(item):
-                logger.log('Delete ' + item, LogLevel.Debug)
+                log('Delete ' + item, LogLevel.Debug)
                 os.remove(item)
             elif os.path.isdir(item):
                 deletable = True
@@ -475,30 +475,30 @@ class MovieScraper(object):
                         deletable = False
                     else:
                         file = os.path.join(item, d)
-                        logger.log('Delete ' + file, LogLevel.Debug)
+                        log('Delete ' + file, LogLevel.Debug)
                         os.remove(file)
                 if deletable:
-                    logger.log('Delete ' + item, LogLevel.Debug)
+                    log('Delete ' + item, LogLevel.Debug)
                     shutil.rmtree(item)
 
 
 def start():
     def requirements_satisfied():
         if not __name__ == '__main__':
-            logger.log('Do not import me', LogLevel.Error)
+            log('Do not import me', LogLevel.Error)
             sys.exit()
 
         result = True
         if config.fanart.api_key == '':
-            logger.log('FanarTV Api Key is missing', LogLevel.Error)
+            log('FanarTV Api Key is missing', LogLevel.Error)
             result = False
         if config.tmdb.api_key == '':
-            logger.log('TMDB Api Key is missing', LogLevel.Error)
+            log('TMDB Api Key is missing', LogLevel.Error)
             result = False
         if config.codec.mediainfo_path == '':
-            logger.log('Mediainfo is not set', LogLevel.Warning)
+            log('Mediainfo is not set', LogLevel.Warning)
         if config.codec.mkvmerge == '':
-            logger.log('MkvMerge is not set', LogLevel.Warning)
+            log('MkvMerge is not set', LogLevel.Warning)
 
         return result
 
@@ -520,7 +520,7 @@ def start():
                 MovieScraper(path, single=True, refresh=parameter['refresh'], force=parameter['force'],
                              nfo_only=parameter['nfo_only'])
             else:
-                logger.log('Path not found!', LogLevel.Error)
+                log('Path not found!', LogLevel.Error)
                 sys.exit()
 
         def get_parameter(arguments):
@@ -529,7 +529,7 @@ def start():
                                            ["path=", "refresh", "update-xbmc", "force", "nfo-only",
                                             "delete-existing"])
             except getopt.GetoptError:
-                logger.log('Wrong arguments', LogLevel.Error)
+                log('Wrong arguments', LogLevel.Error)
                 print '-p --path             paths (seperated by "::")'
                 print '-r --refresh          Do not delete existing files'
                 print '-u --update-xbmc      Clean/Update XBMC'
@@ -583,17 +583,16 @@ def start():
         if requirements_satisfied():
             main(sys.argv[1:])
     except Exception, e:
-        logger.log('oops something went wrong :/', LogLevel.Error)
-        logger.log(unicode(e), LogLevel.Error)
-        logger.log('sys.argv:', LogLevel.Error)
+        log('oops something went wrong :/', LogLevel.Error)
+        log(unicode(e), LogLevel.Error)
+        log('sys.argv:', LogLevel.Error)
         for a in sys.argv:
-            logger.log(a, LogLevel.Error)
-        logger.log(traceback.format_exc(), LogLevel.Error)
+            log(a, LogLevel.Error)
+        log(traceback.format_exc(), LogLevel.Error)
 
 
 config = Config()
-logger = Logger().init()
 try:
     start()
 except KeyboardInterrupt:
-    logger.log("MovieScraper was interrupted by user", LogLevel.Warning)
+    log("MovieScraper was interrupted by user", LogLevel.Warning)

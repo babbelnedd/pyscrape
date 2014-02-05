@@ -7,64 +7,56 @@ import utils
 from Config import Config
 
 
-class Logger(object):
-    def __init__(self):
-        self.path = os.path.join(utils.get_root(), 'logs')
-        self.logfile = os.path.join(self.path, 'pyscrape.log')
-        self.errorfile = os.path.join(self.path, 'error.log')
-        self.__cfg = Config()
+path = os.path.join(utils.get_root(), 'logs')
+logfile = os.path.join(path, 'pyscrape.log')
+errorfile = os.path.join(path, 'error.log')
+__cfg = Config()
 
-    def init(self):
-        if not os.path.exists(self.path):
-            os.makedirs(self.path)
 
-        if os.path.isfile(self.logfile):
-            if os.path.isfile(self.logfile + '.old'):
-                os.remove(self.logfile + '.old')
-            os.rename(self.logfile, self.logfile + '.old')
-        return self
+def log(text, level=''):
+    if level == '':
+        level = LogLevel.Info
 
-    def log(self, text, level=''):
-        if level == '': level = LogLevel.Info
+    if not __cfg.pyscrape.debug_log and level.upper() == 'DEBUG':
+        return
 
-        if not self.__cfg.pyscrape.debug_log and level.upper() == 'DEBUG':
-            return
+    if level == LogLevel.Error:
+        level = level.upper()
 
-        if level == LogLevel.Error:
-            level = level.upper()
+    text = text.strip()
+    level = level.strip().upper()
+    timestamp = datetime.datetime.now().strftime('%H:%M:%S')
+    output = '[' + timestamp + '][' + level + ']: ' + text
 
-        text = text.strip()
-        level = level.strip().upper()
-        timestamp = datetime.datetime.now().strftime('%H:%M:%S')
-        output = '[' + timestamp + '][' + level + ']: ' + text
+    with open(logfile, 'a') as logFile:
+        if isinstance(output, unicode):
+            output = output.encode('ascii', 'replace')
+        logFile.write(output + '\n')
 
-        with open(self.logfile, 'a') as logFile:
-            if isinstance(output, unicode):
-                output = output.encode('ascii', 'replace')
+    if level == LogLevel.Error or level == LogLevel.Warning:
+        with open(errorfile, 'a') as logFile:
             logFile.write(output + '\n')
 
-        if level == LogLevel.Error or level == LogLevel.Warning:
-            with open(self.errorfile, 'a') as logFile:
-                logFile.write(output + '\n')
+    _print(output, level)
 
-        _print(output, level)
 
-    def pushover(self, notification):
-        token = self.__cfg.pushover.token
-        key = self.__cfg.pushover.key
+def pushover(notification):
+    token = __cfg.pushover.token
+    key = __cfg.pushover.key
 
-        conn = httplib.HTTPSConnection("api.pushover.net:443")
-        conn.request("POST", "/1/messages.json",
-                     urllib.urlencode({"token": token,
-                                       "user": key,
-                                       "message": notification,
-                     }), {"Content-type": "application/x-www-form-urlencoded"})
-        conn.getresponse()
+    conn = httplib.HTTPSConnection("api.pushover.net:443")
+    conn.request("POST", "/1/messages.json",
+                 urllib.urlencode({"token": token,
+                                   "user": key,
+                                   "message": notification,
+                 }), {"Content-type": "application/x-www-form-urlencoded"})
+    conn.getresponse()
 
-    def whiteline(self):
-        with open(self.logfile, 'a') as logFile:
-            print('\n')
-            logFile.write('\n')
+
+def whiteline():
+    with open(logfile, 'a') as logFile:
+        print('\n')
+        logFile.write('\n')
 
 
 def _print(msg, level):
