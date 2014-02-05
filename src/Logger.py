@@ -47,7 +47,7 @@ class Logger(object):
             with open(self.errorfile, 'a') as logFile:
                 logFile.write(output + '\n')
 
-        self._print(output, level)
+        _print(output, level)
 
     def pushover(self, notification):
         token = self.__cfg.pushover.token
@@ -66,19 +66,20 @@ class Logger(object):
             print('\n')
             logFile.write('\n')
 
-    def _print(self, msg, level):
-        from TerminalColor import print_colored as print_colored, Foreground
-        if level == LogLevel.Debug:
-            print_colored(msg, Foreground.White)
-        elif level == LogLevel.Info:
-            print_colored(msg, Foreground.Green)
-        elif level == LogLevel.Warning:
-            print_colored(msg, Foreground.Yellow)
-        elif level == LogLevel.Error:
-            print_colored(msg, Foreground.Red)
-        else:
-            print_colored(msg, Foreground.Cyan)
 
+def _print(msg, level):
+    from TerminalColor import print_colored as print_colored, Foreground
+
+    if level == LogLevel.Debug:
+        print_colored(msg, Foreground.White)
+    elif level == LogLevel.Info:
+        print_colored(msg, Foreground.Green)
+    elif level == LogLevel.Warning:
+        print_colored(msg, Foreground.Yellow)
+    elif level == LogLevel.Error:
+        print_colored(msg, Foreground.Red)
+    else:
+        print_colored(msg, Foreground.Cyan)
 
 
 class LogLevel(object):
