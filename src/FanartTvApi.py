@@ -2,6 +2,7 @@ import urllib2
 import json
 import time
 from Config import Config
+from Decorator import Cached
 from Logger import log, LogLevel
 
 
@@ -9,12 +10,10 @@ config = Config()
 cached = {}
 
 
+@Cached
 def __request(request):
     log('Send Fanart Request: ' + request.replace(config.fanart.api_key, 'XXX'), 'DEBUG')
     headers = {'Accept': 'application/json'}
-    if request in cached:
-        log('Found cached result', LogLevel.Debug)
-        return cached[request]
 
     _request = urllib2.Request(request, headers=headers)
     response_body = urllib2.urlopen(_request).read()
@@ -23,7 +22,6 @@ def __request(request):
     except:
         result = json.loads(response_body.decode('utf-8'))
 
-    cached[request] = result
     return result
 
 

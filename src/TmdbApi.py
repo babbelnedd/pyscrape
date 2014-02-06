@@ -2,12 +2,12 @@ import urllib2
 import operator
 import json
 from Config import Config
-from Logger import log, LogLevel
+from Decorator import Cached
+from Logger import log
 
 config = Config()
 url_base = config.tmdb.url_base
 api_key = config.tmdb.api_key
-cached = {}
 
 
 def _load_images(images, poster=False):
@@ -30,6 +30,7 @@ def _get_resolution(images, width, height):
     return result
 
 
+@Cached
 def _request(request_string):
     if request_string.startswith('/'):
         request_string = request_string[1:]
@@ -39,10 +40,6 @@ def _request(request_string):
         req = req + '&api_key=' + api_key
     else:
         req = req + '?api_key=' + api_key
-
-    if req in cached:
-        log('Found cached result', LogLevel.Debug)
-        return cached[req]
 
     log('Send TMDB Request: ' + req.replace(config.tmdb.api_key, 'XXX'), 'DEBUG')
     headers = {'Accept': 'application/json'}
@@ -54,7 +51,6 @@ def _request(request_string):
     except:
         result = json.loads(response_body.decode('utf-8'))
 
-    cached[req] = result
     return result
 
 
