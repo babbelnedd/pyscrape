@@ -66,6 +66,9 @@ class Codec(object):
         except ConfigParser.NoOptionError:
             log('Key "{0}" not found in "{1}"'.format(attr, sec), LogLevel.Debug)
             return ''
+        except ConfigParser.NoSectionError:
+            log('Section "{0}" not found'.format(sec), LogLevel.Debug)
+            return ''
         except AttributeError:
             return ''
 
