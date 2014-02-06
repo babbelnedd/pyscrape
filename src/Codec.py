@@ -4,6 +4,7 @@ import subprocess
 import os
 import ConfigParser
 import sys
+
 from Logger import Logger, LogLevel
 from Config import Config
 
@@ -65,6 +66,8 @@ class Codec(object):
             return result
         except ConfigParser.NoOptionError:
             self.logger.log('Key "{0}" not found in "{1}"'.format(attr, sec), LogLevel.Debug)
+            return ''
+        except AttributeError:
             return ''
 
     def get_runtime(self):
