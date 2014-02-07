@@ -6,6 +6,7 @@ import os
 
 from Config import Config
 
+from Decorator import Logger
 
 root = os.path.dirname(os.path.realpath(__file__))
 path = os.path.join(root, 'logs')
@@ -16,7 +17,7 @@ __cfg = Config()
 if not os.path.exists(path):
     os.makedirs(path)
 
-
+@Logger
 def log(text, level=''):
     if level == '':
         level = LogLevel.Info
