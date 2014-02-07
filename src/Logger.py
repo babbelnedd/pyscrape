@@ -3,6 +3,7 @@ import httplib
 import urllib
 import datetime
 import os
+
 import utils
 from Config import Config
 
@@ -11,6 +12,9 @@ path = os.path.join(utils.get_root(), 'logs')
 logfile = os.path.join(path, 'pyscrape.log')
 errorfile = os.path.join(path, 'error.log')
 __cfg = Config()
+
+if not os.path.exists(path):
+    os.makedirs(path)
 
 
 def log(text, level=''):
