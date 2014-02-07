@@ -4,11 +4,11 @@ import urllib
 import datetime
 import os
 
-import utils
 from Config import Config
 
 
-path = os.path.join(utils.get_root(), 'logs')
+root = os.path.dirname(os.path.realpath(__file__))
+path = os.path.join(root, 'logs')
 logfile = os.path.join(path, 'pyscrape.log')
 errorfile = os.path.join(path, 'error.log')
 __cfg = Config()
