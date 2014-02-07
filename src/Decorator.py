@@ -1,12 +1,10 @@
-from Logger import log, LogLevel
-
-
 class Cached(object):
     def __init__(self, function):
         self.func = function
         self.cache = {}
 
     def __call__(self, *args):
+        from Logger import log, LogLevel
         args = args[0]
 
         if args in self.cache:
