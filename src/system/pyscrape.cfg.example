@@ -11,9 +11,14 @@ rename=true
 [movie]
 paths=/mnt/Movies1::/mnt/Movies2
 
+[show]
+paths=/mnt/Shows1::/mnt/Shows2
+
 [codec]
 mediainfo_path=mediainfo
 mkvmerge=mkvmerge
+ffmpeg=ffmpeg
+screenshot_time=00:03:00.000
 
 ; deletes all audio tracks but the given from a mkv file (needs mkvmerge (installed by mkvtoolnix))
 ; usage: german::english:: ..

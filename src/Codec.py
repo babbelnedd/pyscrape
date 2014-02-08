@@ -122,6 +122,7 @@ class Codec(object):
                 video['duration'] = duration[0].replace('s', '').strip()
             else:
                 video['duration'] = 0
+
             video['width'] = self._get('Video', 'Width').replace('pixels', '').replace(' ', '')
             video['height'] = self._get('Video', 'Height').replace('pixels', '').replace(' ', '')
             video['bitrate'] = self._get('Video', 'Bit rate')
@@ -267,3 +268,9 @@ class Codec(object):
     def __del__(self):
         if os.path.exists(self.file):
             os.remove(self.file)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        pass

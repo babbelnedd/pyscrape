@@ -1,7 +1,6 @@
-import utils
 import os
 import sys
-from ConfigParser import ConfigParser
+from ConfigParser import ConfigParser, NoOptionError
 
 
 class Config(object):
@@ -10,6 +9,7 @@ class Config(object):
         config_file = os.path.join(root, 'system', 'pyscrape.cfg')
         if not os.path.exists(config_file):
             from TerminalColor import print_colored, Foreground
+
             print_colored('Config file not found', Foreground.Red)
             sys.exit(-1)
 
@@ -20,6 +20,7 @@ class Config(object):
         self.fanart = FanartConfig(cfg)
         self.codec = CodecConfig(cfg)
         self.movie = MovieConfig(cfg)
+        self.show = ShowConfig(cfg)
         self.xbmc = XbmcConfig(cfg)
 
 
@@ -37,6 +38,11 @@ class PyscrapeConfig(object):
 class MovieConfig(object):
     def __init__(self, cfg):
         self.paths = cfg.get('movie', 'paths').split('::')
+
+
+class ShowConfig(object):
+    def __init__(self, cfg):
+        self.paths = cfg.get('show', 'paths').split('::')
 
 
 class TmdbConfig(object):
@@ -57,14 +63,17 @@ class CodecConfig(object):
     def __init__(self, cfg):
         self.mediainfo_path = cfg.get('codec', 'mediainfo_path')
         self.mkvmerge = cfg.get('codec', 'mkvmerge')
+        self.ffmpeg = cfg.get('codec', 'ffmpeg')
+        self.screenshot_time = cfg.get('codec', 'screenshot_time')
+
         try:
             self.keep_subs = cfg.get('codec', 'keep_subtitles')
-        except:
+        except NoOptionError:
             self.keep_subs = 'all'
         self.keep_tracks = []
         try:
             self.keep_tracks = cfg.get('codec', 'keep_tracks').split('::')
-        except:
+        except NoOptionError:
             pass
 
 

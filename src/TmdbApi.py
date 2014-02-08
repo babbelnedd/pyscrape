@@ -3,7 +3,7 @@ import operator
 import json
 from Config import Config
 from Decorator import Cached
-from Logger import log
+from Logger import log, LogLevel
 
 config = Config()
 url_base = config.tmdb.url_base
@@ -151,7 +151,7 @@ def get_posters(tmdb_id):
     return sorted(_load_images(posters, True).iteritems(), key=operator.itemgetter(1), reverse=True)
 
 
-def get_credits(tmdb_id):
+def get_credits(tmdb_id, type='movie'):
     def get_crew(crew):
         xml = u''
         for c in crew:
@@ -197,3 +197,44 @@ def get_thumb(tmdb_id):
 
 def get_changes():
     return _request('movies/changes?start_date=2000-01-01')
+
+
+def get_show_id(title=None, tvdb_id=None):
+    if tvdb_id is not None:
+        result = _request('find/' + tvdb_id + '?external_source=tvdb_id')
+
+        if len(result['tv_results']) >= 1:
+            return result['tv_results'][0]['id']
+
+    if title is not None:
+        title = title.replace(' ', '%20')
+        for result in _request('search/tv?query=' + title)['results']:
+            return result['id']
+
+
+def get_show(tmdb_id):
+    if tmdb_id is None:
+        pass # ja was dann?
+    else:
+        return _request('/tv/' + unicode(tmdb_id))
+
+
+def get_episode_credits(tmdb_id, season_number, episode_number):
+    try:
+        return _request('/tv/{0}/season/{1}/episode/{2}/credits'.format(tmdb_id, season_number, episode_number))
+    except urllib2.HTTPError:
+        log('Ooops, it looks like there is no episode info', LogLevel.Warning)
+        return ''
+
+
+def get_season_poster(tmdb_id, season_number):
+    return _request('/tv/{0}/season/{1}'.format(tmdb_id, season_number))['poster_path']
+
+
+def get_season_count(tmdb_id):
+    count = 0
+    for season in get_show(tmdb_id)['seasons']:
+        if season['season_number'] != 0:
+            count += 1
+
+    return count
