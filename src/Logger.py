@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import httplib
 import urllib
 import datetime
@@ -16,6 +15,11 @@ __cfg = Config()
 
 if not os.path.exists(path):
     os.makedirs(path)
+if not os.path.exists(logfile):
+    open(logfile, 'w+')
+if not os.path.exists(errorfile):
+    open(errorfile, 'w+')
+
 
 @Logger
 def log(text, level=''):
