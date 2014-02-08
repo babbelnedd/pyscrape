@@ -1,0 +1,41 @@
+[pyscrape]
+; limit=0 is unlimited
+backdrop_limit=0
+poster_limit=0
+thumb_limit=0
+debug_log=true
+language=de
+fallback_language=en
+rename=true
+
+[movie]
+paths=/mnt/Movies1::/mnt/Movies2
+
+[show]
+paths=/mnt/Shows1::/mnt/Shows2
+
+[codec]
+mediainfo_path=mediainfo
+mkvmerge=mkvmerge
+ffmpeg=ffmpeg
+screenshot_time=00:03:00.000
+
+; deletes all audio tracks but the given from a mkv file (needs mkvmerge (installed by mkvtoolnix))
+; usage: german::english:: ..
+; uncomment to activate removing of audio tracks
+; keep_tracks=german
+
+[tmdb]
+api_key=ee4587bbb41b7b0b9075ff40ced55143
+url_base=http://private-255e9-themoviedb.apiary.io/3/
+
+[fanarttv]
+api_key=b026e624c179f76b824731f240edf0e7
+url_base=http://api.fanart.tv/webservice/
+
+[xbmc]
+protocol=http
+ip=192.168.178.50
+port=8080
+user=xbmc
+pass=xbmc
