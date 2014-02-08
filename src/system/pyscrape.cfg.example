@@ -15,25 +15,18 @@ paths=/mnt/Movies1::/mnt/Movies2
 mediainfo_path=mediainfo
 mkvmerge=mkvmerge
 
-; deletes all audio tracks but the given from a mkv file - be careful (needs mkvmerge (installed by mkvtoolnix))
+; deletes all audio tracks but the given from a mkv file (needs mkvmerge (installed by mkvtoolnix))
 ; usage: german::english:: ..
 ; uncomment to activate removing of audio tracks
-keep_tracks=german
-
+; keep_tracks=german
 
 [tmdb]
 api_key=ee4587bbb41b7b0b9075ff40ced55143
-image_base=
 url_base=http://private-255e9-themoviedb.apiary.io/3/
 
 [fanarttv]
 api_key=b026e624c179f76b824731f240edf0e7
-image_base=
 url_base=http://api.fanart.tv/webservice/
-
-[pushover]
-token=
-key=
 
 [xbmc]
 protocol=http

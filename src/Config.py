@@ -6,21 +6,20 @@ from ConfigParser import ConfigParser
 
 class Config(object):
     def __init__(self):
-        file = os.path.join(utils.get_root(), 'system', 'pyscrape.cfg')
-        if not os.path.exists(file):
+        root = os.path.dirname(os.path.realpath(__file__))
+        config_file = os.path.join(root, 'system', 'pyscrape.cfg')
+        if not os.path.exists(config_file):
             from TerminalColor import print_colored, Foreground
             print_colored('Config file not found', Foreground.Red)
-            print_colored('See instructions: http://bit.ly/1g97yqR', Foreground.Red)
             sys.exit(-1)
 
         cfg = ConfigParser()
-        cfg.read(file)
+        cfg.read(config_file)
         self.pyscrape = PyscrapeConfig(cfg)
         self.tmdb = TmdbConfig(cfg)
         self.fanart = FanartConfig(cfg)
         self.codec = CodecConfig(cfg)
         self.movie = MovieConfig(cfg)
-        self.pushover = PushoverConfig(cfg)
         self.xbmc = XbmcConfig(cfg)
 
 
@@ -67,12 +66,6 @@ class CodecConfig(object):
             self.keep_tracks = cfg.get('codec', 'keep_tracks').split('::')
         except:
             pass
-
-
-class PushoverConfig(object):
-    def __init__(self, cfg):
-        self.token = cfg.get('pushover', 'token')
-        self.key = cfg.get('pushover', 'key')
 
 
 class XbmcConfig(object):
