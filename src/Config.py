@@ -48,14 +48,12 @@ class ShowConfig(object):
 class TmdbConfig(object):
     def __init__(self, cfg):
         self.api_key = cfg.get('tmdb', 'api_key')
-        self.image_base = cfg.get('tmdb', 'image_base')
         self.url_base = cfg.get('tmdb', 'url_base')
 
 
 class FanartConfig(object):
     def __init__(self, cfg):
         self.api_key = cfg.get('fanarttv', 'api_key')
-        self.image_base = cfg.get('fanarttv', 'image_base')
         self.url_base = cfg.get('fanarttv', 'url_base')
 
 
