@@ -3,16 +3,54 @@
 backdrop_limit=0
 poster_limit=0
 thumb_limit=0
+<<<<<<< HEAD
 debug_log=true
+=======
+debug_log=false
+>>>>>>> dev
 language=de
 fallback_language=en
 rename=true
 
 [movie]
+<<<<<<< HEAD
 paths=/mnt/Movies1::/mnt/Movies2
 
 [show]
 paths=/mnt/Shows1::/mnt/Shows2
+=======
+paths=/media/movies1::/media/movies2
+banner=false
+backdrop=false
+extrafanart=false
+poster=false
+landscape=false
+; thumbs will only be downloaded when landscape is true
+thumbs=false
+; extrathumbs will only be downloaded when thumbs is true
+extrathumbs=false
+logo=false
+disc=false
+clearart=false
+
+[show]
+paths=/mnt/Shows1::/mnt/Shows2
+banner=true
+seasonbanner=true
+seasonthumbs=true
+seasonposter=true
+logo=true
+landscape=true
+thumbs=true
+extrathumbs=true
+clearart=true
+characterart=true
+poster=true
+backdrop=true
+; extrafanart will only be downloaded when backdrop is true
+extrafanart=true
+folder=true
+>>>>>>> dev
 
 [codec]
 mediainfo_path=mediainfo

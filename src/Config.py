@@ -38,11 +38,35 @@ class PyscrapeConfig(object):
 class MovieConfig(object):
     def __init__(self, cfg):
         self.paths = cfg.get('movie', 'paths').split('::')
+        self.download_banner = cfg.get('movie', 'banner').lower().strip() == 'true'
+        self.download_backdrop = cfg.get('movie', 'backdrop').lower().strip() == 'true'
+        self.download_poster = cfg.get('movie', 'poster').lower().strip() == 'true'
+        self.download_landscape = cfg.get('movie', 'landscape').lower().strip() == 'true'
+        self.download_thumbs = cfg.get('movie', 'thumbs').lower().strip() == 'true'
+        self.download_extrathumbs = cfg.get('movie', 'extrathumbs').lower().strip() == 'true'
+        self.download_logo = cfg.get('movie', 'logo').lower().strip() == 'true'
+        self.download_disc = cfg.get('movie', 'disc').lower().strip() == 'true'
+        self.download_clearart = cfg.get('movie', 'clearart').lower().strip() == 'true'
+        self.download_extrafanart = cfg.get('movie', 'extrafanart').lower().strip() == 'true'
 
 
 class ShowConfig(object):
     def __init__(self, cfg):
         self.paths = cfg.get('show', 'paths').split('::')
+        self.download_banner = cfg.get('show', 'banner').lower().strip() == 'true'
+        self.download_seasonbanner = cfg.get('show', 'seasonbanner').lower().strip() == 'true'
+        self.download_seasonthumbs = cfg.get('show', 'seasonthumbs').lower().strip() == 'true'
+        self.download_seasonposter = cfg.get('show', 'seasonposter').lower().strip() == 'true'
+        self.download_logo = cfg.get('show', 'logo').lower().strip() == 'true'
+        self.download_landscape = cfg.get('show', 'landscape').lower().strip() == 'true'
+        self.download_thumbs = cfg.get('show', 'thumbs').lower().strip() == 'true'
+        self.download_extrathumbs = cfg.get('show', 'extrathumbs').lower().strip() == 'true'
+        self.download_clearart = cfg.get('show', 'clearart').lower().strip() == 'true'
+        self.download_characterart = cfg.get('show', 'characterart').lower().strip() == 'true'
+        self.download_poster = cfg.get('show', 'poster').lower().strip() == 'true'
+        self.download_backdrop = cfg.get('show', 'backdrop').lower().strip() == 'true'
+        self.download_extrafanart = cfg.get('show', 'extrafanart').lower().strip() == 'true'
+        self.download_folder = cfg.get('show', 'folder').lower().strip() == 'true'
 
 
 class TmdbConfig(object):

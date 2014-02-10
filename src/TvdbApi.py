@@ -318,15 +318,15 @@ class TvdbApi(object):
                     if not config.pyscrape.backdrop_limit <= 0 and n > (config.pyscrape.backdrop_limit - 1):
                         return
 
-                    if n == 1:
+                    if n == 1 and config.show.download_extrafanart:
                         path = os.path.join(path, 'extrafanart')
                         if not os.path.exists(path):
                             os.makedirs(path)
 
                     url = backdrop[0]
-                    if n == 0:
+                    if n == 0 and config.show.download_backdrop:
                         dst = os.path.join(path, 'fanart.jpg')
-                    else:
+                    elif n != 0 and config.show.download_extrafanart:
                         dst = os.path.join(path, os.path.basename(backdrop[0]))
 
                     download(url, dst)
@@ -407,21 +407,23 @@ class TvdbApi(object):
                     for n in range(0, len(thumbs)):
                         thumb = thumbs[n]
                         url = thumb[0]
+                        path, name = '', ''
 
-                        if n == 0:
+                        if n == 0 and config.show.download_landscape:
                             path = self.show['path']
                             name = 'landscape.jpg'
-                        elif 0 < n < 4:
+                        elif 0 < n <= 4 and config.show.download_thumbs:
                             path = self.show['path']
                             name = 'thumb{0}.jpg'.format(n)
-                        else:
+                        elif n > 4 and config.show.download_extrathumbs:
                             path = os.path.join(self.show['path'], 'extrathumbs')
                             if not os.path.exists(path):
                                 os.makedirs(path)
-                            name = 'thumb{0}.jpg'.format(str(int(n - 3)))
+                            name = 'thumb{0}.jpg'.format(str(int(n - 4)))
 
-                        dst = os.path.join(path, name)
-                        download(url, dst)
+                        if path != '' and name != '':
+                            dst = os.path.join(path, name)
+                            download(url, dst)
 
             def download_clearart():
                 log('Download ClearArt', LogLevel.Debug)
@@ -521,23 +523,32 @@ class TvdbApi(object):
                         dst = os.path.join(self.show['path'], 'season{0}.tbn'.format(n))
                         download(src, dst)
 
-
             fanart = FanartTvApi.get_show(self.show['id'])
             if fanart is not None:
                 for f in fanart:  # Fanart gives sometimes more than one result - but there are no double tmdbID's???
                     fanart = fanart[f]
                     break  # just take the first result, if there are more than 1
 
-                download_banner()
-                download_season_banner()
-                download_season_thumbs()
-                download_season_poster()
-                download_logo()
-                download_thumbs()
-                download_clearart()
-                download_character_art()
-                download_poster()
-                download_backdrops()
+                if config.show.download_banner:
+                    download_banner()
+                if config.show.download_seasonbanner:
+                    download_season_banner()
+                if config.show.download_seasonthumbs:
+                    download_season_thumbs()
+                if config.show.download_seasonposter:
+                    download_season_poster()
+                if config.show.download_logo:
+                    download_logo()
+                if config.show.download_landscape:
+                    download_thumbs()
+                if config.show.download_clearart:
+                    download_clearart()
+                if config.show.download_characterart:
+                    download_character_art()
+                if config.show.download_poster:
+                    download_poster()
+                if config.show.download_backdrop:
+                    download_backdrops()
 
         def download_from_tmdb(image_type, file_name=None):
             if file_name is None:
@@ -554,14 +565,21 @@ class TvdbApi(object):
         download_fanart()
 
         log('Start downloading missing Images from TMDB')
-        if not os.path.exists(os.path.join(self.show['path'], 'banner.jpg')):
-            download_from_tmdb('banner')
-        if not os.path.exists(os.path.join(self.show['path'], 'poster.jpg')):
-            download_from_tmdb('poster')
-        if not os.path.exists(os.path.join(self.show['path'], 'folder.jpg')):
-            download_from_tmdb('poster', 'folder')
-        if not os.path.exists(os.path.join(self.show['path'], 'fanart.jpg')):
-            download_from_tmdb('fanart')
+        if config.show.download_banner:
+            if not os.path.exists(os.path.join(self.show['path'], 'banner.jpg')):
+                download_from_tmdb('banner')
+
+        if config.show.download_poster:
+            if not os.path.exists(os.path.join(self.show['path'], 'poster.jpg')):
+                download_from_tmdb('poster')
+
+        if config.show.download_backdrop:
+            if not os.path.exists(os.path.join(self.show['path'], 'fanart.jpg')):
+                download_from_tmdb('fanart')
+
+        if config.show.download_folder:
+            if not os.path.exists(os.path.join(self.show['path'], 'folder.jpg')):
+                download_from_tmdb('poster', 'folder')
 
 
 def _download_zip(tvdb_id, language):
