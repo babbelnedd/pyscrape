@@ -6,12 +6,14 @@ class Cached(object):
     def __call__(self, *args):
         from Logger import log, LogLevel
 
-        args = args[0]
-
         if args in self.cache:
-            log('Found Cached Result', LogLevel.Debug)
+            _args = str(args).replace('(', '').replace(')', '')
+            if _args.endswith(','):
+                _args = _args[:len(_args) - 1]
+            msg = 'Found Cached Result: {0}({1})'.format(self.func.__name__, _args)
+            log(msg, LogLevel.Debug)
         else:
-            self.cache[args] = self.func(args)
+            self.cache[args] = self.func(*args)
 
         return self.cache[args]
 
