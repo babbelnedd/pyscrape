@@ -136,10 +136,6 @@ def cleanup_dir(movie):
             for extension in [os.path.splitext(e)[1].lower() for e in os.listdir(item)]:
                 if extension in utils.get_all_extensions():
                     deletable = False
-                else:
-                    deletable_file = os.path.join(item, extension)
-                    log('Delete ' + deletable_file, LogLevel.Debug)
-                    os.remove(deletable_file)
             if deletable:
                 log('Delete ' + item, LogLevel.Debug)
                 shutil.rmtree(item)
@@ -510,7 +506,7 @@ def start():
 
         result = True
         if config.fanart.api_key == '':
-            log('FanarTV Api Key is missing', LogLevel.Error)
+            log('FanartTV Api Key is missing', LogLevel.Error)
             result = False
         if config.tmdb.api_key == '':
             log('TMDB Api Key is missing', LogLevel.Error)
