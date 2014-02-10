@@ -2,7 +2,7 @@ class Movie(object):
     def __init__(self):
         self.title = ''                                 # Movie title
         self.id = ''                                    # TMDB ID
-        self.imdbID = ''                                # IMDB ID
+        self.imdb = ''                                # IMDB ID
         self.orig_title = ''                            # Original title
         self.year = ''                                  # Year of release
         self.thumb = ''                                 # Url of thumb for .nfo
