@@ -17,6 +17,7 @@ from Config import Config
 from Codec import Codec
 from utils import download
 
+
 delete_existing = False
 
 
@@ -55,7 +56,7 @@ class MovieScraper(object):
                 else:
                     self.codec.delete_audio_tracks()
                     movie = self.get_metadata(m)
-                    if movie == -1:   # no movie found
+                    if movie == -1:  # no movie found
                         continue
 
                     self.download_images(movie)
@@ -131,7 +132,7 @@ class MovieScraper(object):
                     log('MORE THAN ONE RESULT FOUND - PLEASE CHECK THE RETRIEVED DATA!', LogLevel.Warning)
 
                 for r in result:
-                    if movie.title != '':    # if the title occurs more than once, take the one with the highest popularity
+                    if movie.title != '':  # if the title occurs more than once, take the one with the highest popularity
                         if not (movie.search_title == r['title'] or movie.search_title == r['original_title']):
                             if movie.title == r[u'title'] and movie.popularity < float(r['popularity']):
                                 log('Found movie with higher popularity')
@@ -157,10 +158,10 @@ class MovieScraper(object):
         def get_advanced_metadata(movie):
             log('Get advanced informations')
             info = get_movie(movie.id, lang=self.config.pyscrape.language)
-            if info is None:   # If there is no information get information for fallback language
+            if info is None:  # If there is no information get information for fallback language
                 info = get_movie(movie.id, lang=self.config.pyscrape.fallback_language)
             if info is None:
-                pass           # What to do if there is no info for fallback language?
+                pass  # What to do if there is no info for fallback language?
 
             movie.imdbID = info['imdb_id']
             movie.plot = info[u'overview']
@@ -432,9 +433,9 @@ class MovieScraper(object):
             fanart = FanartTvApi.get_movie(movie.imdbID)
             if fanart is None:
                 return
-            for f in fanart:     # Fanart gives sometimes more than one result - but there are no double tmdbID's???
+            for f in fanart:  # Fanart gives sometimes more than one result - but there are no double tmdbID's???
                 fanart = fanart[f]
-                break            # just take the first result, if there are more than 1
+                break  # just take the first result, if there are more than 1
 
             log('Download Fanart')
             download_banner()
@@ -468,7 +469,7 @@ class MovieScraper(object):
                 os.remove(item)
             elif os.path.isdir(item):
                 deletable = True
-                for d in os.listdir(item):     # Prüfe ob der Ordner keine .mkv datei enthält
+                for d in os.listdir(item):  # Prüfe ob der Ordner keine .mkv datei enthält
                     ext = os.path.splitext(d)[1].lower()
                     if ext in utils.get_all_extensions():
                         deletable = False
