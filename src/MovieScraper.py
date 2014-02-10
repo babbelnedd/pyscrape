@@ -17,6 +17,7 @@ from Config import Config
 from Codec import Codec
 from utils import download
 
+
 delete_existing = False
 
 
@@ -55,7 +56,7 @@ class MovieScraper(object):
                 else:
                     self.codec.delete_audio_tracks()
                     movie = self.get_metadata(m)
-                    if movie == -1:   # no movie found
+                    if movie == -1:  # no movie found
                         continue
 
                     self.download_images(movie)
@@ -131,7 +132,7 @@ class MovieScraper(object):
                     log('MORE THAN ONE RESULT FOUND - PLEASE CHECK THE RETRIEVED DATA!', LogLevel.Warning)
 
                 for r in result:
-                    if movie.title != '':    # if the title occurs more than once, take the one with the highest popularity
+                    if movie.title != '':  # if the title occurs more than once, take the one with the highest popularity
                         if not (movie.search_title == r['title'] or movie.search_title == r['original_title']):
                             if movie.title == r[u'title'] and movie.popularity < float(r['popularity']):
                                 log('Found movie with higher popularity')
@@ -157,10 +158,10 @@ class MovieScraper(object):
         def get_advanced_metadata(movie):
             log('Get advanced informations')
             info = get_movie(movie.id, lang=self.config.pyscrape.language)
-            if info is None:   # If there is no information get information for fallback language
+            if info is None:  # If there is no information get information for fallback language
                 info = get_movie(movie.id, lang=self.config.pyscrape.fallback_language)
             if info is None:
-                pass           # What to do if there is no info for fallback language?
+                pass  # What to do if there is no info for fallback language?
 
             movie.imdbID = info['imdb_id']
             movie.plot = info[u'overview']
@@ -264,6 +265,8 @@ class MovieScraper(object):
                     return
 
                 if n == 1:
+                    if not config.movie.download_extrafanart:
+                        return
                     path = os.path.join(path, 'extrafanart')
                     if not os.path.exists(path):
                         os.makedirs(path)
@@ -368,21 +371,23 @@ class MovieScraper(object):
                     for n in range(0, len(thumbs)):
                         thumb = thumbs[n]
                         url = thumb[0]
-
-                        if n == 0:
+                        path = ''
+                        name = ''
+                        if n == 0 and config.movie.download_landscape:
                             path = movie.path
                             name = 'landscape.jpg'
-                        elif n > 0 and n < 4:
+                        elif 0 < n <= 4 and config.movie.download_thumbs:
                             path = movie.path
                             name = 'thumb{0}.jpg'.format(n)
-                        else:
+                        elif n > 4 and config.movie.download_extrathumbs:
                             path = os.path.join(movie.path, 'extrathumbs')
                             if not os.path.exists(path):
                                 os.makedirs(path)
-                            name = 'thumb{0}.jpg'.format(str(int(n - 3)))
+                            name = 'thumb{0}.jpg'.format(str(int(n - 4)))
 
-                        dst = os.path.join(path, name)
-                        download(src=url, dst=dst, refresh=_refresh)
+                        if path != '' and name != '':
+                            dst = os.path.join(path, name)
+                            download(src=url, dst=dst, refresh=_refresh)
 
             def download_disc():
                 log('Download Disc Art', LogLevel.Debug)
@@ -432,24 +437,33 @@ class MovieScraper(object):
             fanart = FanartTvApi.get_movie(movie.imdbID)
             if fanart is None:
                 return
-            for f in fanart:     # Fanart gives sometimes more than one result - but there are no double tmdbID's???
+            for f in fanart:  # Fanart gives sometimes more than one result - but there are no double tmdbID's???
                 fanart = fanart[f]
-                break            # just take the first result, if there are more than 1
+                break  # just take the first result, if there are more than 1
 
-            log('Download Fanart')
-            download_banner()
-            download_logo()
-            download_thumbs()
-            download_disc()
-            download_clearart()
+            if config.movie.download_banner or config.movie.download_logo or config.movie.download_landscape or \
+                    config.movie.download_disc or config.movie.download_clearart:
+                log('Download Fanart')
+                if config.movie.download_banner:
+                    download_banner()
+                if config.movie.download_logo:
+                    download_logo()
+                if config.movie.download_landscape:
+                    download_thumbs()
+                if config.movie.download_disc:
+                    download_disc()
+                if config.movie.download_clearart:
+                    download_clearart()
 
         global delete_existing
         _refresh = True
         if self.refresh or delete_existing:
             _refresh = False
 
-        download_backdrops()
-        download_posters()
+        if config.movie.download_backdrop:
+            download_backdrops()
+        if config.movie.download_poster:
+            download_posters()
         download_fanart()
 
     def cleanup_dir(self, movie):
@@ -468,7 +482,7 @@ class MovieScraper(object):
                 os.remove(item)
             elif os.path.isdir(item):
                 deletable = True
-                for d in os.listdir(item):     # Prüfe ob der Ordner keine .mkv datei enthält
+                for d in os.listdir(item):  # Prüfe ob der Ordner keine .mkv datei enthält
                     ext = os.path.splitext(d)[1].lower()
                     if ext in utils.get_all_extensions():
                         deletable = False
