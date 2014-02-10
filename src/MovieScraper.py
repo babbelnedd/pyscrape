@@ -267,6 +267,7 @@ class MovieScraper(object):
                 if n == 1:
                     if not config.movie.download_extrafanart:
                         return
+
                     path = os.path.join(path, 'extrafanart')
                     if not os.path.exists(path):
                         os.makedirs(path)
@@ -371,6 +372,7 @@ class MovieScraper(object):
                     for n in range(0, len(thumbs)):
                         thumb = thumbs[n]
                         url = thumb[0]
+
                         path = ''
                         name = ''
                         if n == 0 and config.movie.download_landscape:
@@ -464,6 +466,7 @@ class MovieScraper(object):
             download_backdrops()
         if config.movie.download_poster:
             download_posters()
+
         download_fanart()
 
     def cleanup_dir(self, movie):

@@ -3,12 +3,22 @@
 backdrop_limit=0
 poster_limit=0
 thumb_limit=0
+<<<<<<< HEAD
+debug_log=true
+=======
 debug_log=false
+>>>>>>> dev
 language=de
 fallback_language=en
 rename=true
 
 [movie]
+<<<<<<< HEAD
+paths=/mnt/Movies1::/mnt/Movies2
+
+[show]
+paths=/mnt/Shows1::/mnt/Shows2
+=======
 paths=/media/movies1::/media/movies2
 banner=false
 backdrop=false
@@ -40,6 +50,7 @@ backdrop=true
 ; extrafanart will only be downloaded when backdrop is true
 extrafanart=true
 folder=true
+>>>>>>> dev
 
 [codec]
 mediainfo_path=mediainfo
