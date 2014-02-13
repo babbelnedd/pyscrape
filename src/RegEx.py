@@ -1,20 +1,33 @@
 import re
 
 
+def get_cd(string):
+    regex = re.search('\cd[0-9]', string, re.IGNORECASE)
+
+    if regex:
+        _cd = regex.group().replace('(', '').replace(')', '')
+    else:
+        _cd = ''
+
+    _cd = _cd.lower().replace('cd', '').strip()
+
+    return _cd
+
+
 def get_movie(title):
-    def remove_brackets(title):
-        title = re.sub(r"\([^)]*\)", "", title)
-        title = re.sub(r"\[[^)]*\]", "", title)
-        return title
+    def remove_brackets(string):
+        string = re.sub(r"\([^)]*\)", "", string)
+        string = re.sub(r"\[[^)]*\]", "", string)
+        return string
 
     def remove_double_spaces(string):
         while '  ' in string:
             string = string.replace('  ', ' ')
         return string
 
-    def get_year(title):
-        rx_parentheses = re.search('\([0-9+]{4}\)', title)
-        rx_square_brackets = re.search('\[[0-9+]{4}\]', title)
+    def get_year(string):
+        rx_parentheses = re.search('\([0-9+]{4}\)', string)
+        rx_square_brackets = re.search('\[[0-9+]{4}\]', string)
 
         year = ''
         if rx_parentheses:
@@ -24,17 +37,17 @@ def get_movie(title):
 
         return year
 
-    def get_imdb_id(title):
-        rx_parentheses = re.search('\(tt[0-9]{7}\)', title)
-        rx_square_brackets = re.search('\[tt[0-9]{7}\]', title)
+    def get_imdb_id(string):
+        rx_parentheses = re.search('\(tt[0-9]{7}\)', string)
+        rx_square_brackets = re.search('\[tt[0-9]{7}\]', string)
 
-        imdb_id = ''
+        imdb = ''
         if rx_parentheses:
-            imdb_id = rx_parentheses.group().replace('(', '').replace(')', '')
+            imdb = rx_parentheses.group().replace('(', '').replace(')', '')
         elif rx_square_brackets:
-            imdb_id = rx_square_brackets.group().replace('[', '').replace(']', '')
+            imdb = rx_square_brackets.group().replace('[', '').replace(']', '')
 
-        return imdb_id
+        return imdb
 
     year = get_year(title)
     imdb_id = get_imdb_id(title)

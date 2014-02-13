@@ -14,7 +14,8 @@ class Movie(object):
         self.search_title = 'unknown'                   # title from folder (without imdb id/year)
         self.search_alternative_title = 'unknown'       # title (with replaced characters)
         self.path = ''                                  # full path of file
-        self.file = ''                                  # Filename (without path)
+        #self.file = ''                                  # Filename (without path)
+        self.files = []
         self.trailers = {}                              # Trailer urls
         self.trailer = ''                               # Trailer for .nfo
         self.production_countries = ''                  # Production countries, format: Germany / Italy / ...

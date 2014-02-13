@@ -1,3 +1,4 @@
+import re
 import sys
 import os
 import shutil
@@ -40,12 +41,22 @@ def get_movie(root, path):
     if len(files) < 1:
         return movie
 
+    # todo: this *should* not longer be needed,
     if 'new.mkv' in files and len(files) > 1:
         os.remove(os.path.join(movie.path, 'new.mkv'))
         files = get_movie_files(movie.path)
 
-    if len(files) == 1:  # todo: implement multi cd support
-        movie.file = files[0]
+    # todo: implement multi cd support
+    if len(files) == 1:
+        movie.files = [files[0]]
+
+    if len(files) > 1:
+        # get only files that are tagged as CD
+        for _file in [f for f in files if RegEx.get_cd(f) == '']:
+            files.remove(_file)
+
+        movie.files = files
+
     return movie
 
 
@@ -110,7 +121,14 @@ def create_nfo(movie):
     xml += '</movie>'
 
     log('Write NFO')
-    filename, extension = os.path.splitext(movie.file)
+    if len(movie.files) > 0:
+        filename, extension = os.path.splitext(movie.files[0])
+        regex = re.search('\cd[0-9]', filename, re.IGNORECASE)
+        if regex:
+            filename = filename.replace(regex.group(), '').strip()
+    else:
+        filename = ''
+
     if filename == '':
         filename = os.path.basename(movie.path)
     nfo_file = os.path.join(movie.path, filename + '.nfo')
@@ -158,7 +176,7 @@ class MovieScraper(object):
                 log(movie.path)
                 log('====================================')
                 if not self.force:
-                    if not os.path.isfile(os.path.join(movie.path, movie.file)):
+                    if not os.path.isfile(os.path.join(movie.path, movie.files[0])):
                         log('Skip - No file found', LogLevel.Warning)
                         continue
 
@@ -167,7 +185,13 @@ class MovieScraper(object):
                 if not self.refresh:
                     cleanup_dir(movie)
 
-                self.codec = Codec(movie)
+                if len(movie.files) > 0:
+                    movie_file = movie.files[0]
+                else:
+                    movie_file = ''
+
+                video = {'path': movie.path, 'file': movie_file}
+                self.codec = Codec(video)
 
                 if self.nfo_only:
                     self.get_metadata(movie)

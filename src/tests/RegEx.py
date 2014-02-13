@@ -1,4 +1,5 @@
 import unittest
+
 from src import RegEx
 
 
@@ -29,7 +30,8 @@ class RegExTests(unittest.TestCase):
         assert result['year'] == ''
         assert result['imdbID'] == ''
 
-        result = RegEx.get_movie('(I) Ice Age (CD1) (Bluray) (2001) (1080p) (HD) (DTS) (x264) (town.ag) (mkv) (7.1) (tt0268380)')
+        result = RegEx.get_movie(
+            '(I) Ice Age (CD1) (Bluray) (2001) (1080p) (HD) (DTS) (x264) (town.ag) (mkv) (7.1) (tt0268380)')
         assert result['title'] == 'Ice Age'
         assert result['year'] == '2001'
         assert result['imdbID'] == 'tt0268380'
@@ -39,7 +41,8 @@ class RegExTests(unittest.TestCase):
         assert result['year'] == ''
         assert result['imdbID'] == ''
 
-        result = RegEx.get_movie('(I) Hobbit, The (CD1) (Bluray) (2001) (1080p) (HD) (DTS) (x264) (town.ag) (mkv) (7.1) (tt0268380)')
+        result = RegEx.get_movie(
+            '(I) Hobbit, The (CD1) (Bluray) (2001) (1080p) (HD) (DTS) (x264) (town.ag) (mkv) (7.1) (tt0268380)')
         assert result['title'] == 'Hobbit, The'
         assert result['year'] == '2001'
         assert result['imdbID'] == 'tt0268380'
@@ -179,3 +182,49 @@ class RegExTests(unittest.TestCase):
         assert result[0]['season'] == ''
         assert result[0]['episode'] == '05'
         assert len(result) == 1
+
+    def test_get_cd(self):
+        result = RegEx.get_cd('Ice.Age.2002.cd1.mkv')
+        assert result == '1'
+
+        result = RegEx.get_cd('Ice.Age.2002.CD1.mkv')
+        assert result == '1'
+
+        result = RegEx.get_cd('Ice.Age.2002.Cd1.mkv')
+        assert result == '1'
+
+        result = RegEx.get_cd('Ice.Age.2002.cD1.mkv')
+        assert result == '1'
+
+        result = RegEx.get_cd('Ice.Age.2002.cd2.mkv')
+        assert result == '2'
+
+        result = RegEx.get_cd('Ice.Age.2002.cd3.mkv')
+        assert result == '3'
+
+        result = RegEx.get_cd('Ice.Age.2002.cd4.mkv')
+        assert result == '4'
+        
+        result = RegEx.get_cd('Ice.Age.2002.cd1.avi')
+        assert result == '1'
+
+        result = RegEx.get_cd('Ice.Age.2002.CD1.avi')
+        assert result == '1'
+
+        result = RegEx.get_cd('Ice.Age.2002.Cd1.avi')
+        assert result == '1'
+
+        result = RegEx.get_cd('Ice.Age.2002.cD1.avi')
+        assert result == '1'
+
+        result = RegEx.get_cd('Ice.Age.2002.cd2.avi')
+        assert result == '2'
+
+        result = RegEx.get_cd('Ice.Age.2002.cd3.avi')
+        assert result == '3'
+
+        result = RegEx.get_cd('Ice.Age.2002.cd4.avi')
+        assert result == '4'
+
+        result = RegEx.get_cd('Ice Age 2002 cd1.avi')
+        assert result == '1'
