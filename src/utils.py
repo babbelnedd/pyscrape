@@ -165,12 +165,15 @@ def download(src, dst, refresh=False):
     elapsed = '[%.2f s]' % elapsed
     msg = src + ' {0} {1}'.format(kbps, elapsed)
 
-    f = urllib.urlopen(src)
-    size = f.headers["Content-Length"]
+    try:
+        f = urllib.urlopen(src)
+        size = f.headers['Content-Length']
 
-    if int(os.path.getsize(dst)) < int(size):
-        log('Downloaded file is corrupt - download it again', LogLevel.Warning)
-        download(src, dst)
+        if int(os.path.getsize(dst)) < int(size):
+            log('Downloaded file is corrupt - download it again', LogLevel.Warning)
+            download(src, dst)
+    except KeyError:
+        log('Server do not provide "Content-Length" in header, can\'t verify downloaded item', LogLevel.Debug)
 
     log('Downloaded: ' + msg, LogLevel.Debug)
 
