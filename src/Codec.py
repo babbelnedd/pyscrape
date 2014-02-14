@@ -12,7 +12,7 @@ from src.Decorator import Cached
 config = Config()
 
 
-@Cached
+#@Cached
 def _get_codec(video, extra_attribute=''):
     parameter = ' {0} "{1}"'.format(extra_attribute, video)
 
@@ -32,7 +32,7 @@ def _get_codec(video, extra_attribute=''):
     return codec
 
 
-@Cached
+#@Cached
 def _get(video, section, key, codec=None):
     # todo: use codec.hassection, codec.hasoption instead try/catch
     if codec is None:
@@ -214,7 +214,7 @@ def get_video_xml(videos):
                  'codec': _get(videos[0], 'Video', 'Writing library')}
 
         if video['codec'] == '':
-            codec = _get_codec(extra_attribute='--fullscan')
+            codec = _get_codec(videos[0], extra_attribute='--fullscan')
             video['codec'] = _get(videos[0], 'Video', 'Internet media type', codec)
 
         if 'x264' in video['codec'].lower():

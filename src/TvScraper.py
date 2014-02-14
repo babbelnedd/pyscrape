@@ -44,14 +44,13 @@ def scrape_episode(episode_file):
 
     # remove audio tracks
     log('Delete Audio Tracks')
-    from Codec import Codec
+    import Codec
     from Movie import Movie
 
     item = Movie()
     item.file = episode_title
     item.path = episode_path
-    with Codec(item) as codec:
-        codec.delete_audio_tracks()
+    Codec.delete_audio_tracks([os.path.join(item.path, item.file)])
 
     # create nfo
     log('Get Info for episode ' + episode_title)
@@ -67,6 +66,7 @@ def scrape_episode(episode_file):
     cmd = '"{0}" -ss {1} -i "{2}" -f image2 -vframes 1 "{3}"'.format(config.codec.ffmpeg,
                                                                      config.codec.screenshot_time,
                                                                      video_source, output)
+    log('Extract image from file', LogLevel.Debug)
     os.system(cmd)
 
 

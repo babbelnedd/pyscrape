@@ -15,7 +15,7 @@ import TmdbApi as Tmdb
 from Movie import Movie
 from Logger import log, LogLevel, whiteline
 from Config import Config
-from Codec import Codec
+import Codec
 from utils import download
 
 
@@ -162,7 +162,6 @@ def cleanup_dir(movie):
 class MovieScraper(object):
     def __init__(self, path, single=False, refresh=False, force=False, nfo_only=False):
         self.refresh = refresh
-        self.codec = None
         self.force = force
         self.nfo_only = nfo_only
 
@@ -185,18 +184,14 @@ class MovieScraper(object):
                 if not self.refresh:
                     cleanup_dir(movie)
 
-                if len(movie.files) > 0:
-                    movie_file = movie.files[0]
-                else:
-                    movie_file = ''
-
-                video = {'path': movie.path, 'file': movie_file}
-                self.codec = Codec(video)
-
                 if self.nfo_only:
                     self.get_metadata(movie)
                 else:
-                    self.codec.delete_audio_tracks()
+                    files = []
+                    for movie_file in movie.files:
+                        files.append(os.path.join(movie.path, movie_file))
+
+                    Codec.delete_audio_tracks(files)
                     movie = self.get_metadata(movie)
                     if movie == -1:  # no movie found
                         continue
@@ -294,14 +289,18 @@ class MovieScraper(object):
             log('No match for {0}'.format(movie.search_title), LogLevel.Warning)
             return -1
 
+        files = []
+        for movie_file in movie.files:
+            files.append(os.path.join(movie.path, movie_file))
+
         movie.trailer = Tmdb.get_trailer(movie)
         get_advanced_metadata()
         movie.posters = Tmdb.get_posters(movie.id)
         movie.thumb = Tmdb.get_thumb(movie.id)
         movie.credits = Tmdb.get_credits(movie.id)
-        movie.runtime = self.codec.get_runtime()
-        movie.audio_xml = self.codec.get_audio_xml()
-        movie.video_xml = self.codec.get_video_xml()
+        movie.runtime = Codec.get_runtime(files)
+        movie.audio_xml = Codec.get_audio_xml(files)
+        movie.video_xml = Codec.get_video_xml(files)
         create_nfo(movie)
         return movie
 
