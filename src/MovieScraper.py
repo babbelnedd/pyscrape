@@ -522,7 +522,7 @@ def scrape_movies(path, single=False):
     log('Scraping done - have fun')
 
 
-def start():
+def __start():
     def requirements_satisfied():
         if not __name__ == '__main__':
             log('Do not import me', LogLevel.Error)
@@ -625,7 +625,7 @@ def start():
         if requirements_satisfied():
             main(sys.argv[1:])
     except Exception, e:
-        log('oops something went wrong :/', LogLevel.Error)
+        log('oops something went wrong : /', LogLevel.Error)
         log(unicode(e), LogLevel.Error)
         log('sys.argv:', LogLevel.Error)
         for a in sys.argv:
@@ -634,6 +634,6 @@ def start():
 
 
 try:
-    start()
+    __start()
 except KeyboardInterrupt:
     log("MovieScraper was interrupted by user", LogLevel.Warning)
