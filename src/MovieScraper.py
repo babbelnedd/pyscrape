@@ -524,9 +524,6 @@ def scrape_movies(path, single=False):
 
 def __start():
     def requirements_satisfied():
-        if not __name__ == '__main__':
-            log('Do not import me', LogLevel.Error)
-            sys.exit()
 
         result = True
         if config.fanart.api_key == '':
@@ -632,8 +629,8 @@ def __start():
             log(a, LogLevel.Error)
         log(traceback.format_exc(), LogLevel.Error)
 
-
-try:
-    __start()
-except KeyboardInterrupt:
-    log("MovieScraper was interrupted by user", LogLevel.Warning)
+if __name__ == 'main':
+    try:
+        __start()
+    except KeyboardInterrupt:
+        log("MovieScraper was interrupted by user", LogLevel.Warning)
