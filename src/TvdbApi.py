@@ -179,12 +179,12 @@ class TvdbApi(object):
                 thumb = image_base + thumb
 
             from Movie import Movie
-            from Codec import Codec
+            import Codec
 
             item = Movie()
             item.file = _episode['filename']
             item.path = path
-            codec = Codec(item)
+            file = os.path.join(item.path, item.file)
 
             result = {'title': get_value('EpisodeName'), 'tvdb_id': get_value('id'),
                       'show_name': self.show['title'],
@@ -193,7 +193,7 @@ class TvdbApi(object):
                       'imdb_id': get_value('IMDB_ID'), 'writer': get_value('Writer'),
                       'thumb': thumb, 'overview': get_value('Overview'), 'director': get_value('Director'),
                       'rating': get_value('Rating'), 'votes': get_value('RatingCount'),
-                      'video_xml': codec.get_video_xml(), 'audio_xml': codec.get_audio_xml()}
+                      'video_xml': Codec.get_video_xml([file]), 'audio_xml': Codec.get_audio_xml([file])}
 
             return result
 

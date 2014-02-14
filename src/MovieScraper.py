@@ -1,3 +1,4 @@
+import re
 import sys
 import os
 import shutil
@@ -14,7 +15,7 @@ import TmdbApi as Tmdb
 from Movie import Movie
 from Logger import log, LogLevel, whiteline
 from Config import Config
-from Codec import Codec
+import Codec
 from utils import download
 
 
@@ -43,12 +44,22 @@ def get_movie(root, path):
     if len(files) < 1:
         return movie
 
+    # todo: this *should* not longer be needed,
     if 'new.mkv' in files and len(files) > 1:
         os.remove(os.path.join(movie.path, 'new.mkv'))
         files = get_movie_files(movie.path)
 
-    if len(files) == 1:  # todo: implement multi cd support
-        movie.file = files[0]
+    # todo: implement multi cd support
+    if len(files) == 1:
+        movie.files = [files[0]]
+
+    if len(files) > 1:
+        # get only files that are tagged as CD
+        for _file in [f for f in files if RegEx.get_cd(f) == '']:
+            files.remove(_file)
+
+        movie.files = files
+
     return movie
 
 
@@ -113,7 +124,14 @@ def create_nfo(movie):
     xml += '</movie>'
 
     log('Write NFO')
-    filename, extension = os.path.splitext(movie.file)
+    if len(movie.files) > 0:
+        filename, extension = os.path.splitext(movie.files[0])
+        regex = re.search('\cd[0-9]', filename, re.IGNORECASE)
+        if regex:
+            filename = filename.replace(regex.group(), '').strip()
+    else:
+        filename = ''
+
     if filename == '':
         filename = os.path.basename(movie.path)
     nfo_file = os.path.join(movie.path, filename + '.nfo')
@@ -376,7 +394,7 @@ class MovieScraper(object):
                 log(movie.path)
                 log('====================================')
                 if not self.force:
-                    if not os.path.isfile(os.path.join(movie.path, movie.file)):
+                    if not os.path.isfile(os.path.join(movie.path, movie.files[0])):
                         log('Skip - No file found', LogLevel.Warning)
                         continue
 
@@ -385,12 +403,14 @@ class MovieScraper(object):
                 if not refresh:
                     cleanup_dir(movie)
 
-                self.codec = Codec(movie)
-
                 if nfo_only:
                     self.get_metadata(movie)
                 else:
-                    self.codec.delete_audio_tracks()
+                    files = []
+                    for movie_file in movie.files:
+                        files.append(os.path.join(movie.path, movie_file))
+
+                    Codec.delete_audio_tracks(files)
                     movie = self.get_metadata(movie)
                     if movie == -1:  # no movie found
                         continue
@@ -488,14 +508,18 @@ class MovieScraper(object):
             log('No match for {0}'.format(movie.search_title), LogLevel.Warning)
             return -1
 
+        files = []
+        for movie_file in movie.files:
+            files.append(os.path.join(movie.path, movie_file))
+
         movie.trailer = Tmdb.get_trailer(movie)
         get_advanced_metadata()
         movie.posters = Tmdb.get_posters(movie.id)
         movie.thumb = Tmdb.get_thumb(movie.id)
         movie.credits = Tmdb.get_credits(movie.id)
-        movie.runtime = self.codec.get_runtime()
-        movie.audio_xml = self.codec.get_audio_xml()
-        movie.video_xml = self.codec.get_video_xml()
+        movie.runtime = Codec.get_runtime(files)
+        movie.audio_xml = Codec.get_audio_xml(files)
+        movie.video_xml = Codec.get_video_xml(files)
         create_nfo(movie)
         return movie
 
