@@ -20,6 +20,9 @@ from utils import download
 
 
 delete_existing = False
+refresh = False
+nfo_only = False
+config = Config()
 
 
 def get_movie(root, path):
@@ -159,11 +162,227 @@ def cleanup_dir(movie):
                 shutil.rmtree(item)
 
 
+def download_images(movie):
+    def download_backdrops():
+        log('Download Backdrops')
+        path = movie.path
+        movie.backdrops = Tmdb.get_backdrops(movie.id)
+        backdrops = sorted(movie.backdrops.iteritems(), key=operator.itemgetter(1), reverse=True)
+        n = 0
+        for backdrop in backdrops:
+            if not config.pyscrape.backdrop_limit <= 0 and n > (config.pyscrape.backdrop_limit - 1):
+                return
+
+            if n == 1:
+                if not config.movie.download_extrafanart:
+                    return
+
+                path = os.path.join(path, 'extrafanart')
+                if not os.path.exists(path):
+                    os.makedirs(path)
+
+            url = backdrop[0]
+            if n == 0:
+                dst = os.path.join(path, 'fanart.jpg')
+            else:
+                dst = os.path.join(path, os.path.basename(backdrop[0]))
+
+            download(src=url, dst=dst, refresh=_refresh)
+            n += 1
+
+    def download_posters():
+        log('Download posters')
+        path = movie.path
+        n = 0
+        for poster in movie.posters:
+            if not config.pyscrape.poster_limit <= 0 and n > (config.pyscrape.backdrop_limit - 1):
+                return
+
+            url = poster[0]
+            if n > 0:
+                number = n
+            else:
+                number = ''
+            dst = os.path.join(path, 'poster{0}.jpg'.format(number))
+            download(src=url, dst=dst, refresh=_refresh)
+            n += 1
+
+    def download_fanart():
+        def get_fanart(category):
+            try:
+                return fanart[category]
+            except KeyError:
+                return []
+
+        def download_logo():
+            log('Download Logo', LogLevel.Debug)
+            if len(get_fanart('hdmovielogo')) > 0:
+                for fa in get_fanart('hdmovielogo'):
+                    if fa['lang'] == config.pyscrape.language:
+                        dst = os.path.join(movie.path, 'logo.png')
+                        download(src=fa['url'], dst=dst, refresh=_refresh)
+                        return
+                for fa in get_fanart('hdmovielogo'):
+                    if fa['lang'] == config.pyscrape.fallback_language:
+                        dst = os.path.join(movie.path, 'logo.png')
+                        download(src=fa['url'], dst=dst, refresh=_refresh)
+                        return
+            elif len(get_fanart('movielogo')) > 0:
+                for fa in get_fanart('movielogo'):
+                    if fa['lang'] == config.pyscrape.language:
+                        dst = os.path.join(movie.path, 'logo.png')
+                        download(src=fa['url'], dst=dst, refresh=_refresh)
+                        return
+                for fa in get_fanart('movielogo'):
+                    if fa['lang'] == config.pyscrape.fallback_language:
+                        dst = os.path.join(movie.path, 'logo.png')
+                        download(src=fa['url'], dst=dst, refresh=_refresh)
+                        return
+
+        def download_banner():
+            log('Download Banner', LogLevel.Debug)
+            if len(get_fanart('moviebanner')) > 0:
+                banners = {}
+                for b in get_fanart('moviebanner'):
+                    if b['lang'] == config.pyscrape.language:
+                        banners[b['url']] = b['likes']
+                if len(banners) > 0:
+                    banners = sorted(banners.iteritems(), key=operator.itemgetter(1), reverse=True)
+                    dst = os.path.join(movie.path, 'banner.jpg')
+                    for b in banners:
+                        download(src=b[0], dst=dst, refresh=_refresh)
+                        return
+                else:
+                    for b in get_fanart('moviebanner'):
+                        if b['lang'] == config.pyscrape.fallback_language:
+                            banners[b['url']] = b['likes']
+                        if len(banners) > 0:
+                            banners = sorted(banners.iteritems(), key=operator.itemgetter(1), reverse=True)
+                            dst = os.path.join(movie.path, 'banner.jpg')
+                            for banner in banners:
+                                download(src=banner[0], dst=dst, refresh=_refresh)
+                                return
+
+        def download_thumbs():
+            log('Download Thumbs', LogLevel.Debug)
+            _thumbs = get_fanart('moviethumb')
+            thumbs = {}
+
+            if len(_thumbs) > 0:
+                for thumb in _thumbs:
+                    if thumb['lang'] == config.pyscrape.language:
+                        thumbs[thumb['url']] = thumb['likes']
+                if len(thumbs) == 0:
+                    for thumb in _thumbs:
+                        if thumb['lang'] == config.pyscrape.fallback_language:
+                            thumbs[thumb['url']] = thumb['likes']
+                thumbs = sorted(thumbs.iteritems(), key=operator.itemgetter(1), reverse=True)
+
+                for n in range(0, len(thumbs)):
+                    thumb = thumbs[n]
+                    url = thumb[0]
+
+                    path = ''
+                    name = ''
+                    if n == 0 and config.movie.download_landscape:
+                        path = movie.path
+                        name = 'landscape.jpg'
+                    elif 0 < n <= 4 and config.movie.download_thumbs:
+                        path = movie.path
+                        name = 'thumb{0}.jpg'.format(n)
+                    elif n > 4 and config.movie.download_extrathumbs:
+                        path = os.path.join(movie.path, 'extrathumbs')
+                        if not os.path.exists(path):
+                            os.makedirs(path)
+                        name = 'thumb{0}.jpg'.format(str(int(n - 4)))
+
+                    if path != '' and name != '':
+                        dst = os.path.join(path, name)
+                        download(src=url, dst=dst, refresh=_refresh)
+
+        def download_disc():
+            log('Download Disc Art', LogLevel.Debug)
+            _discs = get_fanart('moviedisc')
+            discs = {}
+            if len(_discs) > 0:
+                for disc in _discs:
+                    if disc['lang'] == config.pyscrape.language:
+                        discs[disc['url']] = disc['likes']
+                if len(discs) == 0:
+                    for disc in _discs:
+                        if disc['lang'] == config.pyscrape.fallback_language:
+                            discs[disc['url']] = disc['likes']
+                discs = sorted(discs.iteritems(), key=operator.itemgetter(1), reverse=True)
+
+                for disc in discs:
+                    url = disc[0]
+                    dst = os.path.join(movie.path, 'disc.png')
+                    download(src=url, dst=dst, refresh=_refresh)
+                    break
+
+        def download_clearart():
+            log('Download ClearArt', LogLevel.Debug)
+            ca = get_fanart('hdmovieclearart')
+            clearart = {}
+
+            if len(ca) == 0:
+                ca = get_fanart('movieclearart')
+            if len(ca) == 0:
+                return
+            for art in ca:
+                if art['lang'] == config.pyscrape.language:
+                    clearart[art['url']] = art['likes']
+            if len(clearart) == 0:
+                for art in ca:
+                    if art['lang'] == config.pyscrape.fallback_language:
+                        clearart[art['url']] = art['likes']
+            if len(clearart) == 0:
+                return
+
+            clearart = sorted(clearart.iteritems(), key=operator.itemgetter(1), reverse=True)
+            for art in clearart:
+                dst = os.path.join(movie.path, 'clearart.png')
+                download(src=art[0], dst=dst, refresh=_refresh)
+                break
+
+        fanart = FanartTvApi.get_movie(movie.imdb)
+        if fanart is None:
+            return
+        for f in fanart:  # Fanart gives sometimes more than one result - but there are no double tmdbID's???
+            fanart = fanart[f]
+            break  # just take the first result, if there are more than 1
+
+        if config.movie.download_banner or config.movie.download_logo or config.movie.download_landscape or \
+                config.movie.download_disc or config.movie.download_clearart:
+            log('Download Fanart')
+            if config.movie.download_banner:
+                download_banner()
+            if config.movie.download_logo:
+                download_logo()
+            if config.movie.download_landscape:
+                download_thumbs()
+            if config.movie.download_disc:
+                download_disc()
+            if config.movie.download_clearart:
+                download_clearart()
+
+    global delete_existing
+    _refresh = True
+    if refresh or delete_existing:
+        _refresh = False
+
+    if config.movie.download_backdrop:
+        download_backdrops()
+    if config.movie.download_poster:
+        download_posters()
+
+    download_fanart()
+
+
 class MovieScraper(object):
-    def __init__(self, path, single=False, refresh=False, force=False, nfo_only=False):
-        self.refresh = refresh
+    def __init__(self, path, single=False, force=False):
+        self.codec = None
         self.force = force
-        self.nfo_only = nfo_only
 
         def scrape_movies(all_movies):
             total_elapsed = 0
@@ -181,10 +400,10 @@ class MovieScraper(object):
 
                 start_time = time.time()
 
-                if not self.refresh:
+                if not refresh:
                     cleanup_dir(movie)
 
-                if self.nfo_only:
+                if nfo_only:
                     self.get_metadata(movie)
                 else:
                     files = []
@@ -196,7 +415,7 @@ class MovieScraper(object):
                     if movie == -1:  # no movie found
                         continue
 
-                    self.download_images(movie)
+                    download_images(movie)
                 end = time.time()
                 elapsed = end - start_time
                 total_elapsed += elapsed
@@ -304,222 +523,6 @@ class MovieScraper(object):
         create_nfo(movie)
         return movie
 
-    def download_images(self, movie):
-        def download_backdrops():
-            log('Download Backdrops')
-            path = movie.path
-            movie.backdrops = Tmdb.get_backdrops(movie.id)
-            backdrops = sorted(movie.backdrops.iteritems(), key=operator.itemgetter(1), reverse=True)
-            n = 0
-            for backdrop in backdrops:
-                if not config.pyscrape.backdrop_limit <= 0 and n > (config.pyscrape.backdrop_limit - 1):
-                    return
-
-                if n == 1:
-                    if not config.movie.download_extrafanart:
-                        return
-
-                    path = os.path.join(path, 'extrafanart')
-                    if not os.path.exists(path):
-                        os.makedirs(path)
-
-                url = backdrop[0]
-                if n == 0:
-                    dst = os.path.join(path, 'fanart.jpg')
-                else:
-                    dst = os.path.join(path, os.path.basename(backdrop[0]))
-
-                download(src=url, dst=dst, refresh=_refresh)
-                n += 1
-
-        def download_posters():
-            log('Download posters')
-            path = movie.path
-            n = 0
-            for poster in movie.posters:
-                if not config.pyscrape.poster_limit <= 0 and n > (config.pyscrape.backdrop_limit - 1):
-                    return
-
-                url = poster[0]
-                if n > 0:
-                    number = n
-                else:
-                    number = ''
-                dst = os.path.join(path, 'poster{0}.jpg'.format(number))
-                download(src=url, dst=dst, refresh=_refresh)
-                n += 1
-
-        def download_fanart():
-            def get_fanart(category):
-                try:
-                    return fanart[category]
-                except KeyError:
-                    return []
-
-            def download_logo():
-                log('Download Logo', LogLevel.Debug)
-                if len(get_fanart('hdmovielogo')) > 0:
-                    for fa in get_fanart('hdmovielogo'):
-                        if fa['lang'] == config.pyscrape.language:
-                            dst = os.path.join(movie.path, 'logo.png')
-                            download(src=fa['url'], dst=dst, refresh=_refresh)
-                            return
-                    for fa in get_fanart('hdmovielogo'):
-                        if fa['lang'] == config.pyscrape.fallback_language:
-                            dst = os.path.join(movie.path, 'logo.png')
-                            download(src=fa['url'], dst=dst, refresh=_refresh)
-                            return
-                elif len(get_fanart('movielogo')) > 0:
-                    for fa in get_fanart('movielogo'):
-                        if fa['lang'] == config.pyscrape.language:
-                            dst = os.path.join(movie.path, 'logo.png')
-                            download(src=fa['url'], dst=dst, refresh=_refresh)
-                            return
-                    for fa in get_fanart('movielogo'):
-                        if fa['lang'] == config.pyscrape.fallback_language:
-                            dst = os.path.join(movie.path, 'logo.png')
-                            download(src=fa['url'], dst=dst, refresh=_refresh)
-                            return
-
-            def download_banner():
-                log('Download Banner', LogLevel.Debug)
-                if len(get_fanart('moviebanner')) > 0:
-                    banners = {}
-                    for b in get_fanart('moviebanner'):
-                        if b['lang'] == config.pyscrape.language:
-                            banners[b['url']] = b['likes']
-                    if len(banners) > 0:
-                        banners = sorted(banners.iteritems(), key=operator.itemgetter(1), reverse=True)
-                        dst = os.path.join(movie.path, 'banner.jpg')
-                        for b in banners:
-                            download(src=b[0], dst=dst, refresh=_refresh)
-                            return
-                    else:
-                        for b in get_fanart('moviebanner'):
-                            if b['lang'] == config.pyscrape.fallback_language:
-                                banners[b['url']] = b['likes']
-                            if len(banners) > 0:
-                                banners = sorted(banners.iteritems(), key=operator.itemgetter(1), reverse=True)
-                                dst = os.path.join(movie.path, 'banner.jpg')
-                                for banner in banners:
-                                    download(src=banner[0], dst=dst, refresh=_refresh)
-                                    return
-
-            def download_thumbs():
-                log('Download Thumbs', LogLevel.Debug)
-                _thumbs = get_fanart('moviethumb')
-                thumbs = {}
-
-                if len(_thumbs) > 0:
-                    for thumb in _thumbs:
-                        if thumb['lang'] == config.pyscrape.language:
-                            thumbs[thumb['url']] = thumb['likes']
-                    if len(thumbs) == 0:
-                        for thumb in _thumbs:
-                            if thumb['lang'] == config.pyscrape.fallback_language:
-                                thumbs[thumb['url']] = thumb['likes']
-                    thumbs = sorted(thumbs.iteritems(), key=operator.itemgetter(1), reverse=True)
-
-                    for n in range(0, len(thumbs)):
-                        thumb = thumbs[n]
-                        url = thumb[0]
-
-                        path = ''
-                        name = ''
-                        if n == 0 and config.movie.download_landscape:
-                            path = movie.path
-                            name = 'landscape.jpg'
-                        elif 0 < n <= 4 and config.movie.download_thumbs:
-                            path = movie.path
-                            name = 'thumb{0}.jpg'.format(n)
-                        elif n > 4 and config.movie.download_extrathumbs:
-                            path = os.path.join(movie.path, 'extrathumbs')
-                            if not os.path.exists(path):
-                                os.makedirs(path)
-                            name = 'thumb{0}.jpg'.format(str(int(n - 4)))
-
-                        if path != '' and name != '':
-                            dst = os.path.join(path, name)
-                            download(src=url, dst=dst, refresh=_refresh)
-
-            def download_disc():
-                log('Download Disc Art', LogLevel.Debug)
-                _discs = get_fanart('moviedisc')
-                discs = {}
-                if len(_discs) > 0:
-                    for disc in _discs:
-                        if disc['lang'] == config.pyscrape.language:
-                            discs[disc['url']] = disc['likes']
-                    if len(discs) == 0:
-                        for disc in _discs:
-                            if disc['lang'] == config.pyscrape.fallback_language:
-                                discs[disc['url']] = disc['likes']
-                    discs = sorted(discs.iteritems(), key=operator.itemgetter(1), reverse=True)
-
-                    for disc in discs:
-                        url = disc[0]
-                        dst = os.path.join(movie.path, 'disc.png')
-                        download(src=url, dst=dst, refresh=_refresh)
-                        break
-
-            def download_clearart():
-                log('Download ClearArt', LogLevel.Debug)
-                ca = get_fanart('hdmovieclearart')
-                clearart = {}
-
-                if len(ca) == 0:
-                    ca = get_fanart('movieclearart')
-                if len(ca) == 0:
-                    return
-                for art in ca:
-                    if art['lang'] == config.pyscrape.language:
-                        clearart[art['url']] = art['likes']
-                if len(clearart) == 0:
-                    for art in ca:
-                        if art['lang'] == config.pyscrape.fallback_language:
-                            clearart[art['url']] = art['likes']
-                if len(clearart) == 0:
-                    return
-
-                clearart = sorted(clearart.iteritems(), key=operator.itemgetter(1), reverse=True)
-                for art in clearart:
-                    dst = os.path.join(movie.path, 'clearart.png')
-                    download(src=art[0], dst=dst, refresh=_refresh)
-                    break
-
-            fanart = FanartTvApi.get_movie(movie.imdb)
-            if fanart is None:
-                return
-            for f in fanart:  # Fanart gives sometimes more than one result - but there are no double tmdbID's???
-                fanart = fanart[f]
-                break  # just take the first result, if there are more than 1
-
-            if config.movie.download_banner or config.movie.download_logo or config.movie.download_landscape or \
-                    config.movie.download_disc or config.movie.download_clearart:
-                log('Download Fanart')
-                if config.movie.download_banner:
-                    download_banner()
-                if config.movie.download_logo:
-                    download_logo()
-                if config.movie.download_landscape:
-                    download_thumbs()
-                if config.movie.download_disc:
-                    download_disc()
-                if config.movie.download_clearart:
-                    download_clearart()
-
-        global delete_existing
-        _refresh = True
-        if self.refresh or delete_existing:
-            _refresh = False
-
-        if config.movie.download_backdrop:
-            download_backdrops()
-        if config.movie.download_poster:
-            download_posters()
-
-        download_fanart()
-
 
 def start():
     def requirements_satisfied():
@@ -548,16 +551,14 @@ def start():
                     continue
                 if config.pyscrape.rename:
                     utils.rename_subfolder(path)
-                MovieScraper(path, single=False, refresh=parameters['refresh'], force=parameters['force'],
-                             nfo_only=parameters['nfo_only'])
+                MovieScraper(path, single=False, force=parameters['force'])
 
         def scrape_single_path(path):
             if os.path.isdir(path):
                 if config.pyscrape.rename:
                     path = utils.rename_dir(path)
                     utils.rename_files(path)
-                MovieScraper(path, single=True, refresh=parameter['refresh'], force=parameter['force'],
-                             nfo_only=parameter['nfo_only'])
+                MovieScraper(path, single=True, force=parameter['force'])
             else:
                 log('Path not found!', LogLevel.Error)
                 sys.exit()
@@ -607,7 +608,10 @@ def start():
             return {'single_path': single_path, 'refresh': refresh, 'update': update, 'force': force,
                     'nfo_only': nfo_only}
 
+        global refresh, nfo_only
         parameter = get_parameter(arguments)
+        refresh = parameter['refresh']
+        nfo_only = parameter['nfo_only']
 
         if parameter['single_path'] != '':
             scrape_single_path(parameter['single_path'])
@@ -630,7 +634,6 @@ def start():
         log(traceback.format_exc(), LogLevel.Error)
 
 
-config = Config()
 try:
     start()
 except KeyboardInterrupt:
