@@ -12,7 +12,7 @@ from src.Decorator import Cached
 config = Config()
 
 
-#@Cached
+@Cached
 def _get_codec(video, extra_attribute=''):
     parameter = ' {0} "{1}"'.format(extra_attribute, video)
 
@@ -32,7 +32,7 @@ def _get_codec(video, extra_attribute=''):
     return codec
 
 
-#@Cached
+@Cached
 def _get(video, section, key, codec=None):
     # todo: use codec.hassection, codec.hasoption instead try/catch
     if codec is None:
