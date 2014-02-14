@@ -22,6 +22,7 @@ from utils import download
 delete_existing = False
 refresh = False
 nfo_only = False
+force = False
 config = Config()
 
 
@@ -379,149 +380,146 @@ def download_images(movie):
     download_fanart()
 
 
-class MovieScraper(object):
-    def __init__(self, path, single=False, force=False):
-        self.codec = None
-        self.force = force
+def get_metadata(movie):
+    def get_basic_metadata():
+        log('Get basic information')
+        result = Tmdb.search_title(title=movie.search_title, year=movie.search_year,
+                                   lang=config.pyscrape.language, imdb_id=movie.imdb)
 
-        def scrape_movies(all_movies):
-            total_elapsed = 0
-            progressed = 0
-            count_movies = len(all_movies)
-            for movie in all_movies:
-                progressed += 1
-                whiteline()
-                log(movie.path)
-                log('====================================')
-                if not self.force:
-                    if not os.path.isfile(os.path.join(movie.path, movie.files[0])):
-                        log('Skip - No file found', LogLevel.Warning)
-                        continue
+        if not result:
+            log('No Results', LogLevel.Warning)
+            return movie
 
-                start_time = time.time()
+        if movie.imdb is None or movie.imdb == '':
+            log(str(len(result)) + ' Result(s) found')
+            if len(result) > 1:
+                log('MORE THAN ONE RESULT FOUND - PLEASE CHECK THE RETRIEVED DATA!', LogLevel.Warning)
 
-                if not refresh:
-                    cleanup_dir(movie)
+            for r in result:
+                if movie.title != '':  # if the title occurs more than once take the one with the highest popularity
+                    if not (movie.search_title == r['title'] or movie.search_title == r['original_title']):
+                        if movie.title == r[u'title'] and movie.popularity < float(r['popularity']):
+                            log('Found movie with higher popularity')
+                        else:
+                            continue
 
-                if nfo_only:
-                    self.get_metadata(movie)
-                else:
-                    files = []
-                    for movie_file in movie.files:
-                        files.append(os.path.join(movie.path, movie_file))
-
-                    Codec.delete_audio_tracks(files)
-                    movie = self.get_metadata(movie)
-                    if movie == -1:  # no movie found
-                        continue
-
-                    download_images(movie)
-                end = time.time()
-                elapsed = end - start_time
-                total_elapsed += elapsed
-                log('{0} / {1} movies progressed'.format(progressed, count_movies))
-                log("%.2f s " % elapsed, 'TIME')
-                log("%.2f s total" % total_elapsed, 'TIME')
-                whiteline()
-
-        if single:
-            movies = []
-            root, directory = os.path.split(path)
-            m = get_movie(root, directory)
-            movies.append(m)
+                movie.title = r[u'title']
+                movie.year = r[u'release_date'][:4]
+                movie.orig_title = r[u'original_title']
+                movie.id = r['id']
+                movie.rating = r['vote_average']
+                movie.popularity = float(r['popularity'])
         else:
-            movies = get_movies(path)
+            movie.title = result[u'title']
+            movie.year = result[u'release_date'][:4]
+            movie.orig_title = result[u'original_title']
+            movie.id = result['id']
+            movie.rating = result['vote_average']
+            movie.popularity = float(result['popularity'])
 
-        scrape_movies(movies)
-        log('Scraping done - have fun')
+    def get_advanced_metadata():
+        log('Get advanced informations')
+        info = Tmdb.get_movie(movie.id, lang=config.pyscrape.language)
+        if info is None:  # If there is no information get information for fallback language
+            info = Tmdb.get_movie(movie.id, lang=config.pyscrape.fallback_language)
+        if info is None:
+            pass  # What to do if there is no info for fallback language?
 
-    def get_metadata(self, movie):
-        def get_basic_metadata():
-            log('Get basic information')
-            result = Tmdb.search_title(title=movie.search_title, year=movie.search_year,
-                                       lang=config.pyscrape.language, imdb_id=movie.imdb)
+        movie.imdb = info['imdb_id']
+        movie.plot = info[u'overview']
+        movie.tagline = info[u'tagline']
+        movie.vote_count = info['vote_count']
+        movie.revenue = info['revenue']
+        if info['belongs_to_collection']:
+            movie.collection = info['belongs_to_collection'][u'name']
+        movie.mpaa = Tmdb.get_certification(movie)
+        movie.sorted_title = movie.title
+        movie.budget = info['budget']
+        for country in info['production_countries']:
+            movie.production_countries += ' / ' + country[u'name']
+        for genre in info['genres']:
+            if movie.genres != '':
+                movie.genres += '/'
+            movie.genres += u'{0}'.format(genre['name'])
+        for company in info['production_companies']:
+            if movie.production_companies != '':
+                movie.production_companies += ' / '
+            movie.production_companies += u'{0}'.format(company['name'])
+        for language in info['spoken_languages']:
+            movie.spoken_languages.append(language[u'name'])
 
-            if not result:
-                log('No Results', LogLevel.Warning)
-                return movie
+    get_basic_metadata()
+    if movie.id == '':
+        log('No match for {0}'.format(movie.search_title), LogLevel.Warning)
+        return -1
 
-            if movie.imdb is None or movie.imdb == '':
-                log(str(len(result)) + ' Result(s) found')
-                if len(result) > 1:
-                    log('MORE THAN ONE RESULT FOUND - PLEASE CHECK THE RETRIEVED DATA!', LogLevel.Warning)
+    files = []
+    for movie_file in movie.files:
+        files.append(os.path.join(movie.path, movie_file))
 
-                for r in result:
-                    if movie.title != '':  # if the title occurs more than once take the one with the highest popularity
-                        if not (movie.search_title == r['title'] or movie.search_title == r['original_title']):
-                            if movie.title == r[u'title'] and movie.popularity < float(r['popularity']):
-                                log('Found movie with higher popularity')
-                            else:
-                                continue
+    movie.trailer = Tmdb.get_trailer(movie)
+    get_advanced_metadata()
+    movie.posters = Tmdb.get_posters(movie.id)
+    movie.thumb = Tmdb.get_thumb(movie.id)
+    movie.credits = Tmdb.get_credits(movie.id)
+    movie.runtime = Codec.get_runtime(files)
+    movie.audio_xml = Codec.get_audio_xml(files)
+    movie.video_xml = Codec.get_video_xml(files)
+    create_nfo(movie)
+    return movie
 
-                    movie.title = r[u'title']
-                    movie.year = r[u'release_date'][:4]
-                    movie.orig_title = r[u'original_title']
-                    movie.id = r['id']
-                    movie.rating = r['vote_average']
-                    movie.popularity = float(r['popularity'])
+
+def scrape_movies(path, single=False):
+    def _scrape(all_movies):
+        total_elapsed = 0
+        progressed = 0
+        count_movies = len(all_movies)
+        for movie in all_movies:
+            progressed += 1
+            whiteline()
+            log(movie.path)
+            log('====================================')
+            if not force:
+                if not os.path.isfile(os.path.join(movie.path, movie.files[0])):
+                    log('Skip - No file found', LogLevel.Warning)
+                    continue
+
+            start_time = time.time()
+
+            if not refresh:
+                cleanup_dir(movie)
+
+            if nfo_only:
+                get_metadata(movie)
             else:
-                movie.title = result[u'title']
-                movie.year = result[u'release_date'][:4]
-                movie.orig_title = result[u'original_title']
-                movie.id = result['id']
-                movie.rating = result['vote_average']
-                movie.popularity = float(result['popularity'])
+                files = []
+                for movie_file in movie.files:
+                    files.append(os.path.join(movie.path, movie_file))
 
-        def get_advanced_metadata():
-            log('Get advanced informations')
-            info = Tmdb.get_movie(movie.id, lang=config.pyscrape.language)
-            if info is None:  # If there is no information get information for fallback language
-                info = Tmdb.get_movie(movie.id, lang=config.pyscrape.fallback_language)
-            if info is None:
-                pass  # What to do if there is no info for fallback language?
+                Codec.delete_audio_tracks(files)
+                movie = get_metadata(movie)
+                if movie == -1:  # no movie found
+                    continue
 
-            movie.imdb = info['imdb_id']
-            movie.plot = info[u'overview']
-            movie.tagline = info[u'tagline']
-            movie.vote_count = info['vote_count']
-            movie.revenue = info['revenue']
-            if info['belongs_to_collection']:
-                movie.collection = info['belongs_to_collection'][u'name']
-            movie.mpaa = Tmdb.get_certification(movie)
-            movie.sorted_title = movie.title
-            movie.budget = info['budget']
-            for country in info['production_countries']:
-                movie.production_countries += ' / ' + country[u'name']
-            for genre in info['genres']:
-                if movie.genres != '':
-                    movie.genres += '/'
-                movie.genres += u'{0}'.format(genre['name'])
-            for company in info['production_companies']:
-                if movie.production_companies != '':
-                    movie.production_companies += ' / '
-                movie.production_companies += u'{0}'.format(company['name'])
-            for language in info['spoken_languages']:
-                movie.spoken_languages.append(language[u'name'])
+                download_images(movie)
+            end = time.time()
+            elapsed = end - start_time
+            total_elapsed += elapsed
+            log('{0} / {1} movies progressed'.format(progressed, count_movies))
+            log("%.2f s " % elapsed, 'TIME')
+            log("%.2f s total" % total_elapsed, 'TIME')
+            whiteline()
 
-        get_basic_metadata()
-        if movie.id == '':
-            log('No match for {0}'.format(movie.search_title), LogLevel.Warning)
-            return -1
+    if single:
+        movies = []
+        root, directory = os.path.split(path)
+        m = get_movie(root, directory)
+        movies.append(m)
+    else:
+        movies = get_movies(path)
 
-        files = []
-        for movie_file in movie.files:
-            files.append(os.path.join(movie.path, movie_file))
-
-        movie.trailer = Tmdb.get_trailer(movie)
-        get_advanced_metadata()
-        movie.posters = Tmdb.get_posters(movie.id)
-        movie.thumb = Tmdb.get_thumb(movie.id)
-        movie.credits = Tmdb.get_credits(movie.id)
-        movie.runtime = Codec.get_runtime(files)
-        movie.audio_xml = Codec.get_audio_xml(files)
-        movie.video_xml = Codec.get_video_xml(files)
-        create_nfo(movie)
-        return movie
+    _scrape(movies)
+    log('Scraping done - have fun')
 
 
 def start():
@@ -545,20 +543,20 @@ def start():
         return result
 
     def main(arguments):
-        def scrape_from_config(parameters):
+        def scrape_from_config():
             for path in config.movie.paths:
                 if not os.path.isdir(path):
                     continue
                 if config.pyscrape.rename:
                     utils.rename_subfolder(path)
-                MovieScraper(path, single=False, force=parameters['force'])
+                scrape_movies(path, single=False)
 
         def scrape_single_path(path):
             if os.path.isdir(path):
                 if config.pyscrape.rename:
                     path = utils.rename_dir(path)
                     utils.rename_files(path)
-                MovieScraper(path, single=True, force=parameter['force'])
+                scrape_movies(path, single=True)
             else:
                 log('Path not found!', LogLevel.Error)
                 sys.exit()
@@ -608,15 +606,16 @@ def start():
             return {'single_path': single_path, 'refresh': refresh, 'update': update, 'force': force,
                     'nfo_only': nfo_only}
 
-        global refresh, nfo_only
+        global refresh, nfo_only, force
         parameter = get_parameter(arguments)
         refresh = parameter['refresh']
         nfo_only = parameter['nfo_only']
+        force = parameter['force']
 
         if parameter['single_path'] != '':
             scrape_single_path(parameter['single_path'])
         else:
-            scrape_from_config(parameter)
+            scrape_from_config()
 
         if parameter['update']:
             xbmc = Xbmc()
