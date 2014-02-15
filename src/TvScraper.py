@@ -1,3 +1,24 @@
+import getopt
+import os
+import sys
+import time
+
+from Config import Config
+from Logger import log, LogLevel, whiteline
+from TvdbApi import TvdbApi
+from Exception import ShowNotFoundException
+from utils import get_all_extensions
+from utils import get_movie_extensions
+import RegEx
+
+
+delete_existing = False
+single_show = False
+single_episode = False
+single_season = False
+config = Config()
+
+
 def scrape_shows(shows):
     for show in shows:
         log(show['path'])
@@ -130,10 +151,7 @@ def _get_parameter(arguments):
 
         sys.exit(2)
 
-    global delete_existing
-    global single_show
-    global single_episode
-    global single_season
+    global delete_existing, single_show, single_episode, single_season
 
     for opt, arg in opts:
         if opt in ("-d", "--delete-existing"):
@@ -156,18 +174,6 @@ def _get_parameter(arguments):
 
 
 if __name__ == '__main__':
-    from Config import Config
-    import getopt
-    import os
-    import sys
-    import time
-    from Logger import log, LogLevel, whiteline
-    from TvdbApi import TvdbApi
-    from Exception import ShowNotFoundException
-    from utils import get_all_extensions
-    from utils import get_movie_extensions
-    import RegEx
-
     def _start():
         try:
             shows = []
@@ -215,8 +221,7 @@ if __name__ == '__main__':
             log("TvScraper was interrupted by user", LogLevel.Warning)
 
     def _initialize():
-        global config, delete_existing, single_season, single_episode, single_show
-        config = Config()
+        global delete_existing, single_season, single_episode, single_show
         delete_existing = False
         single_show = ''
         single_episode = ''
