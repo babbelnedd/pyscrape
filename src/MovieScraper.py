@@ -629,7 +629,7 @@ def __start():
             log(a, LogLevel.Error)
         log(traceback.format_exc(), LogLevel.Error)
 
-if __name__ == 'main':
+if __name__ == '__main__':
     try:
         __start()
     except KeyboardInterrupt:
