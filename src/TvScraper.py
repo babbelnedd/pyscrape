@@ -146,8 +146,9 @@ def _get_parameter(arguments):
     except getopt.GetoptError:
         log('Wrong arguments', LogLevel.Error)
         print '--d --delete-existing  Delete all files except for these with a extension from the extension list\n' \
-              '-e --episode Scrapes a single episode\n' \
-              '-s --season Scrapes a single season\n'
+              '--p --path Scrapes a single show\n' \
+              '--e --episode Scrapes a single episode\n' \
+              '--s --season Scrapes a single season\n'
 
         sys.exit(2)
 
