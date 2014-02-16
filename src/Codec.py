@@ -214,7 +214,7 @@ def get_video_xml(videos):
                  'codec': _get(videos[0], 'Video', 'Writing library')}
 
         if video['codec'] == '':
-            codec = _get_codec(videos[0], extra_attribute='--fullscan')
+            codec = _get_codec(videos[0], '--fullscan')
             video['codec'] = _get(videos[0], 'Video', 'Internet media type', codec)
 
         if 'x264' in video['codec'].lower():
