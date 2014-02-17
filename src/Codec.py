@@ -225,8 +225,15 @@ def get_video_xml(videos):
             video['codec'] = 'xvid'
             # what other codes are there and how to name it for xbmc?
 
+        aspect = None
+        if ':' in video['aspect']:
+            aspect = video['aspect'].split(':')
+            aspect = round(float(aspect[0]) / float(aspect[1]), 2)
+
         xml = '             <video>\n'
-        xml += '                <aspect>{0}</aspect>\n'.format(video['aspect'])
+        if aspect:
+            xml += '                <aspect>{0}</aspect>\n'.format(aspect)
+
         xml += '                <codec>{0}</codec>\n'.format(video['codec'])
         xml += '                <durationinseconds>{0}</durationinseconds>\n'.format(int(get_runtime(videos)) * 60)
         xml += '                <width>{0}</width>\n'.format(video['width'])
