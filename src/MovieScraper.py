@@ -496,7 +496,9 @@ def scrape_movies(path, single=False):
                 for movie_file in movie.files:
                     files.append(os.path.join(movie.path, movie_file))
 
-                Codec.delete_audio_tracks(files)
+                if config.codec.keep_tracks:
+                    Codec.delete_audio_tracks(files)
+
                 movie = get_metadata(movie)
                 if movie == -1:  # no movie found
                     continue

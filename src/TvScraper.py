@@ -64,14 +64,15 @@ def scrape_episode(episode_file):
             os.remove(_file)
 
     # remove audio tracks
-    log('Delete Audio Tracks')
-    import Codec
-    from Movie import Movie
+    if config.codec.keep_tracks:
+        log('Delete Audio Tracks')
+        import Codec
+        from Movie import Movie
 
-    item = Movie()
-    item.file = episode_title
-    item.path = episode_path
-    Codec.delete_audio_tracks([os.path.join(item.path, item.file)])
+        item = Movie()
+        item.file = episode_title
+        item.path = episode_path
+        Codec.delete_audio_tracks([os.path.join(item.path, item.file)])
 
     # create nfo
     log('Get Info for episode ' + episode_title)

@@ -78,7 +78,9 @@ def get_runtime(videos):
 
 
 def delete_audio_tracks(videos):
-    # todo: verify functionality
+    if not config.codec.keep_tracks:
+        return
+
     if config.codec.mkvmerge == '':
         log('mkvmerge is not set / installed', LogLevel.Warning)
         return
