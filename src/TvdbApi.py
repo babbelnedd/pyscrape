@@ -481,7 +481,7 @@ class TvdbApi(object):
                     LogLevel.Debug)
 
             def download_season_thumbs():
-                def download(thumb):
+                def download_thumb(thumb):
                     season = thumb['season']
                     while season.startswith('0'):
                         season = season[1:]
@@ -510,7 +510,7 @@ class TvdbApi(object):
                             thumbs.append(thumb)
 
                 for thumb in thumbs:
-                    download(thumb)
+                    download_thumb(thumb)
 
             def download_season_poster():
                 log('Download Season Poster', LogLevel.Debug)
