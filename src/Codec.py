@@ -60,6 +60,8 @@ def get_runtime(videos):
         elif 'm' in duration and 'h' not in duration:
             duration = duration.replace(' ', '').lower().split('mn')
 
+        if len(duration) > 0 and 's' in duration[0]:
+            return 0
         if len(duration) == 2 and 's' not in duration[1]:
             h = int(duration[0]) * 60
             m = int(duration[1])
