@@ -6,7 +6,6 @@ import ConfigParser
 
 from Logger import log, LogLevel
 from Config import Config
-from Decorator import Cached
 
 
 config = Config()
