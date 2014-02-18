@@ -12,7 +12,6 @@ from Decorator import Cached
 config = Config()
 
 
-@Cached
 def _get_codec(video, extra_attribute=''):
     parameter = ' {0} "{1}"'.format(extra_attribute, video)
 
@@ -32,7 +31,6 @@ def _get_codec(video, extra_attribute=''):
     return codec
 
 
-@Cached
 def _get(video, section, key, codec=None):
     # todo: use codec.hassection, codec.hasoption instead try/catch
     if codec is None:
@@ -249,3 +247,9 @@ def get_video_xml(videos):
 
 
     #print get_video_xml(['/media/lsc/nas/filme/Thor (2011) (tt0800369)/Thor.mkv'])
+
+
+def merge_files(files, target):
+    if config.codec.mkvmerge != '':
+        cmd = config.codec.mkvmerge + ' -o "' + target + '" "' + files[0] + '" + "' + files[1] + '"'
+        os.system(cmd)
