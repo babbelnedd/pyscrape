@@ -233,8 +233,10 @@ def get_season_poster(tmdb_id, season_number):
 
 def get_season_count(tmdb_id):
     count = 0
-    for season in get_show(tmdb_id)['seasons']:
-        if season['season_number'] != 0:
-            count += 1
+    show = get_show(tmdb_id)
+    if show:
+        for season in show['seasons']:
+            if season['season_number'] != 0:
+                count += 1
 
     return count
