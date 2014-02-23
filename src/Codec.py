@@ -218,7 +218,7 @@ def get_video_xml(videos):
                  'bitrate': _get(videos[0], 'Video', 'Bit rate'), 'fps': _get(videos[0], 'Video', 'Frame rate'),
                  'aspect': _get(videos[0], 'Video', 'Display aspect ratio'),
                  'scantype': _get(videos[0], 'Video', 'Scan type'),
-                 'codec': _get(videos[0], 'Video', 'Writing library')}
+                 'codec': _get(videos[0], 'Video', 'Codec ID/Hint')}
 
         if video['codec'] == '':
             codec = _get_codec(videos[0], '--fullscan')
@@ -230,7 +230,9 @@ def get_video_xml(videos):
             video['codec'] = 'h264'
         elif 'xvid' in video['codec'].lower():
             video['codec'] = 'xvid'
-            # what other codes are there and how to name it for xbmc?
+        elif 'divx' in video['codec'].lower():
+            video['codec'] = 'DivX'
+        # what other codes are there and how to name it for xbmc?
 
         aspect = None
         if ':' in video['aspect']:
