@@ -182,9 +182,15 @@ def get_audio_xml(videos):
         xml = ''
         for section in _get_codec(videos[0]).sections():
             if 'Audio' in section:
-                audio = {'codec': _get(videos[0], section, 'Format')}
+                codec = _get(videos[0], section, 'Codec ID/Hint')
+                if codec == '':
+                    codec = _get(videos[0], section, 'Format')
+
+                audio = {'codec': codec}
                 if 'AC-3' in audio['codec']:
                     audio['codec'] = 'AC3'
+                if 'mp3' in audio['codec'].lower():
+                    audio['codec'] = 'mp3'
 
                 audio['channels'] = _get(videos[0], section, 'Channel count').replace('channels', '').replace(' ', '')
                 if audio['channels'] == '':
