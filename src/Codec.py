@@ -255,9 +255,6 @@ def get_video_xml(videos):
     return video_xml()
 
 
-    #print get_video_xml(['/media/lsc/nas/filme/Thor (2011) (tt0800369)/Thor.mkv'])
-
-
 def merge_files(files, target):
     if config.codec.mkvmerge != '':
         cmd = config.codec.mkvmerge + ' -o "' + target + '" "' + files[0] + '" + "' + files[1] + '"'
