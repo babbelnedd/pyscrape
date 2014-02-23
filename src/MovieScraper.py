@@ -121,7 +121,6 @@ def create_nfo(movie):
         xml += '        </streamdetails>\n'
         xml += '    </fileinfo>\n'
 
-    xml += '    <dateadded>{0}</dateadded>\n'.format(time.strftime("%Y-%m-%d %H:%M:%S"))
     xml += '</movie>'
 
     log('Write NFO')
