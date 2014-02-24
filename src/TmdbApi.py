@@ -1,9 +1,11 @@
 import urllib2
 import operator
 import json
+
 from Config import Config
 from Decorator import Cached
 from Logger import log, LogLevel
+
 
 config = Config()
 url_base = config.tmdb.url_base
@@ -24,7 +26,8 @@ def _load_images(images, poster=False):
 def _get_resolution(images, width, height):
     result = []
     for image in images:
-        if image == (): continue
+        if image == ():
+            continue
         if image['width'] == width and image['height'] == height:
             result.append(image)
     return result
@@ -134,40 +137,40 @@ def get_images(tmdb_id):
 
 
 def get_backdrops(tmdb_id):
-    allImages = get_images(tmdb_id)
-    backdrops = _get_resolution(allImages['backdrops'], 1920, 1080)
+    all_images = get_images(tmdb_id)
+    backdrops = _get_resolution(all_images['backdrops'], 1920, 1080)
     if len(backdrops) == 0:
-        backdrops = _get_resolution(allImages['backdrops'], 1280, 720)
+        backdrops = _get_resolution(all_images['backdrops'], 1280, 720)
     if len(backdrops) == 0:
-        backdrops = allImages['backdrops']
+        backdrops = all_images['backdrops']
     return _load_images(backdrops)
 
 
 def get_posters(tmdb_id):
     log('Load Posters', 'DEBUG')
     posters = _request('movie/{0}/images?language={1}'.format(tmdb_id, config.pyscrape.language))['posters']
-    if posters == []:  # get images of fallback language
+    if not posters:  # get images of fallback language
         req = 'movie/{0}/images?language={1}'.format(tmdb_id, config.pyscrape.fallback_language)
         posters = _request(req)['posters']
-    if posters == []:  # get all images if there aren't images for primary/fallback language
+    if not posters:  # get all images if there aren't images for primary/fallback language
         posters = get_images(tmdb_id)['posters']
 
     return sorted(_load_images(posters, True).iteritems(), key=operator.itemgetter(1), reverse=True)
 
 
-def get_credits(tmdb_id, type='movie'):
+def get_credits(tmdb_id):
     def get_crew(crew):
-        xml = u''
+        crew_xml = u''
         for c in crew:
             if c['department'] == 'Writing' and c['name'] != '':
-                xml += u'    <credits>{0}</credits>\n'.format(c['name'])
+                crew_xml += u'    <credits>{0}</credits>\n'.format(c['name'])
             if c['department'] == 'Directing' and c['name'] != '':
-                xml += u'    <director>{0}</director>\n'.format(c['name'])
+                crew_xml += u'    <director>{0}</director>\n'.format(c['name'])
 
-        return xml
+        return crew_xml
 
     def get_cast(cast):
-        xml = u''
+        cast_xml = u''
         for actor in cast:
             thumb = ''
             if 'profile_path' in actor and actor['profile_path'] is not None and actor['profile_path'] != '':
@@ -176,21 +179,21 @@ def get_credits(tmdb_id, type='movie'):
             if actor is None or 'name' not in actor or actor['name'] is None or actor['name'] is '':
                 continue
 
-            xml += '    <actor>\n'
-            xml += u'       <name>{0}</name>\n'.format(actor['name'].replace('"', "'"))
+            cast_xml += '    <actor>\n'
+            cast_xml += u'       <name>{0}</name>\n'.format(actor['name'].replace('"', "'"))
             if not actor is None and not actor['character'] is None:
-                xml += u'       <role>{0}</role>\n'.format(actor['character'].replace('"', "'"))
+                cast_xml += u'       <role>{0}</role>\n'.format(actor['character'].replace('"', "'"))
             if thumb != '':
-                xml += u'       <thumb>{0}</thumb>\n'.format(thumb)
-            xml += '    </actor>\n'
+                cast_xml += u'       <thumb>{0}</thumb>\n'.format(thumb)
+            cast_xml += '    </actor>\n'
 
-        return xml
+        return cast_xml
 
     log('Load Credits', 'DEBUG')
-    credits = _request('movie/{0}/credits'.format(tmdb_id))
+    movie_credits = _request('movie/{0}/credits'.format(tmdb_id))
 
-    xml = get_crew(credits['crew'])
-    xml += get_cast(credits['cast'])
+    xml = get_crew(movie_credits['crew'])
+    xml += get_cast(movie_credits['cast'])
 
     return xml
 
@@ -199,7 +202,7 @@ def get_thumb(tmdb_id):
     log('Load Thumb', 'DEBUG')
     posters = get_posters(tmdb_id)
     for poster in posters:
-        return poster[0] # first poster is the poster with highest popularity
+        return poster[0]  # first poster is the poster with highest popularity
 
 
 def get_changes():
@@ -221,7 +224,7 @@ def get_show_id(title=None, tvdb_id=None):
 
 def get_show(tmdb_id):
     if tmdb_id is None:
-        pass # ja was dann?
+        pass  # ja was dann?
     else:
         return _request('/tv/' + unicode(tmdb_id))
 
