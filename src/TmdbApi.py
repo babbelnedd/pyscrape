@@ -169,16 +169,19 @@ def get_credits(tmdb_id, type='movie'):
     def get_cast(cast):
         xml = u''
         for actor in cast:
-            try:
-                image = 'http://image.tmdb.org/t/p/w500' + actor['profile_path']
-            except:
-                continue # skip actore if there is no image
+            thumb = ''
+            if 'profile_path' in actor and actor['profile_path'] is not None and actor['profile_path'] != '':
+                thumb = 'http://image.tmdb.org/t/p/w500' + actor['profile_path']
+
+            if actor is None or 'name' not in actor or actor['name'] is None or actor['name'] is '':
+                continue
+
             xml += '    <actor>\n'
-            if not actor is None and not actor['name'] is None:
-                xml += u'       <name>{0}</name>\n'.format(actor['name'].replace('"', "'"))
+            xml += u'       <name>{0}</name>\n'.format(actor['name'].replace('"', "'"))
             if not actor is None and not actor['character'] is None:
                 xml += u'       <role>{0}</role>\n'.format(actor['character'].replace('"', "'"))
-            xml += u'       <thumb>{0}</thumb>\n'.format(image)
+            if thumb != '':
+                xml += u'       <thumb>{0}</thumb>\n'.format(thumb)
             xml += '    </actor>\n'
 
         return xml
