@@ -180,6 +180,10 @@ def delete_audio_tracks(videos):
 def get_audio_xml(videos):
     def audio_xml():
         xml = ''
+
+        if len(videos) < 1:
+            return xml
+
         for section in _get_codec(videos[0]).sections():
             if 'Audio' in section:
                 codec = _get(videos[0], section, 'Codec ID/Hint')
@@ -213,6 +217,9 @@ def get_audio_xml(videos):
 
 def get_video_xml(videos):
     def video_xml():
+        if len(videos) < 1:
+            return ''
+
         video = {'width': _get(videos[0], 'Video', 'Width').replace('pixels', '').replace(' ', ''),
                  'height': _get(videos[0], 'Video', 'Height').replace('pixels', '').replace(' ', ''),
                  'bitrate': _get(videos[0], 'Video', 'Bit rate'), 'fps': _get(videos[0], 'Video', 'Frame rate'),
