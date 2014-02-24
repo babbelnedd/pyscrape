@@ -514,7 +514,10 @@ class TvdbApi(object):
 
             def download_season_poster():
                 log('Download Season Poster', LogLevel.Debug)
-                season_count = get_season_count(self.show['tmdb_id'])
+                if self.show['tmdb_id'] is not None:
+                    season_count = get_season_count(self.show['tmdb_id'])
+                else:
+                    season_count = 0
 
                 for n in range(1, season_count + 1):
                     poster = get_season_poster(self.show['tmdb_id'], n)

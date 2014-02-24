@@ -223,10 +223,7 @@ def get_show_id(title=None, tvdb_id=None):
 
 
 def get_show(tmdb_id):
-    if tmdb_id is None:
-        pass  # ja was dann?
-    else:
-        return _request('/tv/' + unicode(tmdb_id))
+    return _request('/tv/' + unicode(tmdb_id))
 
 
 def get_episode_credits(tmdb_id, season_number, episode_number):
