@@ -120,8 +120,12 @@ def get_certification(movie):
     result = _request(r)
     rating = 'unknown'
     for r in result['countries']:
-        if r['iso_3166_1'] == 'DE':
+        if r['iso_3166_1'].lower() == config.pyscrape.language:
             rating = r['certification']
+    if not rating or rating == '':
+        for r in result['countries']:
+            if r['iso_3166_1'].lower() == config.pyscrape.fallback_language:
+                rating = r['certification']
     return rating
 
 
