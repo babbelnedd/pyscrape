@@ -102,6 +102,37 @@ def _get_audio_languages(video):
     return languages
 
 
+def _get_video_info(video):
+    vinfo = {'width': _get(video, 'Video', 'Width').replace('pixels', '').replace(' ', ''),
+             'height': _get(video, 'Video', 'Height').replace('pixels', '').replace(' ', ''),
+             'fps': _get(video, 'Video', 'Frame rate').lower().replace('fps', '').strip(),
+             'bitrate': _get(video, 'Video', 'Bit rate'),
+             'scantype': _get(video, 'Video', 'Scan type'),
+             'aspect': _get(video, 'Video', 'Display aspect ratio'),
+             'codec': _get(video, 'Video', 'Codec ID/Hint')}
+
+    if vinfo['codec'] == '':
+        codec = _get_codec_info(video, '--fullscan')
+        vinfo['codec'] = _get(video, 'Video', 'Internet media type', codec)
+
+    if 'x264' in vinfo['codec'].lower():
+        vinfo['codec'] = 'h264'
+    elif 'h264' in vinfo['codec'].lower():
+        vinfo['codec'] = 'h264'
+    elif 'xvid' in vinfo['codec'].lower():
+        vinfo['codec'] = 'xvid'
+    elif 'divx' in vinfo['codec'].lower():
+        vinfo['codec'] = 'DivX'
+    # what other codes are there and how to name it for xbmc?
+
+    aspect = None
+    if ':' in vinfo['aspect']:
+        aspect = vinfo['aspect'].split(':')
+        vinfo['aspect'] = round(float(aspect[0]) / float(aspect[1]), 2)
+
+    return vinfo
+
+
 #endregion
 
 
@@ -270,41 +301,17 @@ def get_video_xml(videos):
         if len(videos) < 1:
             return ''
 
-        video = {'width': _get(videos[0], 'Video', 'Width').replace('pixels', '').replace(' ', ''),
-                 'height': _get(videos[0], 'Video', 'Height').replace('pixels', '').replace(' ', ''),
-                 'bitrate': _get(videos[0], 'Video', 'Bit rate'), 'fps': _get(videos[0], 'Video', 'Frame rate'),
-                 'aspect': _get(videos[0], 'Video', 'Display aspect ratio'),
-                 'scantype': _get(videos[0], 'Video', 'Scan type'),
-                 'codec': _get(videos[0], 'Video', 'Codec ID/Hint')}
-
-        if video['codec'] == '':
-            codec = _get_codec_info(videos[0], '--fullscan')
-            video['codec'] = _get(videos[0], 'Video', 'Internet media type', codec)
-
-        if 'x264' in video['codec'].lower():
-            video['codec'] = 'h264'
-        elif 'h264' in video['codec'].lower():
-            video['codec'] = 'h264'
-        elif 'xvid' in video['codec'].lower():
-            video['codec'] = 'xvid'
-        elif 'divx' in video['codec'].lower():
-            video['codec'] = 'DivX'
-        # what other codes are there and how to name it for xbmc?
-
-        aspect = None
-        if ':' in video['aspect']:
-            aspect = video['aspect'].split(':')
-            aspect = round(float(aspect[0]) / float(aspect[1]), 2)
+        vinfo = _get_video_info(videos[0])
 
         xml = '             <video>\n'
-        if aspect:
-            xml += '                <aspect>{0}</aspect>\n'.format(aspect)
+        if vinfo['aspect']:
+            xml += '                <aspect>{0}</aspect>\n'.format(vinfo['aspect'])
 
-        xml += '                <codec>{0}</codec>\n'.format(video['codec'])
+        xml += '                <codec>{0}</codec>\n'.format(vinfo['codec'])
         xml += '                <durationinseconds>{0}</durationinseconds>\n'.format(int(get_runtime(videos)) * 60)
-        xml += '                <width>{0}</width>\n'.format(video['width'])
-        xml += '                <height>{0}</height>\n'.format(video['height'])
-        xml += u'                <scantype>{0}</scantype>\n'.format(video['scantype'])
+        xml += '                <width>{0}</width>\n'.format(vinfo['width'])
+        xml += '                <height>{0}</height>\n'.format(vinfo['height'])
+        xml += u'                <scantype>{0}</scantype>\n'.format(vinfo['scantype'])
         xml += '            </video>'
         return xml
 
