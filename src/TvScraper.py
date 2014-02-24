@@ -3,6 +3,7 @@ import os
 import sys
 import time
 
+from TvdbApi import get_show_nfo
 from Config import Config
 from Logger import log, LogLevel, whiteline
 from TvdbApi import TvdbApi
@@ -44,7 +45,7 @@ def scrape_shows(shows):
 def get_show_info(show):
     log('Get show info')
     tvdb = TvdbApi(show)
-    show_xml = tvdb.get_show_nfo()
+    show_xml = get_show_nfo(tvdb.show)
     show_nfo = os.path.join(show['path'], 'tvshow.nfo')
     open(show_nfo, 'w+').write(show_xml)
     log('Start downloading Images')

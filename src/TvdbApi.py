@@ -4,6 +4,7 @@ import urllib
 import os
 import time
 import operator
+from lxml import etree
 
 from Config import Config
 from Decorator import Cached
@@ -262,44 +263,6 @@ class TvdbApi(object):
             nfo += get_nfo()
 
         return nfo
-
-    def get_show_nfo(self):
-        log('Create tvshow.nfo')
-        show = self.show
-        xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>\n'
-        xml += '<tvshow>\n'
-        xml += '    <title>{0}</title>\n'.format(show['title'])
-        xml += '    <showtitle>{0}</showtitle>\n'.format(show['title'])
-        xml += '    <rating>{0}</rating>\n'.format(show['rating'])
-        xml += '    <votes>{0}</votes>\n'.format(show['votes'])
-        xml += '    <year>{0}</year>\n'.format(show['premiered'][:4])
-        #xml += '    <top250>{0}</top250>\n'.format(show.top250)
-        xml += '    <season>-1</season>\n'
-        xml += '    <episode>{0}</episode>\n'.format(show['episode_count'])
-        #xml += '    <outline>{0}</outline>\n'.format(show.outline)
-        xml += '    <plot>{0}</plot>\n'.format(show['plot'].replace('\n', '').replace('\r', '').replace('\r\n', ''))
-        #xml += '    <tagline>{0}</tagline>\n'.format(show.tagline)
-        #xml += '    <runtime>{0}</runtime>\n'.format(show.runtime)
-        xml += '    <mpaa>{0}</mpaa>\n'.format(show['mpaa'])
-        xml += '    <episodeguide>\n'
-        xml += '        <url>{0}</url>\n'.format(show['zip_url'])
-        xml += '    </episodeguide>\n'
-        xml += '    <id>{0}</id>\n'.format(show['id'])
-        for genre in show['genres']:
-            xml += '    <genre>{0}</genre>\n'.format(genre)
-        xml += '    <premiered>{0}</premiered>\n'.format(show['premiered'])
-        xml += '    <status>{0}</status>\n'.format(show['status'])
-        xml += '    <studio>{0}</studio>\n'.format(show['network'])
-        for actor in show['actors']:
-            xml += '    <actor>\n'
-            xml += '        <name>{0}</name>\n'.format(actor['name'])
-            xml += '        <role>{0}</role>\n'.format(actor['role'])
-            if actor['thumb'] != '':
-                xml += '        <thumb>{0}</thumb>\n'.format(actor['thumb'])
-            xml += '    </actor>\n'
-
-        xml += '</tvshow>'
-        return xml
 
     def download_images(self):
         def download_fanart():
@@ -621,6 +584,89 @@ def _get_mirror():
             if '<typemask>7</typemask>' in n.toxml().strip():
                 for n in node.getElementsByTagName('mirrorpath'):
                     return n.firstChild.nodeValue
+
+
+def get_show_nfo(show):
+    log('Create tvshow.nfo')
+    root = etree.Element('tvshow')
+
+    child = etree.Element('title')
+    child.text = show['title']
+    root.append(child)
+
+    child = etree.Element('showtitle')
+    child.text = show['title']
+    root.append(child)
+
+    child = etree.Element('rating')
+    child.text = show['rating']
+    root.append(child)
+
+    child = etree.Element('votes')
+    child.text = show['votes']
+    root.append(child)
+
+    child = etree.Element('year')
+    child.text = show['premiered'][:4]
+    root.append(child)
+
+    child = etree.Element('season')
+    child.text = '-1'
+    root.append(child)
+
+    #xml += '    <top250>{0}</top250>\n'.format(show.top250)
+
+    child = etree.Element('episode')
+    child.text = str(show['episode_count'])
+    root.append(child)
+
+    child = etree.Element('plot')
+    plot = show['plot'].replace('\n', '').replace('\r', '').replace('\r\n', '')
+    child.text = unicode(plot, 'utf8')
+    root.append(child)
+
+    child = etree.Element('mpaa')
+    child.text = show['mpaa']
+    root.append(child)
+
+    child = etree.Element('episodeguide')
+    show_url = etree.SubElement(child, 'url')
+    show_url.text = show['zip_url']
+    root.append(child)
+
+    child = etree.Element('id')
+    child.text = show['id']
+    root.append(child)
+
+    for genre in show['genres']:
+        child = etree.Element('genre')
+        child.text = genre
+        root.append(child)
+
+    child = etree.Element('premiered')
+    child.text = show['premiered']
+    root.append(child)
+
+    child = etree.Element('status')
+    child.text = show['status']
+    root.append(child)
+
+    child = etree.Element('studio')
+    child.text = show['network']
+    root.append(child)
+
+    for actor in show['actors']:
+        child = etree.Element('actor')
+        name = etree.SubElement(child, 'name')
+        role = etree.SubElement(child, 'role')
+        name.text = actor['name']
+        role.text = actor['role']
+        if actor['thumb'] != '':
+            thumb = etree.SubElement(child, 'thumb')
+            thumb.text = actor['thumb']
+        root.append(child)
+
+    return etree.tostring(root, pretty_print=True, encoding='utf8', xml_declaration=True)
 
 
 @Cached
