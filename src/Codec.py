@@ -11,7 +11,10 @@ from Config import Config
 config = Config()
 
 
-def _get_codec(video, extra_attribute=''):
+#region private methods
+
+
+def _get_codec_info(video, extra_attribute=''):
     parameter = ' {0} "{1}"'.format(extra_attribute, video)
 
     cmd = config.codec.mediainfo_path + parameter
@@ -33,7 +36,7 @@ def _get_codec(video, extra_attribute=''):
 def _get(video, section, key, codec=None):
     # todo: use codec.hassection, codec.hasoption instead try/catch
     if codec is None:
-        codec = _get_codec(video)
+        codec = _get_codec_info(video)
 
     try:
         result = codec.get(section, key)
@@ -47,6 +50,59 @@ def _get(video, section, key, codec=None):
         return ''
     except AttributeError:
         return ''
+
+
+def _get_audio_formats(video):
+    codecs = []
+
+    for section in _get_codec_info(video).sections():
+        if not 'Audio' in section:
+            continue
+
+        codec = _get(video, section, 'Codec ID/Hint')
+        if codec == '':
+            codec = _get(video, section, 'Format')
+
+        if 'AC-3' in codec:
+            codec = 'AC3'
+        elif 'mp3' in codec.lower():
+            codec = 'mp3'
+
+        codecs.append(codec)
+
+    return codecs
+
+
+def _get_audio_channels(video):
+    channels = []
+
+    for section in _get_codec_info(video).sections():
+        if not 'Audio' in section:
+            continue
+
+        channel_count = _get(video, section, 'Channel count').replace('channels', '').replace(' ', '')
+        if channel_count == '':
+            channel_count = _get(video, section, 'Channel(s)').replace('channels', '').replace(' ', '')
+
+        channels.append(channel_count)
+
+    return channels
+
+
+def _get_audio_languages(video):
+    languages = []
+
+    for section in _get_codec_info(video).sections():
+        if not 'Audio' in section:
+            continue
+
+        language = _get(video, section, 'Language')
+        languages.append(language)
+
+    return languages
+
+
+#endregion
 
 
 def get_runtime(videos):
@@ -93,7 +149,7 @@ def delete_audio_tracks(videos):
         audio_tracks = {}
 
         # get all audio codecs
-        codec = _get_codec(video)
+        codec = _get_codec_info(video)
         for section in codec.sections():
             if not 'Audio' in section:
                 continue
@@ -177,38 +233,32 @@ def delete_audio_tracks(videos):
                 shutil.move(dst, video)
 
 
+def get_audio_codecs(video):
+    codecs = []
+    formats = _get_audio_formats(video)
+    channels = _get_audio_channels(video)
+    languages = _get_audio_languages(video)
+
+    for n in range(0, len(formats)):
+        codec = {'format': formats[n], 'channel_count': channels[n], 'language': languages[n]}
+        codecs.append(codec)
+
+    return codecs
+
+
 def get_audio_xml(videos):
     def audio_xml():
-        xml = ''
-
         if len(videos) < 1:
-            return xml
+            return ''
 
-        for section in _get_codec(videos[0]).sections():
-            if 'Audio' in section:
-                codec = _get(videos[0], section, 'Codec ID/Hint')
-                if codec == '':
-                    codec = _get(videos[0], section, 'Format')
-
-                audio = {'codec': codec}
-                if 'AC-3' in audio['codec']:
-                    audio['codec'] = 'AC3'
-                if 'mp3' in audio['codec'].lower():
-                    audio['codec'] = 'mp3'
-
-                audio['channels'] = _get(videos[0], section, 'Channel count').replace('channels', '').replace(' ', '')
-                if audio['channels'] == '':
-                    audio['channels'] = _get(videos[0], section, 'Channel(s)').replace('channels', '').replace(' ', '')
-                audio['language'] = _get(videos[0], section, 'Language')
-
-                xml += '\n'
-                xml += '            <audio>\n'
-                xml += '                <channels>{0}</channels>\n'.format(audio['channels'])
-                xml += '                <codec>{0}</codec>\n'.format(audio['codec'])
-                if audio['language'] != '':
-                    xml += u'                <language>{0}</language>\n'.format(audio['language'])
-                xml += '            </audio>'
-        xml += '\n'
+        xml = '\n'
+        for codec in get_audio_codecs(videos[0]):
+            xml += '            <audio>\n'
+            xml += '                <channels>{0}</channels>\n'.format(codec['channel_count'])
+            xml += '                <codec>{0}</codec>\n'.format(codec['format'])
+            if codec['language'] != '':
+                xml += u'                <language>{0}</language>\n'.format(codec['language'])
+            xml += '            </audio>\n'
         return xml
 
     log('Load Audio Codec Information')
@@ -228,7 +278,7 @@ def get_video_xml(videos):
                  'codec': _get(videos[0], 'Video', 'Codec ID/Hint')}
 
         if video['codec'] == '':
-            codec = _get_codec(videos[0], '--fullscan')
+            codec = _get_codec_info(videos[0], '--fullscan')
             video['codec'] = _get(videos[0], 'Video', 'Internet media type', codec)
 
         if 'x264' in video['codec'].lower():
