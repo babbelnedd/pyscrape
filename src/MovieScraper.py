@@ -6,6 +6,7 @@ import time
 import getopt
 import traceback
 import operator
+from lxml import etree
 
 import utils
 import RegEx
@@ -75,55 +76,161 @@ def get_movies(path):
 
 
 def create_nfo(movie):
-    log('Prepare NFO')
-    xml = '<?xml version="1.0" encoding="utf-8"?>\n'
-    xml += '<movie>\n'
-    xml += u'    <title>{0}</title>\n'.format(movie.title)
-    xml += u'    <originaltitle>{0}</originaltitle>\n'.format(movie.orig_title)
-    xml += u'    <sorttitle>{0}</sorttitle>\n'.format(movie.sorted_title)
+    log('Create NFO')
+    root = etree.Element('movie')
+
+    child = etree.Element('title')
+    child.text = movie.title
+    root.append(child)
+
+    child = etree.Element('originaltitle')
+    child.text = movie.orig_title
+    root.append(child)
+
+    child = etree.Element('sorttitle')
+    child.text = movie.sorted_title
+    root.append(child)
+
     if movie.collection is not None and movie.collection != '':
-        xml += u'    <set>{0}</set>\n'.format(movie.collection)
-    xml += '    <rating>{0}</rating>\n'.format(movie.rating)
-    xml += '    <year>{0}</year>\n'.format(movie.year)
+        child = etree.Element('set')
+        child.text = movie.collection
+        root.append(child)
+
+    child = etree.Element('rating')
+    child.text = str(movie.rating)
+    root.append(child)
+
+    child = etree.Element('votes')
+    child.text = str(movie.vote_count)
+    root.append(child)
+
+    child = etree.Element('year')
+    child.text = movie.year
+    root.append(child)
+
     #xml += '    <top250>{0}</top250>\n'.format(0)      # information is still missing
-    xml += '    <votes>{0}</votes>\n'.format(movie.vote_count)
+
     if movie.outline is not None and movie.outline != '':
-        xml += u'    <outline>{0}</outline>\n'.format(movie.outline)
+        child = etree.Element('outline')
+        child.text = movie.outline
+        root.append(child)
+
     if movie.tagline is not None and movie.tagline != '':
-        xml += u'    <tagline>{0}</tagline>\n'.format(movie.tagline)
-    xml += u'    <plot>{0}</plot>\n'.format(movie.plot)
+        child = etree.Element('tagline')
+        child.text = movie.tagline
+        root.append(child)
+
+    child = etree.Element('plot')
+    child.text = movie.plot
+    root.append(child)
+
     if movie.mpaa is not None and movie.mpaa != 'unknown':
-        xml += u'    <mpaa>{0}</mpaa>\n'.format(movie.mpaa)
+        child = etree.Element('mpaa')
+        child.text = movie.mpaa
+        root.append(child)
+
     if movie.revenue is not None and movie.revenue != '' and movie.revenue != 0:
-        xml += u'    <revenue>{0}</revenue>\n'.format(utils.intWithCommas(movie.revenue))
+        child = etree.Element('revenue')
+        child.text = utils.intWithCommas(movie.revenue)
+        root.append(child)
+
     if movie.budget is not None and movie.budget != '' and movie.budget != 0:
-        xml += u'    <budget>{0}</budget>\n'.format(utils.intWithCommas(movie.budget))
+        child = etree.Element('budget')
+        child.text = utils.intWithCommas(movie.budget)
+        root.append(child)
+
     if movie.runtime is not None and movie.runtime != '' and movie.runtime != '0':
-        xml += '    <runtime>{0}</runtime>\n'.format(movie.runtime)
-    xml += '    <thumb>{0}</thumb>\n'.format(movie.thumb)
-    xml += '    <playcount>{0}</playcount>\n'.format(0)
-    xml += '    <id>{0}</id>\n'.format(movie.imdb)
+        child = etree.Element('runtime')
+        child.text = movie.runtime
+        root.append(child)
+
+    child = etree.Element('thumb')
+    child.text = movie.thumb
+    root.append(child)
+
+    child = etree.Element('playcount')
+    child.text = '0'
+    root.append(child)
+
+    child = etree.Element('id')
+    child.text = movie.imdb
+    root.append(child)
+
     if movie.trailer is not None and movie.trailer != '':
-        xml += u'    <trailer>plugin://plugin.video.youtube/?action=play_video&amp;videoid={0}</trailer>\n'.format(
-            movie.trailer)
+        child = etree.Element('trailer')
+        child.text = 'plugin://plugin.video.youtube/?action=play_video&amp;videoid={0}'.format(movie.trailer)
+        root.append(child)
+
     for genre in movie.genres.split('/'):
-        xml += u'    <genre>{0}</genre>\n'.format(genre)
+        child = etree.Element('genre')
+        child.text = genre
+        root.append(child)
 
     if len(movie.production_companies) > 0:
-        xml += u'    <studio>{0}</studio>\n'.format(movie.production_companies.split('/')[0].strip())
+        child = etree.Element('studio')
+        child.text = movie.production_companies.split('/')[0].strip()
+        root.append(child)
 
-    xml += movie.credits
-    if movie.video_xml != '' or movie.audio_xml != '':
-        xml += '    <fileinfo>\n'
-        xml += '        <streamdetails>\n'
-        xml += movie.video_xml
-        xml += movie.audio_xml
-        xml += '        </streamdetails>\n'
-        xml += '    </fileinfo>\n'
+    movie_credits = Tmdb.get_credits(movie.id)
+    for credit in movie_credits['credits']:
+        child = etree.Element('director')
+        child.text = credit
+        root.append(child)
 
-    xml += '</movie>'
+    for director in movie_credits['directors']:
+        child = etree.Element('director')
+        child.text = director
+        root.append(child)
 
-    log('Write NFO')
+    for actor in movie_credits['actors']:
+        _actor = etree.Element('actor')
+        name = etree.SubElement(_actor, 'name')
+        role = etree.SubElement(_actor, 'role')
+
+        name.text = actor['name']
+        role.text = actor['role']
+        if actor['thumb'] is not None:
+            thumb = etree.SubElement(_actor, 'thumb')
+            thumb.text = 'http://image.tmdb.org/t/p/w500' + actor['thumb']
+
+        root.append(_actor)
+
+    if len(movie.files) > 0:
+        videos = [os.path.join(movie.path, v) for v in movie.files]
+        vinfo = Codec.get_vinfo(videos[0])
+        ainfo = Codec.get_ainfo(videos[0])
+
+        fileinfo = etree.Element('fileinfo')
+        streamdetails = etree.SubElement(fileinfo, 'streamdetails')
+
+        video = etree.SubElement(streamdetails, 'video')
+        aspect = etree.SubElement(video, 'aspect')
+        video_codec = etree.SubElement(video, 'codec')
+        duration = etree.SubElement(video, 'durationinseconds')
+        width = etree.SubElement(video, 'width')
+        height = etree.SubElement(video, 'height')
+        scantype = etree.SubElement(video, 'scantype')
+
+        aspect.text = str(vinfo['aspect'])
+        video_codec.text = vinfo['codec']
+        duration.text = str(int(Codec.get_runtime(videos)) * 60)
+        width.text = str(vinfo['width'])
+        height.text = str(vinfo['height'])
+        scantype.text = vinfo['scantype']
+
+        for info in ainfo:
+            audio = etree.SubElement(streamdetails, 'audio')
+            channels = etree.SubElement(audio, 'channels')
+            audio_codec = etree.SubElement(audio, 'codec')
+            language = etree.SubElement(audio, 'language')
+
+            channels.text = info['channel_count']
+            audio_codec.text = info['format']
+            language.text = info['language']
+
+        root.append(fileinfo)
+
+    log('Write NFO to disk', LogLevel.Debug)
     if len(movie.files) > 0:
         filename, extension = os.path.splitext(movie.files[0])
         regex = re.search('\cd[0-9]', filename, re.IGNORECASE)
@@ -135,7 +242,7 @@ def create_nfo(movie):
     if filename == '':
         filename = os.path.basename(movie.path)
     nfo_file = os.path.join(movie.path, filename + '.nfo')
-    file(nfo_file, 'w').write(xml.encode("utf8"))
+    file(nfo_file, 'w').write(etree.tostring(root, pretty_print=True, encoding='utf8', xml_declaration=True))
 
 
 def cleanup_dir(movie):
@@ -460,10 +567,7 @@ def get_metadata(movie):
     get_advanced_metadata()
     movie.posters = Tmdb.get_posters(movie.id)
     movie.thumb = Tmdb.get_thumb(movie.id)
-    movie.credits = Tmdb.get_credits(movie.id)
     movie.runtime = Codec.get_runtime(files)
-    movie.audio_xml = Codec.get_audio_xml(files)
-    movie.video_xml = Codec.get_video_xml(files)
     create_nfo(movie)
     return movie
 
@@ -629,6 +733,7 @@ def __start():
         for a in sys.argv:
             log(a, LogLevel.Error)
         log(traceback.format_exc(), LogLevel.Error)
+
 
 if __name__ == '__main__':
     try:

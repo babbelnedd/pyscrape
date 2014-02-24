@@ -159,43 +159,24 @@ def get_posters(tmdb_id):
 
 
 def get_credits(tmdb_id):
-    def get_crew(crew):
-        crew_xml = u''
-        for c in crew:
-            if c['department'] == 'Writing' and c['name'] != '':
-                crew_xml += u'    <credits>{0}</credits>\n'.format(c['name'])
-            if c['department'] == 'Directing' and c['name'] != '':
-                crew_xml += u'    <director>{0}</director>\n'.format(c['name'])
-
-        return crew_xml
-
-    def get_cast(cast):
-        cast_xml = u''
-        for actor in cast:
-            thumb = ''
-            if 'profile_path' in actor and actor['profile_path'] is not None and actor['profile_path'] != '':
-                thumb = 'http://image.tmdb.org/t/p/w500' + actor['profile_path']
-
-            if actor is None or 'name' not in actor or actor['name'] is None or actor['name'] is '':
-                continue
-
-            cast_xml += '    <actor>\n'
-            cast_xml += u'       <name>{0}</name>\n'.format(actor['name'].replace('"', "'"))
-            if not actor is None and not actor['character'] is None:
-                cast_xml += u'       <role>{0}</role>\n'.format(actor['character'].replace('"', "'"))
-            if thumb != '':
-                cast_xml += u'       <thumb>{0}</thumb>\n'.format(thumb)
-            cast_xml += '    </actor>\n'
-
-        return cast_xml
-
     log('Load Credits', 'DEBUG')
     movie_credits = _request('movie/{0}/credits'.format(tmdb_id))
 
-    xml = get_crew(movie_credits['crew'])
-    xml += get_cast(movie_credits['cast'])
+    credits = []
+    directors = []
+    actors = []
 
-    return xml
+    for c in movie_credits['crew']:
+        if c['department'] == 'Writing' and c['name'] != '':
+            credits.append(c['name'])
+        if c['department'] == 'Directing' and c['name'] != '':
+            directors.append(c['name'])
+
+    for actor in movie_credits['cast']:
+        actor = {'name': actor['name'], 'role': actor['character'], 'thumb': actor['profile_path']}
+        actors.append(actor)
+
+    return dict(directors=directors, credits=credits, actors=actors)
 
 
 def get_thumb(tmdb_id):

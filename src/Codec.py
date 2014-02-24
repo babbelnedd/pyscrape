@@ -102,7 +102,23 @@ def _get_audio_languages(video):
     return languages
 
 
-def _get_video_info(video):
+#endregion
+
+
+def get_ainfo(video):
+    codecs = []
+    formats = _get_audio_formats(video)
+    channels = _get_audio_channels(video)
+    languages = _get_audio_languages(video)
+
+    for n in range(0, len(formats)):
+        codec = {'format': formats[n], 'channel_count': channels[n], 'language': languages[n]}
+        codecs.append(codec)
+
+    return codecs
+
+
+def get_vinfo(video):
     vinfo = {'width': _get(video, 'Video', 'Width').replace('pixels', '').replace(' ', ''),
              'height': _get(video, 'Video', 'Height').replace('pixels', '').replace(' ', ''),
              'fps': _get(video, 'Video', 'Frame rate').lower().replace('fps', '').strip(),
@@ -125,15 +141,13 @@ def _get_video_info(video):
         vinfo['codec'] = 'DivX'
     # what other codes are there and how to name it for xbmc?
 
-    aspect = None
     if ':' in vinfo['aspect']:
         aspect = vinfo['aspect'].split(':')
         vinfo['aspect'] = round(float(aspect[0]) / float(aspect[1]), 2)
+    else:
+        vinfo['aspect'] = None
 
     return vinfo
-
-
-#endregion
 
 
 def get_runtime(videos):
@@ -264,26 +278,13 @@ def delete_audio_tracks(videos):
                 shutil.move(dst, video)
 
 
-def get_audio_codecs(video):
-    codecs = []
-    formats = _get_audio_formats(video)
-    channels = _get_audio_channels(video)
-    languages = _get_audio_languages(video)
-
-    for n in range(0, len(formats)):
-        codec = {'format': formats[n], 'channel_count': channels[n], 'language': languages[n]}
-        codecs.append(codec)
-
-    return codecs
-
-
 def get_audio_xml(videos):
     def audio_xml():
         if len(videos) < 1:
             return ''
 
         xml = '\n'
-        for codec in get_audio_codecs(videos[0]):
+        for codec in get_ainfo(videos[0]):
             xml += '            <audio>\n'
             xml += '                <channels>{0}</channels>\n'.format(codec['channel_count'])
             xml += '                <codec>{0}</codec>\n'.format(codec['format'])
@@ -301,7 +302,7 @@ def get_video_xml(videos):
         if len(videos) < 1:
             return ''
 
-        vinfo = _get_video_info(videos[0])
+        vinfo = get_vinfo(videos[0])
 
         xml = '             <video>\n'
         if vinfo['aspect']:
