@@ -209,14 +209,16 @@ def create_nfo(movie):
         duration = etree.SubElement(video, 'durationinseconds')
         width = etree.SubElement(video, 'width')
         height = etree.SubElement(video, 'height')
-        scantype = etree.SubElement(video, 'scantype')
 
         aspect.text = str(vinfo['aspect'])
         video_codec.text = vinfo['codec']
         duration.text = str(int(Codec.get_runtime(videos)) * 60)
         width.text = str(vinfo['width'])
         height.text = str(vinfo['height'])
-        scantype.text = vinfo['scantype']
+
+        if vinfo['scantype'] != '':
+            scantype = etree.SubElement(video, 'scantype')
+            scantype.text = vinfo['scantype']
 
         for info in ainfo:
             audio = etree.SubElement(streamdetails, 'audio')
