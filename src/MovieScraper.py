@@ -2,6 +2,7 @@ import re
 import sys
 import os
 import shutil
+from threading import Thread
 import time
 import getopt
 import traceback
@@ -24,6 +25,8 @@ delete_existing = False
 refresh = False
 nfo_only = False
 force = False
+thread_running = True
+threads = []
 config = Config()
 
 
@@ -465,15 +468,30 @@ def download_images(movie):
                 config.movie.download_disc or config.movie.download_clearart:
             log('Download Fanart')
             if config.movie.download_banner:
-                download_banner()
+                t = Thread(target=download_banner, args=())
+                t.start()
+                threads.append(t)
+                #download_banner()
             if config.movie.download_logo:
-                download_logo()
+                t = Thread(target=download_logo, args=())
+                t.start()
+                threads.append(t)
+                #download_logo()
             if config.movie.download_landscape:
-                download_thumbs()
+                t = Thread(target=download_thumbs, args=())
+                t.start()
+                threads.append(t)
+                #download_thumbs()
             if config.movie.download_disc:
-                download_disc()
+                t = Thread(target=download_disc, args=())
+                t.start()
+                threads.append(t)
+                #download_disc()
             if config.movie.download_clearart:
-                download_clearart()
+                t = Thread(target=download_clearart, args=())
+                t.start()
+                threads.append(t)
+                #download_clearart()
 
     global delete_existing
     _refresh = True
@@ -481,9 +499,13 @@ def download_images(movie):
         _refresh = False
 
     if config.movie.download_backdrop:
-        download_backdrops()
+        t = Thread(target=download_backdrops, args=())
+        t.start()
+        threads.append(t)
     if config.movie.download_poster:
-        download_posters()
+        t = Thread(target=download_posters, args=())
+        t.start()
+        threads.append(t)
 
     download_fanart()
 
@@ -608,6 +630,9 @@ def scrape_movies(path, single=False):
                     continue
 
                 download_images(movie)
+
+            [thread.join() for thread in threads]
+
             end = time.time()
             elapsed = end - start_time
             total_elapsed += elapsed
