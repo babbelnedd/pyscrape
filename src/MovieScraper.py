@@ -488,7 +488,6 @@ def download_images(movie):
 
 def get_metadata(movie):
     def get_basic_metadata():
-        log('Get basic information')
         result = Tmdb.search_title(title=movie.search_title, year=movie.search_year,
                                    lang=config.pyscrape.language, imdb_id=movie.imdb)
 
@@ -524,7 +523,6 @@ def get_metadata(movie):
             movie.popularity = float(result['popularity'])
 
     def get_advanced_metadata():
-        log('Get advanced informations')
         info = Tmdb.get_movie(movie.id, lang=config.pyscrape.language)
         if info is None:  # If there is no information get information for fallback language
             info = Tmdb.get_movie(movie.id, lang=config.pyscrape.fallback_language)
@@ -554,6 +552,7 @@ def get_metadata(movie):
         for language in info['spoken_languages']:
             movie.spoken_languages.append(language[u'name'])
 
+    log('Get metadata')
     get_basic_metadata()
     if movie.id == '':
         log('No match for {0}'.format(movie.search_title), LogLevel.Warning)
