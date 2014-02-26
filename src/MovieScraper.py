@@ -173,7 +173,7 @@ def create_nfo(movie):
 
     movie_credits = Tmdb.get_credits(movie.id)
     for credit in movie_credits['credits']:
-        child = etree.Element('director')
+        child = etree.Element('credits')
         child.text = credit
         root.append(child)
 
