@@ -1,32 +1,30 @@
-import httplib
-import urllib
 import datetime
 import os
 
-from Config import Config
-
-from Decorator import Logger
-
-root = os.path.dirname(os.path.realpath(__file__))
-path = os.path.join(root, 'logs')
-logfile = os.path.join(path, 'pyscrape.log')
-errorfile = os.path.join(path, 'error.log')
-__cfg = Config()
-
-if not os.path.exists(path):
-    os.makedirs(path)
-if not os.path.exists(logfile):
-    open(logfile, 'w+')
-if not os.path.exists(errorfile):
-    open(errorfile, 'w+')
+import Config
+import Decorator
 
 
-@Logger
+__config = Config.Config()
+__root = os.path.dirname(os.path.realpath(__file__))
+_path = os.path.join(__root, 'logs')
+_logfile = os.path.join(_path, 'pyscrape.log')
+_errorfile = os.path.join(_path, 'error.log')
+
+if not os.path.exists(_path):
+    os.makedirs(_path)
+if not os.path.exists(_logfile):
+    open(_logfile, 'w+')
+if not os.path.exists(_errorfile):
+    open(_errorfile, 'w+')
+
+
+@Decorator.Logger
 def log(text, level=''):
     if level == '':
         level = LogLevel.Info
 
-    if not __cfg.pyscrape.debug_log and level.upper() == 'DEBUG':
+    if not __config.pyscrape.debug_log and level.upper() == 'DEBUG':
         return
 
     if level == LogLevel.Error:
@@ -37,33 +35,20 @@ def log(text, level=''):
     timestamp = datetime.datetime.now().strftime('%H:%M:%S')
     output = '[' + timestamp + '][' + level + ']: ' + text
 
-    with open(logfile, 'a') as logFile:
+    with open(_logfile, 'a') as logFile:
         if isinstance(output, unicode):
             output = output.encode('ascii', 'replace')
         logFile.write(output + '\n')
 
     if level == LogLevel.Error or level == LogLevel.Warning:
-        with open(errorfile, 'a') as logFile:
+        with open(_errorfile, 'a') as logFile:
             logFile.write(output + '\n')
 
     _print(output, level)
 
 
-def pushover(notification):
-    token = __cfg.pushover.token
-    key = __cfg.pushover.key
-
-    conn = httplib.HTTPSConnection("api.pushover.net:443")
-    conn.request("POST", "/1/messages.json",
-                 urllib.urlencode({"token": token,
-                                   "user": key,
-                                   "message": notification,
-                 }), {"Content-type": "application/x-www-form-urlencoded"})
-    conn.getresponse()
-
-
 def whiteline():
-    with open(logfile, 'a') as logFile:
+    with open(_logfile, 'a') as logFile:
         print('\n')
         logFile.write('\n')
 
