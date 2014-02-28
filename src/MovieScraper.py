@@ -276,7 +276,7 @@ def cleanup_dir(movie):
 
 def download_images(movie):
     def download_backdrops():
-        log('Download Backdrops')
+        log('Download Backdrops', LogLevel.Debug)
         path = movie.path
         movie.backdrops = Tmdb.get_backdrops(movie.id)
         backdrops = sorted(movie.backdrops.iteritems(), key=operator.itemgetter(1), reverse=True)
@@ -303,7 +303,7 @@ def download_images(movie):
             n += 1
 
     def download_posters():
-        log('Download posters')
+        log('Download posters', LogLevel.Debug)
         path = movie.path
         n = 0
         for poster in movie.posters:
@@ -466,7 +466,7 @@ def download_images(movie):
 
         if config.movie.download_banner or config.movie.download_logo or config.movie.download_landscape or \
                 config.movie.download_disc or config.movie.download_clearart:
-            log('Download Fanart')
+            log('Download Fanart', LogLevel.Debug)
             if config.movie.download_banner:
                 t = Thread(target=download_banner, args=())
                 t.start()
@@ -493,6 +493,7 @@ def download_images(movie):
                 threads.append(t)
                 #download_clearart()
 
+    log('Download images')
     global delete_existing
     _refresh = True
     if refresh or delete_existing:
@@ -636,9 +637,9 @@ def scrape_movies(path, single=False):
             end = time.time()
             elapsed = end - start_time
             total_elapsed += elapsed
-            log('{0} / {1} movies progressed'.format(progressed, count_movies))
-            log("%.2f s " % elapsed, 'TIME')
-            log("%.2f s total" % total_elapsed, 'TIME')
+            log('{0} / {1} movies progressed'.format(progressed, count_movies), LogLevel.Debug)
+            log("%.2f s " % elapsed, LogLevel.Debug)
+            log("%.2f s total" % total_elapsed, LogLevel.Debug)
             whiteline()
 
     if single:
