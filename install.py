@@ -14,8 +14,8 @@ try:
         Output:     [question] yes/no
 
         Keyword arguments:
-        question:   The question which will be asked
-        answer:     True means 'YES' is the default answer
+        @param question:   The question which will be asked
+        @param answer:     True means 'YES' is the default answer
                     False means 'NO' is the default answer
                     default value: True
 
