@@ -1,5 +1,6 @@
 import json
 import urllib2
+from core.plugins import PluginBase
 
 from core.Config import Config
 import core.Decorator as Decorator
@@ -36,7 +37,7 @@ def _request(request_string):
 #endregion
 
 
-class TmdbScanner(object):
+class TmdbScanner(PluginBase.Movie):
     def __init__(self):
         from core.plugins.PluginType import PluginType
 

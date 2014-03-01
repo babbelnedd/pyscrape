@@ -1,4 +1,7 @@
-class FanartScanner(object):
+from core.plugins import PluginBase
+
+
+class FanartScanner(PluginBase.Movie):
     def __init__(self):
         from core.plugins.PluginType import PluginType
 
