@@ -228,3 +228,6 @@ class RegExTests(unittest.TestCase):
 
         result = RegEx.get_cd('Ice Age 2002 cd1.avi')
         assert result == '1'
+
+        result = RegEx.get_cd('Ice Age 2002.avi')
+        assert result == ''
