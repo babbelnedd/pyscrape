@@ -563,7 +563,7 @@ def _download_zip(tvdb_id, language):
     tvdb_id = unicode(tvdb_id)
     zip_url = url_base + '/api/' + api_key + '/series/' + tvdb_id + '/all/' + language + '.zip'
     root = os.path.abspath(os.path.join(utils.get_root(), os.pardir))
-    tmp_path = os.path.join(root, 'tmp')
+    tmp_path = os.path.join(root, '.tmp')
     file_name = tvdb_id + '_' + language + '.zip'
     dst = os.path.join(tmp_path, file_name)
 
