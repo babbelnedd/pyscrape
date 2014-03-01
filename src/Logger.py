@@ -3,10 +3,11 @@ import os
 
 import Config
 import Decorator
+import src
 
 
 __config = Config.Config()
-__root = os.path.dirname(os.path.realpath(__file__))
+__root = os.path.abspath(os.path.join(src.__path__[0], os.pardir))
 _path = os.path.join(__root, 'logs')
 _logfile = os.path.join(_path, 'pyscrape.log')
 _errorfile = os.path.join(_path, 'error.log')

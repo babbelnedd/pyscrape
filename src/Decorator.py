@@ -37,8 +37,9 @@ class Logger(object):
 def split_log():
     import os
     import shutil
+    import src
 
-    root = os.path.dirname(os.path.realpath(__file__))
+    root = os.path.abspath(os.path.join(src.__path__[0], os.pardir))
     path = os.path.join(root, 'logs')
     logfile = os.path.join(path, 'pyscrape.log')
     errorfile = os.path.join(path, 'error.log')
