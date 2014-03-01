@@ -100,13 +100,6 @@ class TmdbScanner(PluginBase.Movie):
         return tmdb_id
 
     def get_imdb_id(self, title=None, year=None, tmdb_id=None):
-        """
-        Tries to find the correct IMDB ID.
-
-        @param      title       The title of the searched movie. Optional.
-        @param      year        The release year of the searched movie. Optional.
-        @param      tmdb_id     The TMDB ID of the searched movie. Optional.
-        """
         if tmdb_id is None:
             tmdb_id = self.get_tmdb_id(title=title, year=year)
 
