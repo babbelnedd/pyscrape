@@ -100,10 +100,11 @@ class Movie(object):
         """
         return None
 
-    def get_clearart(self, imdb_id=None, tmdb_id=None):
+    def get_clearart(self, language, imdb_id=None, tmdb_id=None):
         """
         Gets all clearart images.
 
+        @param  language    The preferred Language of movie posters. Optional.
         @param  imdb_id     The IMDB ID of a movie. Optional.
         @param  tmdb_id     The TMDB ID of a movie. Optional.
 
@@ -114,10 +115,11 @@ class Movie(object):
         """
         return None
 
-    def get_logos(self, imdb_id=None, tmdb_id=None):
+    def get_logos(self, language, imdb_id=None, tmdb_id=None):
         """
         Gets all logos.
 
+        @param  language    The preferred Language of movie posters. Optional.
         @param  imdb_id     The IMDB ID of a movie. Optional.
         @param  tmdb_id     The TMDB ID of a movie. Optional.
 
