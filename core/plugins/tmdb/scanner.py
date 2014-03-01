@@ -1,7 +1,7 @@
 import json
 import urllib2
-from core.plugins import PluginBase
 
+from core.plugins import PluginBase
 from core.Config import Config
 import core.Decorator as Decorator
 from core.Logger import log, LogLevel
@@ -227,87 +227,125 @@ class TmdbScanner(PluginBase.Movie):
         else:
             return []
 
-    def get_banners(self, imdb_id=None, tmdb_id=None):
-        if tmdb_id is None and imdb_id is not None:
-            tmdb_id = self.get_tmdb_id(imdb_id=imdb_id)
-
-    def get_disc_art(self, imdb_id=None, tmdb_id=None):
-        if tmdb_id is None and imdb_id is not None:
-            tmdb_id = self.get_tmdb_id(imdb_id=imdb_id)
-
-    def get_clearart(self, imdb_id=None, tmdb_id=None):
-        if tmdb_id is None and imdb_id is not None:
-            tmdb_id = self.get_tmdb_id(imdb_id=imdb_id)
-
-    def get_logos(self, imdb_id=None, tmdb_id=None):
-        if tmdb_id is None and imdb_id is not None:
-            tmdb_id = self.get_tmdb_id(imdb_id=imdb_id)
-
     def get_backdrops(self, imdb_id=None, tmdb_id=None):
+        def _get_resolution(images, width, height):
+            result = []
+            for image in images:
+                if image == ():
+                    continue
+                if image['width'] == width and image['height'] == height:
+                    result.append(image)
+            return result
+
         if tmdb_id is None and imdb_id is not None:
             tmdb_id = self.get_tmdb_id(imdb_id=imdb_id)
 
-    def get_landscapes(self, imdb_id=None, tmdb_id=None):
-        if tmdb_id is None and imdb_id is not None:
-            tmdb_id = self.get_tmdb_id(imdb_id=imdb_id)
+        all_images = _request('movie/{0}/images'.format(str(tmdb_id)))
+        backdrops = _get_resolution(all_images['backdrops'], 1920, 1080)
+        if len(backdrops) == 0:
+            backdrops = _get_resolution(all_images['backdrops'], 1280, 720)
+        if len(backdrops) == 0:
+            backdrops = all_images['backdrops']
+
+        images = []
+        for image in backdrops:
+            url = 'http://image.tmdb.org/t/p/w' + str(image['width']) + image['file_path']
+            images.append({'url': url, 'rating': image['vote_average'], 'vote_count': image['vote_count']})
+
+        return sorted(images, key=lambda d: d['rating'])
 
     def get_release(self, imdb_id=None, tmdb_id=None):
         if tmdb_id is None and imdb_id is not None:
             tmdb_id = self.get_tmdb_id(imdb_id=imdb_id)
+        return _request('movie/' + str(tmdb_id))['release_date']
 
     def get_original_title(self, imdb_id=None, tmdb_id=None):
         if tmdb_id is None and imdb_id is not None:
             tmdb_id = self.get_tmdb_id(imdb_id=imdb_id)
+        return _request('movie/' + str(tmdb_id))['original_title']
 
     def get_vote_count(self, imdb_id=None, tmdb_id=None):
         if tmdb_id is None and imdb_id is not None:
             tmdb_id = self.get_tmdb_id(imdb_id=imdb_id)
+        return _request('movie/' + str(tmdb_id))['vote_count']
 
     def get_average_rating(self, imdb_id=None, tmdb_id=None):
         if tmdb_id is None and imdb_id is not None:
             tmdb_id = self.get_tmdb_id(imdb_id=imdb_id)
+        return _request('movie/' + str(tmdb_id))['vote_average']
 
     def get_popularity(self, imdb_id=None, tmdb_id=None):
         if tmdb_id is None and imdb_id is not None:
             tmdb_id = self.get_tmdb_id(imdb_id=imdb_id)
+        return _request('movie/' + str(tmdb_id))['popularity']
 
-    def get_plot(self, imdb_id=None, tmdb_id=None):
+    def get_plot(self, language, imdb_id=None, tmdb_id=None):
         if tmdb_id is None and imdb_id is not None:
             tmdb_id = self.get_tmdb_id(imdb_id=imdb_id)
+        return _request('movie/{0}?language={1}'.format(str(tmdb_id), language))['overview']
 
-    def get_tagline(self, imdb_id=None, tmdb_id=None):
+    def get_tagline(self, language, imdb_id=None, tmdb_id=None):
         if tmdb_id is None and imdb_id is not None:
             tmdb_id = self.get_tmdb_id(imdb_id=imdb_id)
+        return _request('movie/{0}?language={1}'.format(str(tmdb_id), language))['tagline']
 
-    def get_outline(self, imdb_id=None, tmdb_id=None):
+    def get_outline(self, language, imdb_id=None, tmdb_id=None):
         if tmdb_id is None and imdb_id is not None:
             tmdb_id = self.get_tmdb_id(imdb_id=imdb_id)
+        return _request('movie/{0}?language={1}'.format(str(tmdb_id), language))['outline']
 
     def get_revenue(self, imdb_id=None, tmdb_id=None):
         if tmdb_id is None and imdb_id is not None:
             tmdb_id = self.get_tmdb_id(imdb_id=imdb_id)
+        return _request('movie/' + str(tmdb_id))['revenue']
+
+    def get_budget(self, imdb_id=None, tmdb_id=None):
+        if tmdb_id is None and imdb_id is not None:
+            tmdb_id = self.get_tmdb_id(imdb_id=imdb_id)
+        return _request('movie/' + str(tmdb_id))['budget']
 
     def get_collection(self, imdb_id=None, tmdb_id=None):
         if tmdb_id is None and imdb_id is not None:
             tmdb_id = self.get_tmdb_id(imdb_id=imdb_id)
-
-    def get_budget(self, imdb_id=None, tmdb_id=None):
-        print "TMDB"
-        if tmdb_id is None and imdb_id is not None:
-            tmdb_id = self.get_tmdb_id(imdb_id=imdb_id)
+        result = _request('movie/' + str(tmdb_id))['belongs_to_collection']
+        if 'name' in _request('movie/' + str(tmdb_id))['belongs_to_collection']:
+            return result['name']
+        else:
+            return None
 
     def get_production_countries(self, imdb_id=None, tmdb_id=None):
         if tmdb_id is None and imdb_id is not None:
             tmdb_id = self.get_tmdb_id(imdb_id=imdb_id)
+        countries = []
+        for country in _request('movie/' + str(tmdb_id))['production_countries']:
+            countries.append(country['name'])
 
-    def get_genres(self, imdb_id=None, tmdb_id=None):
-        if tmdb_id is None and imdb_id is not None:
-            tmdb_id = self.get_tmdb_id(imdb_id=imdb_id)
+        return countries
 
     def get_production_companies(self, imdb_id=None, tmdb_id=None):
         if tmdb_id is None and imdb_id is not None:
             tmdb_id = self.get_tmdb_id(imdb_id=imdb_id)
+        companies = []
+        for company in _request('movie/' + str(tmdb_id))['production_companies']:
+            companies.append(company['name'])
+
+        return companies
+
+    def get_genres(self, imdb_id=None, tmdb_id=None):
+        if tmdb_id is None and imdb_id is not None:
+            tmdb_id = self.get_tmdb_id(imdb_id=imdb_id)
+        result = _request('movie/' + str(tmdb_id))['genres']
+        genres = []
+        for genre in result:
+            genres.append(genre['name'])
+
+        return genres
 
     def get_spoken_languages(self, imdb_id=None, tmdb_id=None):
         if tmdb_id is None and imdb_id is not None:
             tmdb_id = self.get_tmdb_id(imdb_id=imdb_id)
+        languages = []
+        for language in _request('movie/' + str(tmdb_id))['spoken_languages']:
+            languages.append(language['name'])
+
+        return languages
