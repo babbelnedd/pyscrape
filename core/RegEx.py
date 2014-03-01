@@ -1,4 +1,5 @@
 import re
+import os
 
 
 def get_cd(string):
@@ -52,8 +53,10 @@ def get_movie(title):
     year = get_year(title)
     imdb_id = get_imdb_id(title)
 
+    title = os.path.basename(os.path.normpath(title))
     _title = remove_brackets(title).strip()
     _title = remove_double_spaces(_title)
+
 
     result = {'title': _title, 'year': year, 'imdbID': imdb_id}
     return result

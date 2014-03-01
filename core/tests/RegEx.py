@@ -1,4 +1,5 @@
 import unittest
+import sys
 
 from core import RegEx
 
@@ -67,6 +68,16 @@ class RegExTests(unittest.TestCase):
         assert result['year'] == '2001'
         assert result['imdbID'] == 'tt0268380'
 
+        result = RegEx.get_movie('/media/movies/Ice Age [2001] (tt0268380)')
+        assert result['title'] == 'Ice Age'
+        assert result['year'] == '2001'
+        assert result['imdbID'] == 'tt0268380'
+
+        result = RegEx.get_movie('c:/Users/Foo/Documents/Movies/Ice Age [2001] (tt0268380)')
+        assert result['title'] == 'Ice Age'
+        assert result['year'] == '2001'
+        assert result['imdbID'] == 'tt0268380'
+
     def test_get_episode(self):
         result = RegEx.get_episode('s01E5 S01e6 - some episode title')
         assert result[0]['season'] == '01'
@@ -125,6 +136,7 @@ class RegExTests(unittest.TestCase):
         assert result[0]['season'] == '1'
         assert result[0]['episode'] == '2'
         assert len(result) == 1
+
         result = RegEx.get_episode('The Simpsons - S13E22 - some episode title')
         assert result[0]['season'] == '13'
         assert result[0]['episode'] == '22'
