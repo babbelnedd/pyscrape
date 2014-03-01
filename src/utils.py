@@ -31,7 +31,7 @@ def replace(string):
     import os
 
     root = os.path.dirname(os.path.realpath(__file__))
-    chars = _get_chars(os.path.join(root, 'system', 'replace'))
+    chars = _get_chars(os.path.join(root, '../configuration', 'replace'))
     try:
         string = string.encode('utf8')
     except:
@@ -80,39 +80,41 @@ def rename_dir(folder):
 def rename_files(root):
     for file in os.listdir(root.decode('utf8')):
         if os.path.isfile(os.path.join(root, file)):
-            replacedFile = replace(file)
-            if file != replacedFile:
+            replaced_file = replace(file)
+            if file != replaced_file:
                 src = os.path.join(root, file)
-                dst = os.path.join(root, replacedFile)
+                dst = os.path.join(root, replaced_file)
                 log(u'Move {0} to {1}'.format(src, dst), 'MOVE')
                 os.rename(src, dst)
 
 
 def get_root():
-    import os
+    import src
 
-    return os.path.dirname(os.path.realpath(__file__))
+    return src.__path__[0]
 
 
 def get_movie_extensions():
     import os
 
     result = []
-    for extension in [f for f in open(os.path.join(get_root(), 'system', 'extensions')).readlines() if
+    root = os.path.abspath(os.path.join(get_root(), os.pardir))
+    for extension in [f for f in open(os.path.join(root, 'configuration', 'extensions')).readlines() if
                       f.startswith('.') and not f.startswith('..')]:
         result.append(extension.lower().replace('\n', ''))
     return result
 
 
 def get_all_extensions():
-    return (get_movie_extensions() + get_other_extensions())
+    return get_movie_extensions() + get_other_extensions()
 
 
 def get_other_extensions():
     import os
 
     result = []
-    for extension in [f for f in open(os.path.join(get_root(), 'system', 'extensions')).readlines() if
+    root = os.path.abspath(os.path.join(get_root(), os.pardir))
+    for extension in [f for f in open(os.path.join(root, 'configuration', 'extensions')).readlines() if
                       f.startswith('..')]:
         result.append(extension[1:].lower().replace('\n', ''))
     return result

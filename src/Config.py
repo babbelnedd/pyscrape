@@ -6,7 +6,7 @@ from ConfigParser import ConfigParser, NoOptionError
 class Config(object):
     def __init__(self):
         root = os.path.dirname(os.path.realpath(__file__))
-        config_file = os.path.join(root, 'system', 'pyscrape.cfg')
+        config_file = os.path.join(root, '../configuration', 'pyscrape.cfg')
         if not os.path.exists(config_file):
             from TerminalColor import print_colored, Foreground
 
