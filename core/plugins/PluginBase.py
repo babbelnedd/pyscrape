@@ -8,6 +8,9 @@ class Movie(object):
     def get_credits(self, imdb_id=None, tmdb_id=None):
         return None
 
+    def get_mpaa(self, country, imdb_id=None, tmdb_id=None):
+        return None
+
     def get_posters(self, lang=None, imdb_id=None, tmdb_id=None):
         return None
 
@@ -27,7 +30,7 @@ class Movie(object):
         return None
 
     def get_landscapes(self, imdb_id=None, tmdb_id=None):
-       return None
+        return None
 
     def get_release(self, imdb_id=None, tmdb_id=None):
         return None
@@ -44,13 +47,13 @@ class Movie(object):
     def get_popularity(self, imdb_id=None, tmdb_id=None):
         return None
 
-    def get_plot(self, imdb_id=None, tmdb_id=None):
+    def get_plot(self, language, imdb_id=None, tmdb_id=None):
         return None
 
-    def get_tagline(self, imdb_id=None, tmdb_id=None):
+    def get_tagline(self, language, imdb_id=None, tmdb_id=None):
         return None
 
-    def get_outline(self, imdb_id=None, tmdb_id=None):
+    def get_outline(self, language, imdb_id=None, tmdb_id=None):
         return None
 
     def get_revenue(self, imdb_id=None, tmdb_id=None):
