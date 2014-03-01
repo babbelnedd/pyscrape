@@ -40,7 +40,7 @@ def split_log():
     import core
 
     root = os.path.abspath(os.path.join(core.__path__[0], os.pardir))
-    path = os.path.join(root, 'logs')
+    path = os.path.join(root, '.logs')
     logfile = os.path.join(path, 'pyscrape.log')
     errorfile = os.path.join(path, 'error.log')
     kilobyte = 1024
