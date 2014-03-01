@@ -5,10 +5,10 @@ from sqlalchemy import create_engine, Column, Integer, String, Float, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-import src.MovieScraper as MovieScraper
-import src.utils as utils
-import src.RegEx as RegEx
-from src.MovieScraper import get_movies, scrape_movies
+import core.MovieScraper as MovieScraper
+import core.utils as utils
+import core.RegEx as RegEx
+from core.MovieScraper import get_movies, scrape_movies
 
 
 Base = declarative_base()
@@ -112,8 +112,8 @@ def scrape_new_episodes(path):
                     wait_for_file(video_file)
 
                     try:
-                        from src.TvScraper import scrape_episode
-                        import src.TvScraper as TvScraper
+                        from core.TvScraper import scrape_episode
+                        import core.TvScraper as TvScraper
 
                         TvScraper.delete_existing = True
                         scrape_episode(video_file)

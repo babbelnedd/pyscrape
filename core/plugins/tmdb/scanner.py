@@ -1,9 +1,9 @@
 import json
 import urllib2
 
-from src.Config import Config
-import src.Decorator as Decorator
-from src.Logger import log, LogLevel
+from core.Config import Config
+import core.Decorator as Decorator
+from core.Logger import log, LogLevel
 
 
 config = Config()
@@ -38,7 +38,7 @@ def _request(request_string):
 
 class TmdbScanner(object):
     def __init__(self):
-        from src.plugins.PluginType import PluginType
+        from core.plugins.PluginType import PluginType
 
         self.info = {'type': PluginType.MovieScanner,
                      'author': 'Lucas Schad',

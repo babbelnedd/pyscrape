@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import unittest
-from src import utils
+from core import utils
 
 
 class UtilsTests(unittest.TestCase):

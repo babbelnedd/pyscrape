@@ -2,7 +2,7 @@ try:
     #region Imports
 
     import sys
-    from src.TerminalColor import print_colored, Foreground
+    from core.TerminalColor import print_colored, Foreground
 
     #endregion
 

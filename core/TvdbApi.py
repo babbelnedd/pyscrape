@@ -29,7 +29,7 @@ class TvdbApi(object):
 
         self.files = [primary_language_file['dst'], fallback_language_file['dst']]
         self._get_show_info(self.files)
-        self.show['zip_url'] = primary_language_file['src']
+        self.show['zip_url'] = primary_language_file['core']
 
     def _get_actors(self):
         primary = _read_from_zip(src=self.files[0], language=config.pyscrape.language)
@@ -570,7 +570,7 @@ def _download_zip(tvdb_id, language):
         os.makedirs(tmp_path)
 
     download_if_older(86400)
-    return {'src': zip_url, 'dst': dst}
+    return {'core': zip_url, 'dst': dst}
 
 
 def _get_mirror():

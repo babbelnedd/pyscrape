@@ -89,9 +89,9 @@ def rename_files(root):
 
 
 def get_root():
-    import src
+    import core
 
-    return src.__path__[0]
+    return core.__path__[0]
 
 
 def get_movie_extensions():

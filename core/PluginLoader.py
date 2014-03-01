@@ -1,11 +1,11 @@
 import imp
 import os
 
-import src.plugins
+import core.plugins
 
 #region Private Attributes
 
-_plugin_root = src.plugins.__path__[0]
+_plugin_root = core.plugins.__path__[0]
 _main_module = '__init__'
 
 #endregion
@@ -15,7 +15,7 @@ _main_module = '__init__'
 
 def _search_plugins():
     """
-    Find all sub-modules from src.plugins
+    Find all sub-modules from core.plugins
 
     Return schema:
 

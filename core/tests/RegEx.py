@@ -1,6 +1,6 @@
 import unittest
 
-from src import RegEx
+from core import RegEx
 
 
 class RegExTests(unittest.TestCase):
