@@ -7,8 +7,11 @@ import core.Decorator as Decorator
 from core.Logger import log, LogLevel
 
 
-config = Config()
+#region Private Attributes
 
+_config = Config()
+
+#endregion
 
 #region Private Methods
 
@@ -18,13 +21,13 @@ def _request(request_string):
     if request_string.startswith('/'):
         request_string = request_string[1:]
 
-    req = config.tmdb.url_base + request_string
+    req = _config.tmdb.url_base + request_string
     if '&' in req or '?' in req:
-        req = req + '&api_key=' + config.tmdb.api_key
+        req = req + '&api_key=' + _config.tmdb.api_key
     else:
-        req = req + '?api_key=' + config.tmdb.api_key
+        req = req + '?api_key=' + _config.tmdb.api_key
 
-    log('Send TMDB Request: ' + req.replace(config.tmdb.api_key, 'XXX'), LogLevel.Debug)
+    log('Send TMDB Request: ' + req.replace(_config.tmdb.api_key, 'XXX'), LogLevel.Debug)
     headers = {'Accept': 'application/json'}
     _req = urllib2.Request(req, headers=headers)
     response_body = urllib2.urlopen(_req).read()
@@ -63,17 +66,10 @@ class TmdbScanner(PluginBase.Movie):
             return result
 
     def get_tmdb_id(self, title=None, year=None, imdb_id=None):
-        """
-        Tries to find the correct TMDB ID.
-
-        @param  title       Title of the searched movie. Optional.
-        @param  year        Release year of the searched movie. Optional.
-        @param  imdb_id     IMDB ID of the searched movie. Optional.
-        """
-        result = self.search(title=title, lang=config.pyscrape.language, year=year, imdb_id=imdb_id)
+        result = self.search(title=title, lang=_config.pyscrape.language, year=year, imdb_id=imdb_id)
 
         if result is None or len(result) < 1:
-            result = self.search(title=title, lang=config.pyscrape.fallback_language, year=year, imdb_id=imdb_id)
+            result = self.search(title=title, lang=_config.pyscrape.fallback_language, year=year, imdb_id=imdb_id)
 
         if not result:
             log('No Results', LogLevel.Warning)
@@ -128,17 +124,6 @@ class TmdbScanner(PluginBase.Movie):
             return _request('movie/{0}/trailers'.format(tmdb_id))
 
     def get_mpaa(self, country, imdb_id=None, tmdb_id=None):
-        """
-        Gets the MPAA for a specific country. Country code is ISO639-2 standard.
-        Both ID parameter are optional - but you need to pass one.
-
-        @param      country     ISO639-2 country code
-        @param      imdb_id     IMDB ID of a movie. Optional.
-        @param      tmdb_id     TMDB ID of a movie. Optional.
-
-        Example:
-        get_mpaa('US', imdb_id='tt1234567')
-        """
         if tmdb_id is None and imdb_id is not None:
             tmdb_id is self.get_tmdb_id(imdb_id=imdb_id)
 
@@ -152,60 +137,31 @@ class TmdbScanner(PluginBase.Movie):
         return rating
 
     def get_credits(self, imdb_id=None, tmdb_id=None):
-        """
-        Return the credits of a movie.
-
-        @param  imdb_id     The IMDB ID of a movie. Optional.
-        @param  tmdb_id     The TMDB ID of a movie. Optional.
-
-        Return schema:
-            {
-             'credits': [u'Bob Kane', u'Jonathan Nolan', ...],
-             'directors': [u'Christopher Nolan', ...],
-             'actors':[{'role': u'Bruce Wayne', 'name': u'Christian Bale', 'thumb': u'/vecCvACI2QhSE5fOoANeWDjxGKM.jpg'}, {...}]
-             }
-        """
         if tmdb_id is None and imdb_id is not None:
             tmdb_id = self.get_tmdb_id(imdb_id=imdb_id)
 
         movie_credits = _request('movie/{0}/credits'.format(tmdb_id))
 
-        credits = []
-        directors = []
-        actors = []
+        _credits = []
+        _directors = []
+        _actors = []
 
         for c in movie_credits['crew']:
             if c['department'] == 'Writing' and c['name'] != '':
-                if c['name'] not in credits:
-                    credits.append(c['name'])
+                if c['name'] not in _credits:
+                    _credits.append(c['name'])
             if c['department'] == 'Directing' and c['name'] != '':
-                if c['name'] not in directors:
-                    directors.append(c['name'])
+                if c['name'] not in _directors:
+                    _directors.append(c['name'])
 
         for actor in movie_credits['cast']:
             actor = {'name': actor['name'], 'role': actor['character'], 'thumb': actor['profile_path']}
-            if actor not in actors:
-                actors.append(actor)
+            if actor not in _actors:
+                _actors.append(actor)
 
-        return dict(directors=directors, credits=credits, actors=actors)
+        return dict(directors=_directors, credits=_credits, actors=_actors)
 
     def get_posters(self, lang=None, imdb_id=None, tmdb_id=None):
-        """
-        Load all posters for a movie.
-
-        @param  lang        The preferred Language of movie posters. Optional.
-        @param  imdb_id     The IMDB ID of a movie. Optional.
-        @param  tmdb_id     The TMDB ID of a movie. Optional.
-
-        Return schema:
-            [{'url': u'http://image.tmdb.org/t/p/w1920/tdzD09XZzfSSgNTsYtmcgS4uSNE.jpg',
-            'rating': 5.30505952380952),
-            'vote_count': 11,
-            'language': 'en'},
-            {...},]
-
-            Ordered descending by popularity. Highest first.
-        """
         if tmdb_id is None and imdb_id is not None:
             tmdb_id = self.get_tmdb_id(imdb_id=imdb_id)
 
@@ -228,13 +184,13 @@ class TmdbScanner(PluginBase.Movie):
             return []
 
     def get_backdrops(self, imdb_id=None, tmdb_id=None):
-        def _get_resolution(images, width, height):
+        def _get_resolution(_images, width, height):
             result = []
-            for image in images:
-                if image == ():
+            for _image in _images:
+                if _image == ():
                     continue
-                if image['width'] == width and image['height'] == height:
-                    result.append(image)
+                if _image['width'] == width and _image['height'] == height:
+                    result.append(_image)
             return result
 
         if tmdb_id is None and imdb_id is not None:
