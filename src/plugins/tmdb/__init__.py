@@ -1,8 +1,8 @@
 from src.plugins.PluginType import PluginType
+from src.plugins.tmdb.scanner import TmdbScanner
 
-__author__ = 'lsc'
-__plugin__ = 'scanner'
-__name__ = 'TMDB Plugin for movies'
-__version__ = '0.1'
-__description__ = ''
 __type__ = PluginType.MovieScanner
+
+
+def load():
+    return TmdbScanner()
