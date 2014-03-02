@@ -4,7 +4,7 @@ import urllib
 import os
 import time
 import operator
-from lxml import etree
+from libs.lxml import etree
 
 from core.helpers.decorator import Cached
 from core.helpers.logger import log, LogLevel
