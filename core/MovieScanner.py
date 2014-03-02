@@ -90,6 +90,15 @@ def get_original_title(imdb_id=None, tmdb_id=None):
     return __call(Movie.get_original_title, imdb_id=imdb_id, tmdb_id=tmdb_id)
 
 
+def get_title(imdb_id=None, tmdb_id=None):
+    #todo: add country to config!!
+    result = __call(Movie.get_title, country='DE', imdb_id=imdb_id, tmdb_id=tmdb_id)
+    if result is None or result == '':
+        result = __call(Movie.get_title, country='US', imdb_id=imdb_id,
+                        tmdb_id=tmdb_id)
+    return result
+
+
 def get_vote_count(imdb_id=None, tmdb_id=None):
     return __call(Movie.get_vote_count, imdb_id=imdb_id, tmdb_id=tmdb_id)
 
@@ -155,7 +164,10 @@ def get_spoken_languages(imdb_id=None, tmdb_id=None):
 
 
 def get_all(imdb_id=None, tmdb_id=None):
+    title = get_title(tmdb_id=tmdb_id, imdb_id=imdb_id)
+    original_title = get_original_title(tmdb_id=tmdb_id, imdb_id=imdb_id)
     plot = get_plot(tmdb_id=tmdb_id, imdb_id=imdb_id)
+    genres = get_genres(tmdb_id=tmdb_id, imdb_id=imdb_id)
     tagline = get_tagline(tmdb_id=tmdb_id, imdb_id=imdb_id)
     outline = get_outline(tmdb_id=tmdb_id, imdb_id=imdb_id)
     mpaa = get_mpaa(tmdb_id=tmdb_id, imdb_id=imdb_id, country='DE')  #todo: add country to config
@@ -167,7 +179,6 @@ def get_all(imdb_id=None, tmdb_id=None):
     backdrops = get_backdrops(tmdb_id=tmdb_id, imdb_id=imdb_id)
     logos = get_logos(tmdb_id=tmdb_id, imdb_id=imdb_id)
     landscapes = get_landscapes(tmdb_id=tmdb_id, imdb_id=imdb_id)
-    original_title = get_original_title(tmdb_id=tmdb_id, imdb_id=imdb_id)
     rating = get_average_rating(tmdb_id=tmdb_id, imdb_id=imdb_id)
     vote_count = get_vote_count(tmdb_id=tmdb_id, imdb_id=imdb_id)
     popularity = get_popularity(tmdb_id=tmdb_id, imdb_id=imdb_id)
@@ -177,12 +188,14 @@ def get_all(imdb_id=None, tmdb_id=None):
     production_countries = get_production_countries(tmdb_id=tmdb_id, imdb_id=imdb_id)
     production_companies = get_production_companies(tmdb_id=tmdb_id, imdb_id=imdb_id)
     spoken_languages = get_spoken_languages(tmdb_id=tmdb_id, imdb_id=imdb_id)
+    release = get_release(tmdb_id=tmdb_id, imdb_id=imdb_id)
 
-    m = {'tmdb_id': tmdb_id, 'imdb_id': imdb_id, 'plot': plot, 'tagline': tagline,
+    m = {'title': title, 'tmdb_id': tmdb_id, 'imdb_id': imdb_id, 'plot': plot, 'tagline': tagline,
          'outline': outline, 'mpaa': mpaa, 'credits': credits, 'posters': posters,
          'banners': banners, 'disc_art': disc_art, 'clearart': clearart, 'backdrops': backdrops,
          'logos': logos, 'landscapes': landscapes, 'original_title': original_title,
-         'rating': rating, 'vote_count': vote_count, 'popularity': popularity,
-         'revenue': revenue, 'budget': budget, 'collection': collection, 'production_countries': production_countries,
-         'production_companies': production_companies, 'spoken_languages': spoken_languages}
+         'genres': genres, 'rating': rating, 'vote_count': vote_count, 'popularity': popularity,
+         'release': release, 'revenue': revenue, 'budget': budget, 'collection': collection,
+         'production_countries': production_countries, 'production_companies': production_companies,
+         'spoken_languages': spoken_languages}
     return m

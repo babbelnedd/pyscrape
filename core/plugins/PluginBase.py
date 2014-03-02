@@ -171,6 +171,18 @@ class Movie(object):
         """
         return None
 
+    def get_title(self, country, imdb_id=None, tmdb_id=None):
+        """
+        Gets foreign title.
+
+        @param  country     Preferred country for the title. ISO 3166-1.
+        @param  imdb_id     The IMDB ID of a movie. Optional.
+        @param  tmdb_id     The TMDB ID of a movie. Optional.
+
+        Return type unicode
+        """
+        return None
+
     def get_vote_count(self, imdb_id=None, tmdb_id=None):
         """
         Gets the count of votes.

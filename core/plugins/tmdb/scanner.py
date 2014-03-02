@@ -215,6 +215,17 @@ class TmdbScanner(PluginBase.Movie):
             tmdb_id = self.get_tmdb_id(imdb_id=imdb_id)
         return _request('movie/' + str(tmdb_id))['original_title']
 
+    def get_title(self, country, imdb_id=None, tmdb_id=None):
+        if tmdb_id is None and imdb_id is not None:
+            tmdb_id = self.get_tmdb_id(imdb_id=imdb_id)
+
+        result = _request('movie/{0}/alternative_titles'.format(str(tmdb_id)))
+
+        if 'titles' in result:
+            for title in result['titles']:
+                if title['iso_3166_1'].lower() == country.lower():
+                    return title['title']
+
     def get_vote_count(self, imdb_id=None, tmdb_id=None):
         if tmdb_id is None and imdb_id is not None:
             tmdb_id = self.get_tmdb_id(imdb_id=imdb_id)
