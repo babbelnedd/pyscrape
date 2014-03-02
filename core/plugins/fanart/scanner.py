@@ -9,16 +9,24 @@ from core.Config import Config
 from core.Decorator import Cached
 
 
+#region Private Attributes
+
+
 _config = Config()
+
+
+#endregion
+
+#region Private Methods
 
 
 @Cached
 def _request(request):
-    log('Send Fanart Request: ' + request.replace(_config.fanart.api_key, 'XXX'), 'DEBUG')
+    log('Send Fanart request: ' + request.replace(_config.fanart.api_key, 'XXX'), 'DEBUG')
     headers = {'Accept': 'application/json'}
 
-    _request = urllib2.Request(request, headers=headers)
-    response_body = urllib2.urlopen(_request).read()
+    req = urllib2.Request(request, headers=headers)
+    response_body = urllib2.urlopen(req).read()
     result = json.loads(response_body)
     return result
 
@@ -64,6 +72,9 @@ def _get_items(image_type, tmdb_id=None, imdb_id=None, language=None):
         return items
     else:
         return None
+
+
+#endregion
 
 
 class FanartScanner(PluginBase.Movie):

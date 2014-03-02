@@ -7,9 +7,6 @@ import core.Decorator as Decorator
 from core.Logger import log, LogLevel
 
 
-
-
-
 #region Private Attributes
 
 _config = Config()
@@ -30,13 +27,11 @@ def _request(request_string):
     else:
         req = req + '?api_key=' + _config.tmdb.api_key
 
-    log('Send TMDB Request: ' + req.replace(_config.tmdb.api_key, 'XXX'), LogLevel.Debug)
+    log('Send TMDB request: ' + req.replace(_config.tmdb.api_key, 'XXX'), LogLevel.Debug)
     headers = {'Accept': 'application/json'}
     _req = urllib2.Request(req, headers=headers)
     response_body = urllib2.urlopen(_req).read()
-
     result = json.loads(response_body)
-
     return result
 
 

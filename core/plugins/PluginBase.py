@@ -143,7 +143,6 @@ class Movie(object):
 
         Ordered descending by rating. Highest first.
         """
-        #images.append({'url': url, 'rating': image['vote_average'], 'vote_count': image['vote_count']})
         return None
 
     def get_landscapes(self, imdb_id=None, tmdb_id=None):
