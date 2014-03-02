@@ -57,7 +57,11 @@ def get_posters(imdb_id=None, tmdb_id=None):
 
 
 def get_banners(imdb_id=None, tmdb_id=None):
-    return __call(Movie.get_banners, imdb_id=imdb_id, tmdb_id=tmdb_id)
+    result = __call(Movie.get_banners, language=_config.pyscrape.language, imdb_id=imdb_id, tmdb_id=tmdb_id)
+    if result is None or result == '':
+        result = __call(Movie.get_banners, language=_config.pyscrape.fallback_language, imdb_id=imdb_id,
+                        tmdb_id=tmdb_id)
+    return result
 
 
 def get_disc_art(imdb_id=None, tmdb_id=None):
