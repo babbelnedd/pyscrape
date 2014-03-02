@@ -53,6 +53,21 @@ try:
 
     #endregion
 
+    #region Dependencies
+
+    print 'Checking the dependencies...'
+
+    try:
+        import lxml
+    except ImportError:
+        print_colored('You need following packages:', Foreground.Red)
+        print 'lxml v3.3.1 >'
+        sys.exit()
+
+    print 'Congratulations.. all dependencies are available\n\n'
+
+    #endregion
+
     #region Initial Configuration
 
     configuration = {'primary_language': raw_input('primary language? (ISO639-1):\nCode: '),

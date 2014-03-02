@@ -1,1 +1,0 @@
-../../../../../../../../share/pyshared/lxml/isoschematron/resources/xsl/iso-schematron-xslt1/iso_schematron_skeleton_for_xslt1.xsl

@@ -7,8 +7,7 @@ import time
 import getopt
 import traceback
 import operator
-
-from libs.lxml import etree
+from lxml import etree
 
 import fanarttvapi
 import tmdbapi as tmdb
@@ -33,7 +32,7 @@ def get_movie(root, path):
     def get_movie_files(movie_path):
         return [movie_file for movie_file in os.listdir(movie_path)
                 if os.path.isfile(os.path.join(movie_path, movie_file))
-            and (os.path.splitext(movie_file)[1] in utils.get_movie_extensions())]
+                and (os.path.splitext(movie_file)[1] in utils.get_movie_extensions())]
 
     movie = Movie()
     movie.path = path
