@@ -2,7 +2,7 @@
 This is a plugin-wrapper for plugins from type PluginType.Movie
 """
 
-from core.PluginLoader import get_plugins
+from core.plugins.PluginLoader import get_plugins
 from core.plugins.PluginType import PluginType
 from core.plugins.PluginBase import Movie
 from core.Config import Config
