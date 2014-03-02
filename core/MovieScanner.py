@@ -1,10 +1,20 @@
+"""
+This is a plugin-wrapper for plugins from type PluginType.Movie
+"""
+
 from core.PluginLoader import get_plugins
 from core.plugins.PluginType import PluginType
 from core.plugins.PluginBase import Movie
 from core.Config import Config
 
+#region Private Attributes
+
+
 _plugins = get_plugins(PluginType.MovieScanner)
 _config = Config()
+
+
+#endregion
 
 #region Private Methods
 
