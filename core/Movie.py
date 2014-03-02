@@ -25,7 +25,7 @@ class Movie(object):
         self.plot = ''                                  # Plot
         self.outline = ''                               # Outline (1 sentence)
         self.tagline = ''                               # Summary
-        self.collection = ''                            # Belongs to a collection? format: 'Lord of the Rings collection'
+        self.collection = ''                            # Belongs to a collection? format: 'Ice Age collection'
         self.spoken_languages = []                      # Spoken languages
         self.budget = ''                                # Budget (int)
         self.revenue = 0                                # Revenue (int)

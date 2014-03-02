@@ -48,12 +48,7 @@ def _request(request_string):
     headers = {'Accept': 'application/json'}
     _req = urllib2.Request(req, headers=headers)
     response_body = urllib2.urlopen(_req).read()
-
-    try:
-        result = json.loads(response_body)
-    except:
-        result = json.loads(response_body.decode('utf-8'))
-
+    result = json.loads(response_body)
     return result
 
 
@@ -162,21 +157,21 @@ def get_credits(tmdb_id):
     log('Load Credits', 'DEBUG')
     movie_credits = _request('movie/{0}/credits'.format(tmdb_id))
 
-    credits = []
-    directors = []
-    actors = []
+    _credits = []
+    _directors = []
+    _actors = []
 
     for c in movie_credits['crew']:
         if c['department'] == 'Writing' and c['name'] != '':
-            credits.append(c['name'])
+            _credits.append(c['name'])
         if c['department'] == 'Directing' and c['name'] != '':
-            directors.append(c['name'])
+            _directors.append(c['name'])
 
     for actor in movie_credits['cast']:
         actor = {'name': actor['name'], 'role': actor['character'], 'thumb': actor['profile_path']}
-        actors.append(actor)
+        _actors.append(actor)
 
-    return dict(directors=directors, credits=credits, actors=actors)
+    return dict(directors=_directors, credits=_credits, actors=_actors)
 
 
 def get_thumb(tmdb_id):

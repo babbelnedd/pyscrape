@@ -6,7 +6,6 @@ import core.plugins
 from core.helpers.logger import log, LogLevel, whiteline
 
 
-
 #region Private Attributes
 
 _plugin_root = core.plugins.__path__[0]

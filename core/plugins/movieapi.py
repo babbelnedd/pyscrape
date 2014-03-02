@@ -180,7 +180,7 @@ def get_all(imdb_id=None, tmdb_id=None):
     genres = get_genres(tmdb_id=tmdb_id, imdb_id=imdb_id)
     tagline = get_tagline(tmdb_id=tmdb_id, imdb_id=imdb_id)
     outline = get_outline(tmdb_id=tmdb_id, imdb_id=imdb_id)
-    mpaa = get_mpaa(tmdb_id=tmdb_id, imdb_id=imdb_id, country='DE')  #todo: add country to config
+    mpaa = get_mpaa(tmdb_id=tmdb_id, imdb_id=imdb_id, country='DE')  # todo: add country to config
     credits = get_credits(tmdb_id=tmdb_id, imdb_id=imdb_id)
     posters = get_posters(tmdb_id=tmdb_id, imdb_id=imdb_id)
     banners = get_banners(tmdb_id=tmdb_id, imdb_id=imdb_id)

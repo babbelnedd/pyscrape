@@ -10,7 +10,7 @@ import operator
 from lxml import etree
 
 import fanarttvapi
-import tmdbapi as Tmdb
+import tmdbapi as tmdb
 from Movie import Movie
 from core.helpers.logger import log, LogLevel, whiteline
 from core.helpers.utils import download
@@ -30,8 +30,9 @@ config = Config()
 
 def get_movie(root, path):
     def get_movie_files(movie_path):
-        return [f for f in os.listdir(movie_path) if os.path.isfile(os.path.join(movie_path, f)) and (
-            os.path.splitext(f)[1] in utils.get_movie_extensions())]
+        return [movie_file for movie_file in os.listdir(movie_path)
+                if os.path.isfile(os.path.join(movie_path, movie_file))
+                and (os.path.splitext(movie_file)[1] in utils.get_movie_extensions())]
 
     movie = Movie()
     movie.path = path
@@ -132,12 +133,12 @@ def create_nfo(movie):
 
     if movie.revenue is not None and movie.revenue != '' and movie.revenue != 0:
         child = etree.Element('revenue')
-        child.text = utils.intWithCommas(movie.revenue)
+        child.text = utils.readable_int(movie.revenue)
         root.append(child)
 
     if movie.budget is not None and movie.budget != '' and movie.budget != 0:
         child = etree.Element('budget')
-        child.text = utils.intWithCommas(movie.budget)
+        child.text = utils.readable_int(movie.budget)
         root.append(child)
 
     if movie.runtime is not None and movie.runtime != '' and movie.runtime != '0':
@@ -172,7 +173,7 @@ def create_nfo(movie):
         child.text = movie.production_companies.split('/')[0].strip()
         root.append(child)
 
-    movie_credits = Tmdb.get_credits(movie.id)
+    movie_credits = tmdb.get_credits(movie.id)
     for credit in movie_credits['credits']:
         child = etree.Element('credits')
         child.text = credit
@@ -236,9 +237,9 @@ def create_nfo(movie):
     log('Write NFO to disk', LogLevel.Debug)
     if len(movie.files) > 0:
         filename, extension = os.path.splitext(movie.files[0])
-        regex = re.search('\cd[0-9]', filename, re.IGNORECASE)
-        if regex:
-            filename = filename.replace(regex.group(), '').strip()
+        cd_regex = re.search('\cd[0-9]', filename, re.IGNORECASE)
+        if cd_regex:
+            filename = filename.replace(cd_regex.group(), '').strip()
     else:
         filename = ''
 
@@ -276,7 +277,7 @@ def download_images(movie):
     def download_backdrops():
         log('Download Backdrops', LogLevel.Debug)
         path = movie.path
-        movie.backdrops = Tmdb.get_backdrops(movie.id)
+        movie.backdrops = tmdb.get_backdrops(movie.id)
         backdrops = sorted(movie.backdrops.iteritems(), key=operator.itemgetter(1), reverse=True)
         n = 0
         for backdrop in backdrops:
@@ -511,7 +512,7 @@ def download_images(movie):
 
 def get_metadata(movie):
     def get_basic_metadata():
-        result = Tmdb.search_title(title=movie.search_title, year=movie.search_year,
+        result = tmdb.search_title(title=movie.search_title, year=movie.search_year,
                                    lang=config.pyscrape.language, imdb_id=movie.imdb)
 
         if not result:
@@ -546,9 +547,9 @@ def get_metadata(movie):
             movie.popularity = float(result['popularity'])
 
     def get_advanced_metadata():
-        info = Tmdb.get_movie(movie.id, lang=config.pyscrape.language)
+        info = tmdb.get_movie(movie.id, lang=config.pyscrape.language)
         if info is None:  # If there is no information get information for fallback language
-            info = Tmdb.get_movie(movie.id, lang=config.pyscrape.fallback_language)
+            info = tmdb.get_movie(movie.id, lang=config.pyscrape.fallback_language)
         if info is None:
             pass  # What to do if there is no info for fallback language?
 
@@ -559,7 +560,7 @@ def get_metadata(movie):
         movie.revenue = info['revenue']
         if info['belongs_to_collection']:
             movie.collection = info['belongs_to_collection'][u'name']
-        movie.mpaa = Tmdb.get_certification(movie)
+        movie.mpaa = tmdb.get_certification(movie)
         movie.sorted_title = movie.title
         movie.budget = info['budget']
         for country in info['production_countries']:
@@ -585,10 +586,10 @@ def get_metadata(movie):
     for movie_file in movie.files:
         files.append(os.path.join(movie.path, movie_file))
 
-    movie.trailer = Tmdb.get_trailer(movie)
+    movie.trailer = tmdb.get_trailer(movie)
     get_advanced_metadata()
-    movie.posters = Tmdb.get_posters(movie.id)
-    movie.thumb = Tmdb.get_thumb(movie.id)
+    movie.posters = tmdb.get_posters(movie.id)
+    movie.thumb = tmdb.get_thumb(movie.id)
     movie.runtime = codec.get_runtime(files)
     create_nfo(movie)
     return movie
@@ -695,13 +696,13 @@ def __start():
                                             "delete-existing"])
             except getopt.GetoptError:
                 log('Wrong arguments', LogLevel.Error)
-                print '-p --path             paths (seperated by "::")'
+                print '-p --path             paths (separated by "::")'
                 print '-r --refresh          Do not delete existing files'
                 print '-u --update-xbmc      Clean/Update XBMC'
                 print '-f --force            Do not skip even if no movie file was found'
                 print '   --nfo-only         Only creates a .nfo file'
                 print '-d --delete-existing  Delete all files from a movie except ' \
-                      'for these with a extenstion from the extension list'
+                      'for these with a extension from the extension list'
 
                 sys.exit(2)
             global delete_existing
@@ -745,8 +746,8 @@ def __start():
             scrape_from_config()
 
         if parameter['update']:
-            xbmc = xbmc()
-            xbmc.full_scan()
+            _xbmc = xbmc()
+            _xbmc.full_scan()
 
     try:
         if requirements_satisfied():

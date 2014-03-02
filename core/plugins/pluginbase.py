@@ -30,7 +30,8 @@ class Movie(object):
             {
              'credits': [u'Bob Kane', u'Jonathan Nolan', ...],
              'directors': [u'Christopher Nolan', ...],
-             'actors':[{'role': u'Bruce Wayne', 'name': u'Christian Bale', 'thumb': u'/vecCvACI2QhSE5fOoANeWDjxGKM.jpg'}, {...}]
+             'actors':[{'role': u'Bruce Wayne', 'name': u'Christian Bale',
+             'thumb': u'/vecCvACI2QhSE5fOoANeWDjxGKM.jpg'}, {...}]
              }
         """
         return None

@@ -15,9 +15,9 @@ from core.media import codec
 
 
 delete_existing = False
-single_show = False
-single_episode = False
-single_season = False
+single_show = ''
+single_season = ''
+single_episode = ''
 config = Config()
 
 
@@ -180,7 +180,6 @@ if __name__ == '__main__':
     def _start():
         try:
             shows = []
-
             if single_episode != '':
                 if not os.path.isfile(single_episode):
                     log(single_episode + ' is not a file', LogLevel.Error)
@@ -232,7 +231,6 @@ if __name__ == '__main__':
         _get_parameter(sys.argv[1:])
 
     start = time.time()
-
     _initialize()
     _start()
 

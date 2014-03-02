@@ -275,7 +275,7 @@ def delete_audio_tracks(videos):
             os.remove(video)
             try:
                 os.rename(dst, video)
-            except:
+            except OSError:
                 shutil.move(dst, video)
 
 

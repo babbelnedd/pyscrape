@@ -3,11 +3,8 @@ import urllib2
 
 from core.helpers.config import Config
 from core.plugins import pluginbase
-import core.helpers.decorator as Decorator
+from core.helpers.decorator import Cached
 from core.helpers.logger import log, LogLevel
-
-
-
 
 
 #region Private Attributes
@@ -19,7 +16,7 @@ _config = Config()
 #region Private Methods
 
 
-@Decorator.Cached
+@Cached
 def _request(request_string):
     if request_string.startswith('/'):
         request_string = request_string[1:]

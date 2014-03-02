@@ -5,9 +5,8 @@ from sqlalchemy import create_engine, Column, Integer, String, Float, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-import core.moviescraper as MovieScraper
 import core.helpers.utils as utils
-import core.helpers.regex as RegEx
+import core.helpers.regex as regex
 from core.moviescraper import get_movies, scrape_movies
 
 
@@ -61,7 +60,6 @@ def scrape_new_movies(path):
             session.commit()
             continue
 
-
     # scan all *movies*
     # todo: "for path in config.movie.paths"
     for movie in get_movies(path):
@@ -78,16 +76,17 @@ def scrape_new_movies(path):
 
         if not exists:
             try:
-                MovieScraper.delete_existing = True
-                MovieScraper.nfo_only = False
-                MovieScraper.force = False
-                MovieScraper.refresh = False
+                import core.moviescraper as movie_scraper
+                movie_scraper.delete_existing = True
+                movie_scraper.nfo_only = False
+                movie_scraper.force = False
+                movie_scraper.refresh = False
 
                 wait_for_file(video_file)
 
                 scrape_movies(m.path, single=True)
                 scraped = True
-            except Exception as exc:
+            except:
                 scraped = False
 
             if scraped:
@@ -97,10 +96,10 @@ def scrape_new_movies(path):
 
 
 def scrape_new_episodes(path):
-    for root, dirnames, filenames in os.walk(path):
-        print filenames
-        for filename in filenames:
-            if os.path.splitext(filename)[1] in utils.get_movie_extensions() and RegEx.get_episode(filename) != []:
+    for root, directories, files in os.walk(path):
+        print files
+        for filename in files:
+            if os.path.splitext(filename)[1] in utils.get_movie_extensions() and regex.get_episode(filename) != []:
                 video_file = os.path.join(root, filename)
                 fs = os.path.getsize(video_file)
                 ts = os.path.getmtime(video_file)
@@ -113,12 +112,12 @@ def scrape_new_episodes(path):
 
                     try:
                         from core.tvscraper import scrape_episode
-                        import core.tvscraper as TvScraper
+                        import core.tvscraper as tv
 
-                        TvScraper.delete_existing = True
+                        tv.delete_existing = True
                         scrape_episode(video_file)
                         scraped = True
-                    except Exception as exc:
+                    except:
                         scraped = False
 
                     if scraped:

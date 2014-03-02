@@ -18,16 +18,14 @@ def __request(request):
 
     _request = urllib2.Request(request, headers=headers)
     response_body = urllib2.urlopen(_request).read()
-    try:
-        result = json.loads(response_body)
-    except:
-        result = json.loads(response_body.decode('utf-8'))
+    result = json.loads(response_body)
 
     return result
 
 
-def _get(type, id, format='JSON'):
-    req = '{0}{1}/{2}/{3}/{4}'.format(config.fanart.url_base, type, config.fanart.api_key, id, format)
+def _get(video_type, movie_id, output_format='JSON'):
+    req = '{0}{1}/{2}/{3}/{4}'.format(config.fanart.url_base, video_type,
+                                      config.fanart.api_key, movie_id, output_format)
     try_again = True
     n = 0
     while try_again and n < 10:
@@ -41,8 +39,8 @@ def _get(type, id, format='JSON'):
 
 
 def get_movie(tmdb_id):
-    return _get(type='movie', id=tmdb_id)
+    return _get(video_type='movie', movie_id=tmdb_id)
 
 
 def get_show(tvdb_id):
-    return _get(type='series', id=tvdb_id)
+    return _get(video_type='series', movie_id=tvdb_id)

@@ -82,13 +82,13 @@ class TvdbApi(object):
                 dom = parseString(xml)
                 for node in dom.getElementsByTagName('Series'):
                     try:
-                        result = unicode(node.getElementsByTagName(key)[0].firstChild.nodeValue).encode('utf8')
+                        _result = unicode(node.getElementsByTagName(key)[0].firstChild.nodeValue).encode('utf8')
                     except AttributeError:
-                        result = get_value_from_tmdb(key)
+                        _result = get_value_from_tmdb(key)
                     except IndexError:
-                        result = get_value_from_tmdb(key)
+                        _result = get_value_from_tmdb(key)
 
-                    return result
+                    return _result
 
             result = get_value(primary['lang'], tag)
             if result == '':
@@ -135,12 +135,12 @@ class TvdbApi(object):
                     season_found = False
                     episode_found = False
 
-                    for n in node.getElementsByTagName('SeasonNumber'):
-                        if n.firstChild.nodeValue == _episode['season']:
+                    for season_node in node.getElementsByTagName('SeasonNumber'):
+                        if season_node.firstChild.nodeValue == _episode['season']:
                             season_found = True
 
-                    for n in node.getElementsByTagName('EpisodeNumber'):
-                        if n.firstChild.nodeValue == _episode['episode']:
+                    for episode_node in node.getElementsByTagName('EpisodeNumber'):
+                        if episode_node.firstChild.nodeValue == _episode['episode']:
                             episode_found = True
 
                     if season_found and episode_found:
@@ -148,24 +148,24 @@ class TvdbApi(object):
                         return node
 
             def get_value(key):
-                result = ''
+                _result = ''
 
                 try:
-                    result = nodes['primary'].getElementsByTagName(key)[0].firstChild.nodeValue
+                    _result = nodes['primary'].getElementsByTagName(key)[0].firstChild.nodeValue
                 except IndexError:
                     pass
                 except AttributeError:
                     pass
 
-                if result is '':
+                if _result is '':
                     try:
-                        result = nodes['secondary'].getElementsByTagName(key)[0].firstChild.nodeValue
+                        _result = nodes['secondary'].getElementsByTagName(key)[0].firstChild.nodeValue
                     except IndexError:
                         pass
                     except AttributeError:
                         pass
 
-                return unicode(result).encode('utf8')
+                return unicode(_result).encode('utf8')
 
             while _episode['episode'].startswith('0'):
                 _episode['episode'] = _episode['episode'][1:]
@@ -185,7 +185,7 @@ class TvdbApi(object):
             item = Movie()
             item.file = _episode['filename']
             item.path = path
-            file = os.path.join(item.path, item.file)
+            video_file = os.path.join(item.path, item.file)
 
             result = {'title': get_value('EpisodeName'), 'tvdb_id': get_value('id'),
                       'show_name': self.show['title'],
@@ -194,7 +194,7 @@ class TvdbApi(object):
                       'imdb_id': get_value('IMDB_ID'), 'writer': get_value('Writer'),
                       'thumb': thumb, 'overview': get_value('Overview'), 'director': get_value('Director'),
                       'rating': get_value('Rating'), 'votes': get_value('RatingCount'),
-                      'video_xml': codec.get_video_xml([file]), 'audio_xml': codec.get_audio_xml([file])}
+                      'video_xml': codec.get_video_xml([video_file]), 'audio_xml': codec.get_audio_xml([video_file])}
 
             return result
 
@@ -287,12 +287,14 @@ class TvdbApi(object):
                             os.makedirs(path)
 
                     url = backdrop[0]
+                    dst = ''
                     if n == 0 and config.show.download_backdrop:
                         dst = os.path.join(path, 'fanart.jpg')
                     elif n != 0 and config.show.download_extrafanart:
                         dst = os.path.join(path, os.path.basename(backdrop[0]))
 
-                    download(url, dst)
+                    if dst != '':
+                        download(url, dst)
                     n += 1
 
             def get_fanart(category):
@@ -341,15 +343,14 @@ class TvdbApi(object):
                         download(b[0], dst)
                         return
                 else:
-                    for b in get_fanart('tvbanner'):
-                        if b['lang'] == config.pyscrape.fallback_language:
-                            banner[b['url']] = b['likes']
+                    for item in get_fanart('tvbanner'):
+                        if item['lang'] == config.pyscrape.fallback_language:
+                            banner[item['url']] = item['likes']
 
                         if len(banner) > 0:
-                            banner = sorted(banner.iteritems(), key=operator.itemgetter(1), reverse=True)
                             dst = os.path.join(self.show['path'], 'banner.jpg')
-                            for b in banner:
-                                download(b[0], dst)
+                            for banner in sorted(banner.iteritems(), key=operator.itemgetter(1), reverse=True):
+                                download(banner[0], dst)
                                 return
 
             def download_thumbs():
@@ -440,7 +441,7 @@ class TvdbApi(object):
 
             def download_season_banner():
                 log('Download Season Banner', LogLevel.Debug)
-                log('Season Banner aren\'t supported currently - fanart.tv have to update their API',
+                log('Season Banner are not supported currently - fanart.tv have to update their API',
                     LogLevel.Debug)
 
             def download_season_thumbs():
@@ -581,10 +582,10 @@ def _get_mirror():
     dom = parseString(xml)
 
     for node in dom.getElementsByTagName('Mirror'):
-        for n in node.getElementsByTagName('typemask'):
-            if '<typemask>7</typemask>' in n.toxml().strip():
-                for n in node.getElementsByTagName('mirrorpath'):
-                    return n.firstChild.nodeValue
+        for mirror_node in node.getElementsByTagName('typemask'):
+            if '<typemask>7</typemask>' in mirror_node.toxml().strip():
+                for mask_node in node.getElementsByTagName('mirrorpath'):
+                    return mask_node.firstChild.nodeValue
 
 
 def get_show_nfo(show):
@@ -678,8 +679,8 @@ def get_id(title):
     result = urllib.urlopen(url).read()
     dom = parseString(result)
     for node in dom.getElementsByTagName('Series'):
-        for node in node.getElementsByTagName('seriesid'):
-            return node.firstChild.nodeValue  # first result = best .. need better algorithm
+        for n in node.getElementsByTagName('seriesid'):
+            return n.firstChild.nodeValue  # first result = best .. need better algorithm
 
 
 def _read_from_zip(src, language):

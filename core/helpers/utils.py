@@ -1,9 +1,9 @@
 # from http://stackoverflow.com/a/1823101/1922357
-def intWithCommas(x):
+def readable_int(x):
     if type(x) not in [type(0), type(0L)]:
         raise TypeError("Parameter must be an integer.")
     if x < 0:
-        return '-' + intWithCommas(-x)
+        return '-' + readable_int(-x)
     result = ''
     while x >= 1000:
         x, r = divmod(x, 1000)
@@ -11,9 +11,9 @@ def intWithCommas(x):
     return "%d%s" % (x, result)
 
 
-def _get_chars(file):
+def _get_chars(character_file):
     chars = {}
-    with open(file) as f:
+    with open(character_file) as f:
         content = f.readlines()
     for c in content:
         c = c.split(':')
@@ -21,7 +21,7 @@ def _get_chars(file):
 
         try:
             y = c[1].strip()
-        except:
+        except AttributeError:
             y = ''
         chars[x] = y
     return chars
@@ -33,7 +33,7 @@ def replace(string):
     chars = _get_chars(os.path.join(core.__path__[0], '../configuration', 'replace'))
     try:
         string = string.encode('utf8')
-    except:
+    except UnicodeEncodeError:
         pass
     for key in chars.keys():
         value = chars[key]
@@ -61,27 +61,27 @@ def rename_dir(folder):
     if os.path.isdir(folder):
         while folder.endswith('/'):
             folder = folder[:1]
-        root, dir = os.path.split(folder)
+        root, directory = os.path.split(folder)
         src = folder
-        new = replace(dir)
+        new = replace(directory)
         dst = os.path.join(root, new)
         if src != dst:
             log(u'Move {0} to {1}'.format(src, dst), 'MOVE')
             os.rename(src, dst)
     try:
         dst = unicode(dst, encoding='utf8')
-    except:
+    except UnicodeDecodeError:
         pass
 
     return dst
 
 
 def rename_files(root):
-    for file in os.listdir(root.decode('utf8')):
-        if os.path.isfile(os.path.join(root, file)):
-            replaced_file = replace(file)
-            if file != replaced_file:
-                src = os.path.join(root, file)
+    for file_to_rename in os.listdir(root.decode('utf8')):
+        if os.path.isfile(os.path.join(root, file_to_rename)):
+            replaced_file = replace(file_to_rename)
+            if file_to_rename != replaced_file:
+                src = os.path.join(root, file_to_rename)
                 dst = os.path.join(root, replaced_file)
                 log(u'Move {0} to {1}'.format(src, dst), 'MOVE')
                 os.rename(src, dst)

@@ -30,13 +30,13 @@ def get_movie(title):
         rx_parentheses = re.search('\([0-9+]{4}\)', string)
         rx_square_brackets = re.search('\[[0-9+]{4}\]', string)
 
-        year = ''
+        _year = ''
         if rx_parentheses:
-            year = rx_parentheses.group().replace('(', '').replace(')', '')
+            _year = rx_parentheses.group().replace('(', '').replace(')', '')
         elif rx_square_brackets:
-            year = rx_square_brackets.group().replace('[', '').replace(']', '')
+            _year = rx_square_brackets.group().replace('[', '').replace(']', '')
 
-        return year
+        return _year
 
     def get_imdb_id(string):
         rx_parentheses = re.search('\(tt[0-9]{7}\)', string)
@@ -56,7 +56,6 @@ def get_movie(title):
     title = os.path.basename(os.path.normpath(title))
     _title = remove_brackets(title).strip()
     _title = remove_double_spaces(_title)
-
 
     result = {'title': _title, 'year': year, 'imdbID': imdb_id}
     return result

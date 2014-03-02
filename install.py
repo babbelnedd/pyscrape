@@ -20,16 +20,16 @@ try:
                     default value: True
 
         Examples:
-        >>> q = ask('Do you want to read the docstring?')
+        >> q = ask('Do you want to read the docstring?')
         Do you want to read the docstring? YES/no
         yes
-        >>> q
+        >> q
         True
 
-        >>> q = ask('Do you want to read the docstring?', default:False)
+        >> q = ask('Do you want to read the docstring?', default:False)
         Do you want to read the docstring? yes/NO
         yes
-        >>> q
+        >> q
         True
         ...
         """
