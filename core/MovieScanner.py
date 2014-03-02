@@ -36,10 +36,14 @@ def get_credits(imdb_id=None, tmdb_id=None):
     return __call(Movie.get_credits, imdb_id=imdb_id, tmdb_id=tmdb_id)
 
 
-def get_posters(lang=None, imdb_id=None, tmdb_id=None):
+def get_posters(imdb_id=None, tmdb_id=None):
     #todo: should I add all posters to one collection?
     #something like: for posters in ...: if posters is not None: all_posters.add(posters)
-    return __call(Movie.get_posters, lang=lang, imdb_id=imdb_id, tmdb_id=tmdb_id)
+    result = __call(Movie.get_posters, language=_config.pyscrape.language, imdb_id=imdb_id, tmdb_id=tmdb_id)
+    if result is None or result == '':
+        result = __call(Movie.get_posters, language=_config.pyscrape.fallback_language, imdb_id=imdb_id,
+                        tmdb_id=tmdb_id)
+    return result
 
 
 def get_banners(imdb_id=None, tmdb_id=None):
@@ -148,3 +152,37 @@ def get_genres(imdb_id=None, tmdb_id=None):
 
 def get_spoken_languages(imdb_id=None, tmdb_id=None):
     return __call(Movie.get_spoken_languages, imdb_id=imdb_id, tmdb_id=tmdb_id)
+
+
+def get_all(imdb_id=None, tmdb_id=None):
+    plot = get_plot(tmdb_id=tmdb_id, imdb_id=imdb_id)
+    tagline = get_tagline(tmdb_id=tmdb_id, imdb_id=imdb_id)
+    outline = get_outline(tmdb_id=tmdb_id, imdb_id=imdb_id)
+    mpaa = get_mpaa(tmdb_id=tmdb_id, imdb_id=imdb_id, country='DE')  #todo: add country to config
+    credits = get_credits(tmdb_id=tmdb_id, imdb_id=imdb_id)
+    posters = get_posters(tmdb_id=tmdb_id, imdb_id=imdb_id)
+    banners = get_banners(tmdb_id=tmdb_id, imdb_id=imdb_id)
+    disc_art = get_disc_art(tmdb_id=tmdb_id, imdb_id=imdb_id)
+    clearart = get_clearart(tmdb_id=tmdb_id, imdb_id=imdb_id)
+    backdrops = get_backdrops(tmdb_id=tmdb_id, imdb_id=imdb_id)
+    logos = get_logos(tmdb_id=tmdb_id, imdb_id=imdb_id)
+    landscapes = get_landscapes(tmdb_id=tmdb_id, imdb_id=imdb_id)
+    original_title = get_original_title(tmdb_id=tmdb_id, imdb_id=imdb_id)
+    rating = get_average_rating(tmdb_id=tmdb_id, imdb_id=imdb_id)
+    vote_count = get_vote_count(tmdb_id=tmdb_id, imdb_id=imdb_id)
+    popularity = get_popularity(tmdb_id=tmdb_id, imdb_id=imdb_id)
+    revenue = get_revenue(tmdb_id=tmdb_id, imdb_id=imdb_id)
+    budget = get_budget(tmdb_id=tmdb_id, imdb_id=imdb_id)
+    collection = get_collection(tmdb_id=tmdb_id, imdb_id=imdb_id)
+    production_countries = get_production_countries(tmdb_id=tmdb_id, imdb_id=imdb_id)
+    production_companies = get_production_companies(tmdb_id=tmdb_id, imdb_id=imdb_id)
+    spoken_languages = get_spoken_languages(tmdb_id=tmdb_id, imdb_id=imdb_id)
+
+    m = {'tmdb_id': tmdb_id, 'imdb_id': imdb_id, 'plot': plot, 'tagline': tagline,
+         'outline': outline, 'mpaa': mpaa, 'credits': credits, 'posters': posters,
+         'banners': banners, 'disc_art': disc_art, 'clearart': clearart, 'backdrops': backdrops,
+         'logos': logos, 'landscapes': landscapes, 'original_title': original_title,
+         'rating': rating, 'vote_count': vote_count, 'popularity': popularity,
+         'revenue': revenue, 'budget': budget, 'collection': collection, 'production_countries': production_countries,
+         'production_companies': production_companies, 'spoken_languages': spoken_languages}
+    return m
