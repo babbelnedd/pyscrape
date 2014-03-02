@@ -1,7 +1,10 @@
 import imp
 import os
+import traceback
 
 import core.plugins
+from core.Logger import log, LogLevel, whiteline
+
 
 #region Private Attributes
 
@@ -53,8 +56,18 @@ def get_plugins(plugin_type=None):
     """
     plugins = []
     for plugin in _search_plugins():
-        plugin = _load_plugin(plugin).load()
-        if plugin_type is None or plugin.info['type'] == plugin_type:
-            plugins.append(plugin)
+        try:
+            log('Try to load plugin ' + os.path.basename(plugin['name']), LogLevel.Debug)
+            plugin = _load_plugin(plugin).load()
+            if plugin is not None and (plugin_type is None or plugin.info['type'] == plugin_type):
+                plugins.append(plugin)
+            log('Plugin successfully loaded', LogLevel.Debug)
+        except:
+            import sys
 
+            log('Failed to load plugin', LogLevel.Error)
+            for n in range(0, len(sys.exc_info())):
+                log(str(sys.exc_info()[n]), LogLevel.Error)
+            log(traceback.format_exc(), LogLevel.Error)
+            whiteline()
     return plugins
