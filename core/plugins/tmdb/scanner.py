@@ -7,6 +7,8 @@ import core.Decorator as Decorator
 from core.Logger import log, LogLevel
 
 
+
+
 #region Private Attributes
 
 _config = Config()
@@ -51,7 +53,7 @@ class TmdbScanner(PluginBase.Movie):
 
     @staticmethod
     def search(title, lang, year=None, imdb_id=None):
-        if imdb_id is None:
+        if imdb_id is None or imdb_id == '':
             title = title.replace(' ', '%20')
             req = 'search/movie?query=' + title
             req += '&language=' + lang
@@ -236,12 +238,20 @@ class TmdbScanner(PluginBase.Movie):
     def get_tagline(self, language, imdb_id=None, tmdb_id=None):
         if tmdb_id is None and imdb_id is not None:
             tmdb_id = self.get_tmdb_id(imdb_id=imdb_id)
-        return _request('movie/{0}?language={1}'.format(str(tmdb_id), language))['tagline']
+        result = _request('movie/{0}?language={1}'.format(str(tmdb_id), language))
+        if 'tagline' in result:
+            return result['tagline']
+        else:
+            return ''
 
     def get_outline(self, language, imdb_id=None, tmdb_id=None):
         if tmdb_id is None and imdb_id is not None:
             tmdb_id = self.get_tmdb_id(imdb_id=imdb_id)
-        return _request('movie/{0}?language={1}'.format(str(tmdb_id), language))['outline']
+        result = _request('movie/{0}?language={1}'.format(str(tmdb_id), language))
+        if 'outline' in result:
+            return result['outline']
+        else:
+            return ''
 
     def get_revenue(self, imdb_id=None, tmdb_id=None):
         if tmdb_id is None and imdb_id is not None:
