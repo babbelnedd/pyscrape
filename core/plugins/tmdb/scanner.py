@@ -156,12 +156,12 @@ class TmdbScanner(PluginBase.Movie):
 
         return dict(directors=_directors, credits=_credits, actors=_actors)
 
-    def get_posters(self, lang=None, imdb_id=None, tmdb_id=None):
+    def get_posters(self, language=None, imdb_id=None, tmdb_id=None):
         if tmdb_id is None and imdb_id is not None:
             tmdb_id = self.get_tmdb_id(imdb_id=imdb_id)
 
-        if lang:
-            results = _request('movie/{0}/images?language={1}'.format(tmdb_id, lang))['posters']
+        if language:
+            results = _request('movie/{0}/images?language={1}'.format(tmdb_id, language))['posters']
         else:
             results = _request('movie/{0}/images'.format(tmdb_id))['posters']
 
@@ -267,10 +267,9 @@ class TmdbScanner(PluginBase.Movie):
         if tmdb_id is None and imdb_id is not None:
             tmdb_id = self.get_tmdb_id(imdb_id=imdb_id)
         result = _request('movie/' + str(tmdb_id))['belongs_to_collection']
-        if 'name' in _request('movie/' + str(tmdb_id))['belongs_to_collection']:
+
+        if result is not None and 'name' in result:
             return result['name']
-        else:
-            return None
 
     def get_production_countries(self, imdb_id=None, tmdb_id=None):
         if tmdb_id is None and imdb_id is not None:

@@ -49,7 +49,7 @@ class Movie(object):
         """
         return None
 
-    def get_posters(self, lang=None, imdb_id=None, tmdb_id=None):
+    def get_posters(self, language=None, imdb_id=None, tmdb_id=None):
         """
         Loads all available posters.
 
