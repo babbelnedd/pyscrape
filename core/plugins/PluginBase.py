@@ -49,11 +49,11 @@ class Movie(object):
         """
         return None
 
-    def get_posters(self, language=None, imdb_id=None, tmdb_id=None):
+    def get_posters(self, language, imdb_id=None, tmdb_id=None):
         """
         Loads all available posters.
 
-        @param  lang        The preferred Language of movie posters. Optional.
+        @param  lang        The preferred Language of movie posters.
         @param  imdb_id     The IMDB ID of a movie. Optional.
         @param  tmdb_id     The TMDB ID of a movie. Optional.
 
@@ -68,10 +68,11 @@ class Movie(object):
         """
         return None
 
-    def get_banners(self, imdb_id=None, tmdb_id=None):
+    def get_banners(self, language, imdb_id=None, tmdb_id=None):
         """
         Loads all available banners.
 
+        @param  language    The preferred Language of movie banners.
         @param  imdb_id     The IMDB ID of a movie. Optional.
         @param  tmdb_id     The TMDB ID of a movie. Optional.
 
@@ -89,7 +90,7 @@ class Movie(object):
         """
         Gets all images of discs (DVD, BluRay).
 
-        @param  language    The preferred Language of movie posters. Optional.
+        @param  language    The preferred Language of movie discs. Optional.
         @param  imdb_id     The IMDB ID of a movie. Optional.
         @param  tmdb_id     The TMDB ID of a movie. Optional.
 
@@ -104,7 +105,7 @@ class Movie(object):
         """
         Gets all clearart images.
 
-        @param  language    The preferred Language of movie posters. Optional.
+        @param  language    The preferred Language of movie clearart. Optional.
         @param  imdb_id     The IMDB ID of a movie. Optional.
         @param  tmdb_id     The TMDB ID of a movie. Optional.
 
@@ -119,7 +120,7 @@ class Movie(object):
         """
         Gets all logos.
 
-        @param  language    The preferred Language of movie posters. Optional.
+        @param  language    The preferred Language of movie logos. Optional.
         @param  imdb_id     The IMDB ID of a movie. Optional.
         @param  tmdb_id     The TMDB ID of a movie. Optional.
 

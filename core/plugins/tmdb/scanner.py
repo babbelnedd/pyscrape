@@ -9,6 +9,7 @@ from core.Logger import log, LogLevel
 
 
 
+
 #region Private Attributes
 
 _config = Config()
@@ -156,14 +157,11 @@ class TmdbScanner(PluginBase.Movie):
 
         return dict(directors=_directors, credits=_credits, actors=_actors)
 
-    def get_posters(self, language=None, imdb_id=None, tmdb_id=None):
+    def get_posters(self, language, imdb_id=None, tmdb_id=None):
         if tmdb_id is None and imdb_id is not None:
             tmdb_id = self.get_tmdb_id(imdb_id=imdb_id)
 
-        if language:
-            results = _request('movie/{0}/images?language={1}'.format(tmdb_id, language))['posters']
-        else:
-            results = _request('movie/{0}/images'.format(tmdb_id))['posters']
+        results = _request('movie/{0}/images?language={1}'.format(tmdb_id, language))['posters']
 
         posters = []
         for poster in results:
