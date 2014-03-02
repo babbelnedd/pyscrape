@@ -29,9 +29,8 @@ def _get_chars(file):
 
 def replace(string):
     import os
-
-    root = os.path.dirname(os.path.realpath(__file__))
-    chars = _get_chars(os.path.join(root, '../configuration', 'replace'))
+    import core
+    chars = _get_chars(os.path.join(core.__path__[0], '../configuration', 'replace'))
     try:
         string = string.encode('utf8')
     except:
@@ -181,7 +180,7 @@ def download(src, dst, refresh=False):
 
 
 if __name__ != 'main':
-    from Logger import log, LogLevel
+    from core.helpers.Logger import log, LogLevel
     import os
     import urllib
     import time

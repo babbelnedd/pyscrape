@@ -1,12 +1,12 @@
 import datetime
 import os
 
-import Config
-import Decorator
+import core.helpers.Config
+import core.helpers.Decorator
 import core
 
 
-__config = Config.Config()
+__config = core.helpers.Config.Config()
 __root = os.path.abspath(os.path.join(core.__path__[0], os.pardir))
 _path = os.path.join(__root, '.logs')
 _logfile = os.path.join(_path, 'pyscrape.log')
@@ -20,7 +20,7 @@ if not os.path.exists(_errorfile):
     open(_errorfile, 'w+')
 
 
-@Decorator.Logger
+@core.helpers.Decorator.Logger
 def log(text, level=''):
     if level == '':
         level = LogLevel.Info
@@ -55,7 +55,7 @@ def whiteline():
 
 
 def _print(msg, level):
-    from TerminalColor import print_colored as print_colored, Foreground
+    from core.helpers.TerminalColor import print_colored as print_colored, Foreground
 
     if level == LogLevel.Debug:
         print_colored(msg, Foreground.White)

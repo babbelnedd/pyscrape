@@ -2,11 +2,15 @@ import json
 import urllib2
 import time
 
-from core.Logger import log, LogLevel
+from core.helpers.Config import Config
+
+from core.helpers.Logger import log, LogLevel
 from core.plugins import PluginBase
 from core.plugins.PluginType import PluginType
-from core.Config import Config
-from core.Decorator import Cached
+from core.helpers.Decorator import Cached
+
+
+
 
 
 #region Private Attributes

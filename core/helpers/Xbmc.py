@@ -1,8 +1,9 @@
 import urllib
 import time
-from Logger import log, LogLevel
-from Config import Config
-from utils import ping
+
+from core.helpers.Config import Config
+from core.helpers.Logger import log, LogLevel
+from core.helpers.utils import ping
 
 
 class Xbmc(object):

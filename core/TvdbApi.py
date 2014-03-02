@@ -6,14 +6,15 @@ import time
 import operator
 from lxml import etree
 
-from Config import Config
-from Decorator import Cached
-from Logger import log, LogLevel
-from utils import download
+from core.helpers.Decorator import Cached
+from core.helpers.Logger import log, LogLevel
+from core.helpers import utils
+from core.helpers.Config import Config
+from core.helpers.utils import download
 from TmdbApi import get_show_id, get_show, get_episode_credits, get_season_count, get_season_poster
-from Exception import ShowNotFoundException
-import utils
+from core.helpers.Exception import ShowNotFoundException
 import FanartTvApi
+from core.media import Codec
 
 
 class TvdbApi(object):
@@ -180,7 +181,6 @@ class TvdbApi(object):
                 thumb = image_base + thumb
 
             from Movie import Movie
-            import Codec
 
             item = Movie()
             item.file = _episode['filename']

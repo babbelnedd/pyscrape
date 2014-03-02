@@ -6,8 +6,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 import core.MovieScraper as MovieScraper
-import core.utils as utils
-import core.RegEx as RegEx
+import core.helpers.utils as utils
+import core.helpers.RegEx as RegEx
 from core.MovieScraper import get_movies, scrape_movies
 
 

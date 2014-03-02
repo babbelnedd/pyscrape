@@ -5,10 +5,11 @@ from ConfigParser import ConfigParser, NoOptionError
 
 class Config(object):
     def __init__(self):
-        root = os.path.dirname(os.path.realpath(__file__))
-        config_file = os.path.join(root, '../configuration', 'pyscrape.cfg')
+        import core
+        config_file = os.path.join(core.__path__[0], '../configuration', 'pyscrape.cfg')
+
         if not os.path.exists(config_file):
-            from TerminalColor import print_colored, Foreground
+            from core.helpers.TerminalColor import print_colored, Foreground
 
             print_colored('Config file not found', Foreground.Red)
             sys.exit(-1)

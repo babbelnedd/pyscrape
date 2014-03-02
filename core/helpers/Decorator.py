@@ -4,7 +4,7 @@ class Cached(object):
         self.cache = {}
 
     def __call__(self, *args):
-        from Logger import log, LogLevel
+        from core.helpers.Logger import log, LogLevel
 
         if args in self.cache:
             _args = str(args).replace('(', '').replace(')', '')

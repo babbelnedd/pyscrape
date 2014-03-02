@@ -1,7 +1,6 @@
 import unittest
-import sys
 
-from core import RegEx
+from core.helpers import RegEx
 
 
 class RegExTests(unittest.TestCase):

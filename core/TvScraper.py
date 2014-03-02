@@ -4,13 +4,14 @@ import sys
 import time
 
 from TvdbApi import get_show_nfo
-from Config import Config
-from Logger import log, LogLevel, whiteline
+from core.helpers import RegEx
+from core.helpers.Config import Config
+from core.helpers.Logger import log, LogLevel, whiteline
 from TvdbApi import TvdbApi
-from Exception import ShowNotFoundException
-from utils import get_all_extensions
-from utils import get_movie_extensions
-import RegEx
+from core.helpers.Exception import ShowNotFoundException
+from core.helpers.utils import get_all_extensions
+from core.helpers.utils import get_movie_extensions
+from core.media import Codec
 
 
 delete_existing = False
@@ -67,7 +68,6 @@ def scrape_episode(episode_file):
     # remove audio tracks
     if config.codec.keep_tracks:
         log('Delete Audio Tracks')
-        import Codec
         from Movie import Movie
 
         item = Movie()
@@ -116,7 +116,7 @@ def _find_show(show_path):
 def _get_episode_info(show, season):
     log('Get info for season ' + season)
     season_path = os.path.join(show['path'], season)
-    from utils import get_movie_extensions
+    from core.helpers.utils import get_movie_extensions
 
     episodes = [e for e in os.listdir(season_path) if
                 os.path.isfile(os.path.join(season_path, e)) and RegEx.get_episode(e)

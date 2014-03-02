@@ -9,16 +9,14 @@ import traceback
 import operator
 from lxml import etree
 
-import utils
-import RegEx
 import FanartTvApi
-from Xbmc import Xbmc
 import TmdbApi as Tmdb
 from Movie import Movie
-from Logger import log, LogLevel, whiteline
-from Config import Config
-import Codec
-from utils import download
+from core.helpers.Logger import log, LogLevel, whiteline
+from core.helpers.utils import download
+from core.helpers import utils, RegEx, Xbmc
+from core.helpers.Config import Config
+from core.media import Codec
 
 
 delete_existing = False

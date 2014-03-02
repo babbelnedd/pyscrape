@@ -1,9 +1,10 @@
 import urllib2
 import json
 import time
-from Config import Config
-from Decorator import Cached
-from Logger import log, LogLevel
+
+from core.helpers.Decorator import Cached
+from core.helpers.Config import Config
+from core.helpers.Logger import log, LogLevel
 
 
 config = Config()
