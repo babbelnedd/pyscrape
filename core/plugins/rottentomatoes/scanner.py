@@ -46,6 +46,14 @@ def _get_id(imdb_id):
 
 
 class RottenTomatoesScanner(pluginbase.Movie):
+    def __init__(self):
+        from core.plugins.plugintype import PluginType
+
+        self.info = {'type': PluginType.MovieScanner,
+                     'author': 'Lucas Schad',
+                     'name': 'RottenTomatoes Movie Scanner',
+                     'version': '0.10'}
+
     def get_credits(self, imdb_id=None, tmdb_id=None):
         if imdb_id is None:
             return None
