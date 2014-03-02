@@ -3,15 +3,15 @@ import os
 import sys
 import time
 
-from TvdbApi import get_show_nfo
-from core.helpers import RegEx
-from core.helpers.Config import Config
-from core.helpers.Logger import log, LogLevel, whiteline
-from TvdbApi import TvdbApi
-from core.helpers.Exception import ShowNotFoundException
+from tvdbapi import get_show_nfo
+from core.helpers import regex
+from core.helpers.config import Config
+from core.helpers.logger import log, LogLevel, whiteline
+from tvdbapi import TvdbApi
+from core.helpers.exception import ShowNotFoundException
 from core.helpers.utils import get_all_extensions
 from core.helpers.utils import get_movie_extensions
-from core.media import Codec
+from core.media import codec
 
 
 delete_existing = False
@@ -73,11 +73,11 @@ def scrape_episode(episode_file):
         item = Movie()
         item.file = episode_title
         item.path = episode_path
-        Codec.delete_audio_tracks([os.path.join(item.path, item.file)])
+        codec.delete_audio_tracks([os.path.join(item.path, item.file)])
 
     # create nfo
     log('Get Info for episode ' + episode_title)
-    nfo = tvdb.get_episode_nfo(episodes=RegEx.get_episode(episode_title), path=episode_path)
+    nfo = tvdb.get_episode_nfo(episodes=regex.get_episode(episode_title), path=episode_path)
     root, ext = os.path.splitext(episode_title)
     nfo_filename = os.path.join(episode_path, root + '.nfo')
     log('Save NFO file', LogLevel.Debug)
@@ -119,7 +119,7 @@ def _get_episode_info(show, season):
     from core.helpers.utils import get_movie_extensions
 
     episodes = [e for e in os.listdir(season_path) if
-                os.path.isfile(os.path.join(season_path, e)) and RegEx.get_episode(e)
+                os.path.isfile(os.path.join(season_path, e)) and regex.get_episode(e)
                 and os.path.splitext(e)[1] in get_movie_extensions()]
 
     if len(episodes) == 0:
@@ -186,7 +186,7 @@ if __name__ == '__main__':
                     log(single_episode + ' is not a file', LogLevel.Error)
                     sys.exit()
 
-                episode = RegEx.get_episode(single_episode)
+                episode = regex.get_episode(single_episode)
                 path, filename = os.path.split(single_episode)
                 filename, extension = os.path.splitext(filename)
 

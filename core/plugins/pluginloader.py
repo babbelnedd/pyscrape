@@ -3,7 +3,7 @@ import os
 import traceback
 
 import core.plugins
-from core.helpers.Logger import log, LogLevel, whiteline
+from core.helpers.logger import log, LogLevel, whiteline
 
 
 

@@ -4,9 +4,9 @@ import subprocess
 import os
 import ConfigParser
 
-from core.helpers.Config import Config
+from core.helpers.config import Config
 
-from core.helpers.Logger import log, LogLevel
+from core.helpers.logger import log, LogLevel
 
 
 config = Config()

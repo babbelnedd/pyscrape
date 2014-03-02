@@ -9,14 +9,14 @@ import traceback
 import operator
 from lxml import etree
 
-import FanartTvApi
-import TmdbApi as Tmdb
+import fanarttvapi
+import tmdbapi as Tmdb
 from Movie import Movie
-from core.helpers.Logger import log, LogLevel, whiteline
+from core.helpers.logger import log, LogLevel, whiteline
 from core.helpers.utils import download
-from core.helpers import utils, RegEx, Xbmc
-from core.helpers.Config import Config
-from core.media import Codec
+from core.helpers import utils, regex, xbmc
+from core.helpers.config import Config
+from core.media import codec
 
 
 delete_existing = False
@@ -36,11 +36,11 @@ def get_movie(root, path):
     movie = Movie()
     movie.path = path
 
-    regex = RegEx.get_movie(movie.path)
-    movie.search_year = regex['year']
-    movie.imdb = regex['imdbID']
-    movie.search_title = regex['title']
-    movie.search_alternative_title = utils.replace(regex['title'])
+    rx = regex.get_movie(movie.path)
+    movie.search_year = rx['year']
+    movie.imdb = rx['imdbID']
+    movie.search_title = rx['title']
+    movie.search_alternative_title = utils.replace(rx['title'])
     movie.path = os.path.join(root, movie.path)
 
     files = get_movie_files(movie.path)
@@ -58,7 +58,7 @@ def get_movie(root, path):
 
     if len(files) > 1:
         # get only files that are tagged as CD
-        for _file in [f for f in files if RegEx.get_cd(f) == '']:
+        for _file in [f for f in files if rx.get_cd(f) == '']:
             files.remove(_file)
 
         movie.files = files
@@ -198,8 +198,8 @@ def create_nfo(movie):
 
     if len(movie.files) > 0:
         videos = [os.path.join(movie.path, v) for v in movie.files]
-        vinfo = Codec.get_vinfo(videos[0])
-        ainfo = Codec.get_ainfo(videos[0])
+        vinfo = codec.get_vinfo(videos[0])
+        ainfo = codec.get_ainfo(videos[0])
 
         fileinfo = etree.Element('fileinfo')
         streamdetails = etree.SubElement(fileinfo, 'streamdetails')
@@ -213,7 +213,7 @@ def create_nfo(movie):
 
         aspect.text = str(vinfo['aspect'])
         video_codec.text = vinfo['codec']
-        duration.text = str(int(Codec.get_runtime(videos)) * 60)
+        duration.text = str(int(codec.get_runtime(videos)) * 60)
         width.text = str(vinfo['width'])
         height.text = str(vinfo['height'])
 
@@ -455,7 +455,7 @@ def download_images(movie):
                 download(src=art[0], dst=dst, refresh=_refresh)
                 break
 
-        fanart = FanartTvApi.get_movie(movie.imdb)
+        fanart = fanarttvapi.get_movie(movie.imdb)
         if fanart is None:
             return
         for f in fanart:  # Fanart gives sometimes more than one result - but there are no double tmdbID's???
@@ -589,7 +589,7 @@ def get_metadata(movie):
     get_advanced_metadata()
     movie.posters = Tmdb.get_posters(movie.id)
     movie.thumb = Tmdb.get_thumb(movie.id)
-    movie.runtime = Codec.get_runtime(files)
+    movie.runtime = codec.get_runtime(files)
     create_nfo(movie)
     return movie
 
@@ -622,7 +622,7 @@ def scrape_movies(path, single=False):
                     files.append(os.path.join(movie.path, movie_file))
 
                 if config.codec.keep_tracks:
-                    Codec.delete_audio_tracks(files)
+                    codec.delete_audio_tracks(files)
 
                 movie = get_metadata(movie)
                 if movie == -1:  # no movie found
@@ -745,7 +745,7 @@ def __start():
             scrape_from_config()
 
         if parameter['update']:
-            xbmc = Xbmc()
+            xbmc = xbmc()
             xbmc.full_scan()
 
     try:

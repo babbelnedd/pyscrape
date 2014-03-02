@@ -6,15 +6,15 @@ import time
 import operator
 from lxml import etree
 
-from core.helpers.Decorator import Cached
-from core.helpers.Logger import log, LogLevel
+from core.helpers.decorator import Cached
+from core.helpers.logger import log, LogLevel
 from core.helpers import utils
-from core.helpers.Config import Config
+from core.helpers.config import Config
 from core.helpers.utils import download
-from TmdbApi import get_show_id, get_show, get_episode_credits, get_season_count, get_season_poster
-from core.helpers.Exception import ShowNotFoundException
-import FanartTvApi
-from core.media import Codec
+from tmdbapi import get_show_id, get_show, get_episode_credits, get_season_count, get_season_poster
+from core.helpers.exception import ShowNotFoundException
+import fanarttvapi
+from core.media import codec
 
 
 class TvdbApi(object):
@@ -194,7 +194,7 @@ class TvdbApi(object):
                       'imdb_id': get_value('IMDB_ID'), 'writer': get_value('Writer'),
                       'thumb': thumb, 'overview': get_value('Overview'), 'director': get_value('Director'),
                       'rating': get_value('Rating'), 'votes': get_value('RatingCount'),
-                      'video_xml': Codec.get_video_xml([file]), 'audio_xml': Codec.get_audio_xml([file])}
+                      'video_xml': codec.get_video_xml([file]), 'audio_xml': codec.get_audio_xml([file])}
 
             return result
 
@@ -489,7 +489,7 @@ class TvdbApi(object):
                         dst = os.path.join(self.show['path'], 'season{0}.tbn'.format(n))
                         download(src, dst)
 
-            fanart = FanartTvApi.get_show(self.show['id'])
+            fanart = fanarttvapi.get_show(self.show['id'])
             if fanart is not None:
                 for f in fanart:  # Fanart gives sometimes more than one result - but there are no double tmdbID's???
                     fanart = fanart[f]

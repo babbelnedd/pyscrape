@@ -180,7 +180,7 @@ def download(src, dst, refresh=False):
 
 
 if __name__ != 'main':
-    from core.helpers.Logger import log, LogLevel
+    from core.helpers.logger import log, LogLevel
     import os
     import urllib
     import time

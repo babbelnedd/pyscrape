@@ -1,11 +1,11 @@
 """
 This is a plugin-wrapper for plugins from type PluginType.Movie
 """
-from core.helpers.Config import Config
+from core.helpers.config import Config
 
-from core.plugins.PluginLoader import get_plugins
-from core.plugins.PluginType import PluginType
-from core.plugins.PluginBase import Movie
+from core.plugins.pluginloader import get_plugins
+from core.plugins.plugintype import PluginType
+from core.plugins.pluginbase import Movie
 
 #region Private Attributes
 

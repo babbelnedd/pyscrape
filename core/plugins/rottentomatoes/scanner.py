@@ -1,10 +1,10 @@
 import json
 import urllib2
 
-from core.helpers.Config import Config
-from core.plugins import PluginBase
-from core.helpers.Logger import log, LogLevel
-from core.helpers.Decorator import Cached
+from core.helpers.config import Config
+from core.plugins import pluginbase
+from core.helpers.logger import log, LogLevel
+from core.helpers.decorator import Cached
 
 
 
@@ -48,7 +48,7 @@ def _get_id(imdb_id):
 #endregion
 
 
-class RottenTomatoesScanner(PluginBase.Movie):
+class RottenTomatoesScanner(pluginbase.Movie):
     def get_credits(self, imdb_id=None, tmdb_id=None):
         if imdb_id is None:
             return None

@@ -2,12 +2,12 @@ import json
 import urllib2
 import time
 
-from core.helpers.Config import Config
+from core.helpers.config import Config
 
-from core.helpers.Logger import log, LogLevel
-from core.plugins import PluginBase
-from core.plugins.PluginType import PluginType
-from core.helpers.Decorator import Cached
+from core.helpers.logger import log, LogLevel
+from core.plugins import pluginbase
+from core.plugins.plugintype import PluginType
+from core.helpers.decorator import Cached
 
 
 
@@ -81,7 +81,7 @@ def _get_items(image_type, tmdb_id=None, imdb_id=None, language=None):
 #endregion
 
 
-class FanartScanner(PluginBase.Movie):
+class FanartScanner(pluginbase.Movie):
     def __init__(self):
         self.info = {'type': PluginType.MovieScanner,
                      'author': 'Lucas Schad',

@@ -1,10 +1,10 @@
 import json
 import urllib2
 
-from core.helpers.Config import Config
-from core.plugins import PluginBase
-import core.helpers.Decorator as Decorator
-from core.helpers.Logger import log, LogLevel
+from core.helpers.config import Config
+from core.plugins import pluginbase
+import core.helpers.decorator as Decorator
+from core.helpers.logger import log, LogLevel
 
 
 
@@ -41,9 +41,9 @@ def _request(request_string):
 #endregion
 
 
-class TmdbScanner(PluginBase.Movie):
+class TmdbScanner(pluginbase.Movie):
     def __init__(self):
-        from core.plugins.PluginType import PluginType
+        from core.plugins.plugintype import PluginType
 
         self.info = {'type': PluginType.MovieScanner,
                      'author': 'Lucas Schad',

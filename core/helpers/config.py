@@ -9,7 +9,7 @@ class Config(object):
         config_file = os.path.join(core.__path__[0], '../configuration', 'pyscrape.cfg')
 
         if not os.path.exists(config_file):
-            from core.helpers.TerminalColor import print_colored, Foreground
+            from core.helpers.terminal import print_colored, Foreground
 
             print_colored('Config file not found', Foreground.Red)
             sys.exit(-1)
