@@ -57,6 +57,9 @@ def get_movie(title):
     _title = remove_brackets(title).strip()
     _title = remove_double_spaces(_title)
 
+    if _title == '.':
+        _title = ''
+
     result = {'title': _title, 'year': year, 'imdbID': imdb_id}
     return result
 
