@@ -70,7 +70,7 @@ def rename_dir(folder):
             os.rename(src, dst)
     try:
         dst = unicode(dst, encoding='utf8')
-    except UnicodeDecodeError:
+    except TypeError:
         pass
 
     return dst
