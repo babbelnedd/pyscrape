@@ -120,6 +120,11 @@ class RottenTomatoesScanner(pluginbase.Movie):
             return None
 
         rt_id = _get_id(imdb_id)
-        result = _request('movies/' + rt_id + '.json')
-        if 'genres' in result and len(result['genres']) > 0:
-            return result['genres']
+        request_result = _request('movies/' + rt_id + '.json')
+        result = []
+        if 'genres' in request_result:
+            for genre in request_result['genres']:
+                for g in genre.split('&'):
+                    result.append(g.strip())
+            if len(result) > 0:
+                return result
