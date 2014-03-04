@@ -54,11 +54,11 @@ class TmdbScanner(pluginbase.Movie):
             req = 'search/movie?query=' + title
             req += '&language=' + lang
             if not year is None and not year == '':
-                req = req + '&year=' + year
+                req = req + '&year=' + str(year)
             result = _request(req)
             return result['results']
         else:
-            req = 'movie/' + imdb_id
+            req = 'movie/' + str(imdb_id)
             req += '?language=' + lang
             result = _request(req)
             return result
