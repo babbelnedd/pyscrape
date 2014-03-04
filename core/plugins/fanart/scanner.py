@@ -3,7 +3,6 @@ import urllib2
 import time
 
 from core.helpers.config import Config
-
 from core.helpers.logger import log, LogLevel
 from core.plugins import pluginbase
 from core.plugins.plugintype import PluginType
@@ -63,7 +62,8 @@ def _get_items(image_type, tmdb_id=None, imdb_id=None, language=None):
     items = []
     for r in [result[x] for x in result if image_type in result[x]]:
         if language:
-            for item in [x for x in r[image_type] if x['lang'].lower() == language.lower()]:
+            for item in [x for x in r[image_type]
+                         if x['lang'].lower() == language.lower() or x['lang'] == '' or x['lang'] == '00']:
                 items.append({'url': item['url'], 'rating': item['likes'], 'vote_count': item['likes']})
         else:
             for item in r[image_type]:
