@@ -192,6 +192,8 @@ def get_spoken_languages(imdb_id=None, tmdb_id=None):
 
 
 def get_all(imdb_id=None, tmdb_id=None):
+    if imdb_id is None and tmdb_id is None:
+        return
     title = get_title(tmdb_id=tmdb_id, imdb_id=imdb_id)
     original_title = get_original_title(tmdb_id=tmdb_id, imdb_id=imdb_id)
     plot = get_plot(tmdb_id=tmdb_id, imdb_id=imdb_id)
