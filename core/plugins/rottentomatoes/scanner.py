@@ -111,7 +111,6 @@ class RottenTomatoesScanner(pluginbase.Movie):
 
         rt_id = _get_id(imdb_id)
         result = _request('movies/' + rt_id + '.json')
-        print result
         if 'synopsis' in result and result['synopsis'] != 'n/a' and result['synopsis'].strip() != '':
             return result['synopsis']
 
