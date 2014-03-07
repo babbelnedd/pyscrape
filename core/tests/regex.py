@@ -30,8 +30,7 @@ class RegExTests(unittest.TestCase):
         assert result['year'] == ''
         assert result['imdbID'] == ''
 
-        result = regex.get_movie(
-            '(I) Ice Age (CD1) (Bluray) (2001) (1080p) (HD) (DTS) (x264) (town.ag) (mkv) (7.1) (tt0268380)')
+        result = regex.get_movie('(I) Ice Age (CD1)   (2001) (1080p) (HD) (DTS) (x264) (town.ag) (mkv)(tt0268380)')
         assert result['title'] == 'Ice Age'
         assert result['year'] == '2001'
         assert result['imdbID'] == 'tt0268380'
@@ -66,6 +65,87 @@ class RegExTests(unittest.TestCase):
         assert result['title'] == 'Ice Age'
         assert result['year'] == '2001'
         assert result['imdbID'] == 'tt0268380'
+
+        result = regex.get_movie('Ice Age 2001')
+        assert result['title'] == 'Ice Age'
+        assert result['year'] == '2001'
+        assert result['imdbID'] == ''
+
+        result = regex.get_movie('Ice Age 1832')
+        assert result['title'] == 'Ice Age 1832'
+        assert result['year'] == ''
+        assert result['imdbID'] == ''
+
+        result = regex.get_movie('Ice Age 1832 (2011)')
+        assert result['title'] == 'Ice Age 1832'
+        assert result['year'] == '2011'
+        assert result['imdbID'] == ''
+
+        result = regex.get_movie('Ice Age 1832     (2011)')
+        assert result['title'] == 'Ice Age 1832'
+        assert result['year'] == '2011'
+        assert result['imdbID'] == ''
+
+        result = regex.get_movie('Ice Age 1832 [2011]')
+        assert result['title'] == 'Ice Age 1832'
+        assert result['year'] == '2011'
+        assert result['imdbID'] == ''
+
+        result = regex.get_movie('Ice Age (1780) 2002')
+        assert result['title'] == 'Ice Age'
+        assert result['year'] == '2002'
+        assert result['imdbID'] == ''
+
+        result = regex.get_movie('Ice Age 1780 (2002)')
+        assert result['title'] == 'Ice Age 1780'
+        assert result['year'] == '2002'
+        assert result['imdbID'] == ''
+
+        result = regex.get_movie('Ice Age 2002 (1980)')
+        assert result['title'] == 'Ice Age'
+        assert result['year'] == '1980'
+        assert result['imdbID'] == ''
+
+        result = regex.get_movie('Ice Age 2002 [1980]')
+        assert result['title'] == 'Ice Age'
+        assert result['year'] == '1980'
+        assert result['imdbID'] == ''
+
+        result = regex.get_movie('Ice Age (tt2199033)')
+        assert result['title'] == 'Ice Age'
+        assert result['year'] == ''
+        assert result['imdbID'] == 'tt2199033'
+
+        result = regex.get_movie('Ice Age (tt1990123) (1992)')
+        assert result['title'] == 'Ice Age'
+        assert result['year'] == '1992'
+        assert result['imdbID'] == 'tt1990123'
+
+        result = regex.get_movie('300')
+        assert result['title'] == '300'
+        assert result['year'] == ''
+        assert result['imdbID'] == ''
+
+        result = regex.get_movie('Ice Age (tt1990123)')
+        assert result['title'] == 'Ice Age'
+        assert result['year'] == ''
+        assert result['imdbID'] == 'tt1990123'
+
+        result = regex.get_movie('Ice Age (tt1231990)')
+        assert result['title'] == 'Ice Age'
+        assert result['year'] == ''
+        assert result['imdbID'] == 'tt1231990'
+
+        result = regex.get_movie('Ice Age (1234)')
+        assert result['title'] == 'Ice Age'
+        assert result['year'] == ''
+        assert result['imdbID'] == ''
+
+        result = regex.get_movie('Ice.Age.2002')
+        print result
+        assert result['title'] == 'Ice Age'
+        assert result['year'] == '2002'
+        assert result['imdbID'] == ''
 
         result = regex.get_movie('/media/movies/Ice Age [2001] (tt0268380)')
         assert result['title'] == 'Ice Age'

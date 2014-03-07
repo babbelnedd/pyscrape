@@ -1,3 +1,4 @@
+from datetime import date
 import re
 import os
 
@@ -26,15 +27,36 @@ def get_movie(title):
             string = string.replace('  ', ' ')
         return string
 
+    def remove_dots(string):
+        return string.replace('.', ' ')
+
+    def remove_year(string):
+        rx = re.search('[0-9+]{4}', string)
+        if rx and 1889 < int(rx.group()) < date.today().year + 2:
+            string = string.replace(rx.group(), '')
+
+        return string
+
     def get_year(string):
-        rx_parentheses = re.search('\([0-9+]{4}\)', string)
-        rx_square_brackets = re.search('\[[0-9+]{4}\]', string)
+        expressions = [re.search('\([0-9]{4}\)', string),
+                       re.search('\[[0-9]{4}\]', string),
+                       re.search(' [0-9]{4} ', string),
+                       re.search(' [0-9]{4}', string),
+                       re.search('.[0-9]{4}.', string),
+                       re.search('.[0-9]{4}', string),
+                       re.search('^(?!a-Z0-9|\\.).[0-9]{4}', string)]
 
         _year = ''
-        if rx_parentheses:
-            _year = rx_parentheses.group().replace('(', '').replace(')', '')
-        elif rx_square_brackets:
-            _year = rx_square_brackets.group().replace('[', '').replace(']', '')
+        for rx in expressions:
+            if rx is not None:
+                rx_result = rx.group().replace('(', '').replace(')', '')
+                rx_result = rx_result.replace('[', '').replace(']', '')
+                rx_result = rx_result.replace('.', '')
+                rx_result = rx_result.replace(' ', '')
+
+                if rx_result.isdigit() and 1889 < int(rx_result) < date.today().year + 1:
+                    _year = rx_result
+                    break
 
         return _year
 
@@ -57,13 +79,15 @@ def get_movie(title):
     imdb_id = get_imdb_id(title)
 
     title = os.path.basename(os.path.normpath(title))
-    _title = remove_brackets(title).strip()
+    _title = remove_brackets(title)
+    _title = remove_year(_title)
+    _title = remove_dots(_title)
     _title = remove_double_spaces(_title)
 
     if _title == '.':
         _title = ''
 
-    result = {'title': _title, 'year': year, 'imdbID': imdb_id}
+    result = {'title': _title.strip(), 'year': year.strip(), 'imdbID': imdb_id.strip()}
     return result
 
 
