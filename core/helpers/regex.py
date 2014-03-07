@@ -41,12 +41,15 @@ def get_movie(title):
     def get_imdb_id(string):
         rx_parentheses = re.search('\(tt[0-9]{7}\)', string)
         rx_square_brackets = re.search('\[tt[0-9]{7}\]', string)
+        rx_square_dots = re.search('.tt[0-9]{7}.', string)
 
         imdb = ''
         if rx_parentheses:
             imdb = rx_parentheses.group().replace('(', '').replace(')', '')
         elif rx_square_brackets:
             imdb = rx_square_brackets.group().replace('[', '').replace(']', '')
+        elif rx_square_dots:
+            imdb = rx_square_dots.group().replace('.', '')
 
         return imdb
 
