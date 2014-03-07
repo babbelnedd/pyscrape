@@ -68,7 +68,7 @@ class RottenTomatoesScanner(pluginbase.Movie):
         c['actors'] = actors
         return c
 
-    def get_landscapes(self, imdb_id=None, tmdb_id=None):
+    def get_posters(self, language, imdb_id=None, tmdb_id=None):
         if imdb_id is None:
             return None
 
