@@ -2,7 +2,10 @@ from datetime import date
 import re
 import os
 
+from core.helpers.decorator import Cached
 
+
+@Cached
 def get_cd(string):
     regex = re.search('\cd[0-9]', string, re.IGNORECASE)
 
@@ -16,6 +19,7 @@ def get_cd(string):
     return _cd
 
 
+@Cached
 def get_movie(title):
     def remove_brackets(string):
         string = re.sub(r"\([^)]*\)", "", string)
@@ -91,6 +95,7 @@ def get_movie(title):
     return result
 
 
+@Cached
 def get_episode(title):
     orig_title = title
     title = title.upper()  # makes it easier to split matches
