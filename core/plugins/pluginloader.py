@@ -70,4 +70,5 @@ def get_plugins(plugin_type=None):
                 log(str(sys.exc_info()[n]), LogLevel.Error)
             log(traceback.format_exc(), LogLevel.Error)
             whiteline()
-    return plugins
+
+    return sorted(plugins, key=lambda k: k.info['priority'])

@@ -83,7 +83,8 @@ class FanartScanner(pluginbase.Movie):
         self.info = {'type': PluginType.MovieScanner,
                      'author': 'Lucas Schad',
                      'name': 'Fanart.tv Movie Scanner',
-                     'version': '0.10'}
+                     'version': '0.10',
+                     'priority': 2}
 
     def get_posters(self, language, imdb_id=None, tmdb_id=None):
         return _get_items(language=language, tmdb_id=tmdb_id, imdb_id=imdb_id, image_type='movieposter')

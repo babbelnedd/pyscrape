@@ -52,7 +52,8 @@ class RottenTomatoesScanner(pluginbase.Movie):
         self.info = {'type': PluginType.MovieScanner,
                      'author': 'Lucas Schad',
                      'name': 'RottenTomatoes Movie Scanner',
-                     'version': '0.10'}
+                     'version': '0.10',
+                     'priority': 3}
 
     def get_credits(self, imdb_id=None, tmdb_id=None):
         if imdb_id is None:

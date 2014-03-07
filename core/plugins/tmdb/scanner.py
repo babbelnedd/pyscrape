@@ -45,7 +45,8 @@ class TmdbScanner(pluginbase.Movie):
         self.info = {'type': PluginType.MovieScanner,
                      'author': 'Lucas Schad',
                      'name': 'TheMovieDB Movie Scanner',
-                     'version': '0.13'}
+                     'version': '0.13',
+                     'priority': 1}
 
     @staticmethod
     def search(title, lang, year=None, imdb_id=None):
