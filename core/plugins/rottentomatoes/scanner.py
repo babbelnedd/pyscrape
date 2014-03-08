@@ -7,6 +7,7 @@ from core.helpers.logger import log, LogLevel
 from core.helpers.decorator import Cached
 
 
+
 #region Private Attributes
 
 
@@ -76,8 +77,8 @@ class RottenTomatoesScanner(pluginbase.Movie):
         rt_id = _get_id(imdb_id)
         result = _request('movies/' + rt_id + '.json')
         if result is not None and 'posters' in result:
-            if 'original' in result['posters']:
-                return {'url': result['posters']['original'], 'rating': '', 'vote_count': ''}
+            if 'original' in result['posters'] and result['posters']['original'] != '':
+                return [{'url': result['posters']['original'], 'rating': '', 'vote_count': ''}]
 
     def get_release(self, imdb_id=None, tmdb_id=None):
         if imdb_id is None:
