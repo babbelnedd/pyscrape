@@ -107,3 +107,6 @@ class XbmcConfig(object):
         self.port = cfg.get('xbmc', 'port')
         self.user = cfg.get('xbmc', 'user')
         self.password = cfg.get('xbmc', 'pass')
+
+
+config = Config()

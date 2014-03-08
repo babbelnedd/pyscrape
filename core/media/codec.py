@@ -4,12 +4,8 @@ import subprocess
 import os
 import ConfigParser
 
-from core.helpers.config import Config
-
+from core.helpers.config import config
 from core.helpers.logger import log, LogLevel
-
-
-config = Config()
 
 
 #region private methods

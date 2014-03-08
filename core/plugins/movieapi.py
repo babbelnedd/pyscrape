@@ -1,7 +1,7 @@
 """
 This is a plugin-wrapper for plugins from type PluginType.Movie
 """
-from core.helpers.config import Config
+from core.helpers.config import config
 
 from core.plugins.pluginloader import get_plugins
 from core.plugins.plugintype import PluginType
@@ -11,7 +11,6 @@ from core.plugins.pluginbase import Movie
 
 
 _plugins = get_plugins(PluginType.MovieScanner)
-_config = Config()
 
 
 #endregion
@@ -63,41 +62,41 @@ def get_credits(imdb_id=None, tmdb_id=None):
 
 
 def get_posters(imdb_id=None, tmdb_id=None):
-    result = __get_all(Movie.get_posters, language=_config.pyscrape.language, imdb_id=imdb_id, tmdb_id=tmdb_id)
+    result = __get_all(Movie.get_posters, language=config.pyscrape.language, imdb_id=imdb_id, tmdb_id=tmdb_id)
     if result is None or result == '':
-        result = __get_all(Movie.get_posters, language=_config.pyscrape.fallback_language, imdb_id=imdb_id,
+        result = __get_all(Movie.get_posters, language=config.pyscrape.fallback_language, imdb_id=imdb_id,
                            tmdb_id=tmdb_id)
     return result
 
 
 def get_banners(imdb_id=None, tmdb_id=None):
-    result = __get_all(Movie.get_banners, language=_config.pyscrape.language, imdb_id=imdb_id, tmdb_id=tmdb_id)
+    result = __get_all(Movie.get_banners, language=config.pyscrape.language, imdb_id=imdb_id, tmdb_id=tmdb_id)
     if result is None or result == '':
-        result = __get_all(Movie.get_banners, language=_config.pyscrape.fallback_language, imdb_id=imdb_id,
+        result = __get_all(Movie.get_banners, language=config.pyscrape.fallback_language, imdb_id=imdb_id,
                            tmdb_id=tmdb_id)
     return result
 
 
 def get_disc_art(imdb_id=None, tmdb_id=None):
-    result = __get_all(Movie.get_disc_art, language=_config.pyscrape.language, imdb_id=imdb_id, tmdb_id=tmdb_id)
+    result = __get_all(Movie.get_disc_art, language=config.pyscrape.language, imdb_id=imdb_id, tmdb_id=tmdb_id)
     if result is None or result == '':
-        result = __get_all(Movie.get_disc_art, language=_config.pyscrape.fallback_language, imdb_id=imdb_id,
+        result = __get_all(Movie.get_disc_art, language=config.pyscrape.fallback_language, imdb_id=imdb_id,
                            tmdb_id=tmdb_id)
     return result
 
 
 def get_clearart(imdb_id=None, tmdb_id=None):
-    result = __get_all(Movie.get_clearart, language=_config.pyscrape.language, imdb_id=imdb_id, tmdb_id=tmdb_id)
+    result = __get_all(Movie.get_clearart, language=config.pyscrape.language, imdb_id=imdb_id, tmdb_id=tmdb_id)
     if result is None or result == '':
-        result = __get_all(Movie.get_clearart, language=_config.pyscrape.fallback_language, imdb_id=imdb_id,
+        result = __get_all(Movie.get_clearart, language=config.pyscrape.fallback_language, imdb_id=imdb_id,
                            tmdb_id=tmdb_id)
     return result
 
 
 def get_logos(imdb_id=None, tmdb_id=None):
-    result = __get_all(Movie.get_logos, language=_config.pyscrape.language, imdb_id=imdb_id, tmdb_id=tmdb_id)
+    result = __get_all(Movie.get_logos, language=config.pyscrape.language, imdb_id=imdb_id, tmdb_id=tmdb_id)
     if result is None or result == '':
-        result = __get_all(Movie.get_logos, language=_config.pyscrape.fallback_language, imdb_id=imdb_id,
+        result = __get_all(Movie.get_logos, language=config.pyscrape.fallback_language, imdb_id=imdb_id,
                            tmdb_id=tmdb_id)
     return result
 
@@ -140,25 +139,25 @@ def get_popularity(imdb_id=None, tmdb_id=None):
 
 
 def get_plot(imdb_id=None, tmdb_id=None):
-    result = __get(Movie.get_plot, language=_config.pyscrape.language, imdb_id=imdb_id, tmdb_id=tmdb_id)
+    result = __get(Movie.get_plot, language=config.pyscrape.language, imdb_id=imdb_id, tmdb_id=tmdb_id)
     if result is None or result == '':
-        result = __get(Movie.get_plot, language=_config.pyscrape.fallback_language, imdb_id=imdb_id,
+        result = __get(Movie.get_plot, language=config.pyscrape.fallback_language, imdb_id=imdb_id,
                        tmdb_id=tmdb_id)
     return result
 
 
 def get_tagline(imdb_id=None, tmdb_id=None):
-    result = __get(Movie.get_tagline, language=_config.pyscrape.language, imdb_id=imdb_id, tmdb_id=tmdb_id)
+    result = __get(Movie.get_tagline, language=config.pyscrape.language, imdb_id=imdb_id, tmdb_id=tmdb_id)
     if result is None or result == '':
-        result = __get(Movie.get_tagline, language=_config.pyscrape.fallback_language, imdb_id=imdb_id,
+        result = __get(Movie.get_tagline, language=config.pyscrape.fallback_language, imdb_id=imdb_id,
                        tmdb_id=tmdb_id)
     return result
 
 
 def get_outline(imdb_id=None, tmdb_id=None):
-    result = __get(Movie.get_outline, language=_config.pyscrape.language, imdb_id=imdb_id, tmdb_id=tmdb_id)
+    result = __get(Movie.get_outline, language=config.pyscrape.language, imdb_id=imdb_id, tmdb_id=tmdb_id)
     if result is None or result == '':
-        result = __get(Movie.get_outline, language=_config.pyscrape.fallback_language, imdb_id=imdb_id,
+        result = __get(Movie.get_outline, language=config.pyscrape.fallback_language, imdb_id=imdb_id,
                        tmdb_id=tmdb_id)
     return result
 

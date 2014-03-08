@@ -9,7 +9,7 @@ from lxml import etree
 from core.helpers.decorator import Cached
 from core.helpers.logger import log, LogLevel
 from core.helpers import utils
-from core.helpers.config import Config
+from core.helpers.config import config
 from core.helpers.utils import download
 from tmdbapi import get_show_id, get_show, get_episode_credits, get_season_count, get_season_poster
 from core.helpers.exception import ShowNotFoundException
@@ -693,4 +693,3 @@ def _read_from_zip(src, language):
 
 api_key = '6CC251D2F31B60D2'
 url_base = _get_mirror()
-config = Config()

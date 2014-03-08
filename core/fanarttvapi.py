@@ -3,12 +3,8 @@ import json
 import time
 
 from core.helpers.decorator import Cached
-from core.helpers.config import Config
+from core.helpers.config import config
 from core.helpers.logger import log, LogLevel
-
-
-config = Config()
-cached = {}
 
 
 @Cached

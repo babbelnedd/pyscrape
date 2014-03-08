@@ -15,7 +15,7 @@ from Movie import Movie
 from core.helpers.logger import log, LogLevel, whiteline
 from core.helpers.utils import download
 from core.helpers import utils, regex, xbmc
-from core.helpers.config import Config
+from core.helpers.config import config
 from core.media import codec
 
 
@@ -25,7 +25,6 @@ nfo_only = False
 force = False
 thread_running = True
 threads = []
-config = Config()
 
 
 def get_movie(root, path):

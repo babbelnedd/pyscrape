@@ -1,17 +1,11 @@
 import json
 import urllib2
 
-from core.helpers.config import Config
+from core.helpers.config import config
 from core.plugins import pluginbase
 from core.helpers.decorator import Cached
 from core.helpers.logger import log, LogLevel
 
-
-#region Private Attributes
-
-_config = Config()
-
-#endregion
 
 #region Private Methods
 
@@ -21,13 +15,13 @@ def _request(request_string):
     if request_string.startswith('/'):
         request_string = request_string[1:]
 
-    req = _config.tmdb.url_base + request_string
+    req = config.tmdb.url_base + request_string
     if '&' in req or '?' in req:
-        req = req + '&api_key=' + _config.tmdb.api_key
+        req = req + '&api_key=' + config.tmdb.api_key
     else:
-        req = req + '?api_key=' + _config.tmdb.api_key
+        req = req + '?api_key=' + config.tmdb.api_key
 
-    log('Send TMDB request: ' + req.replace(_config.tmdb.api_key, 'XXX'), LogLevel.Debug)
+    log('Send TMDB request: ' + req.replace(config.tmdb.api_key, 'XXX'), LogLevel.Debug)
     headers = {'Accept': 'application/json'}
     _req = urllib2.Request(req, headers=headers)
     response_body = urllib2.urlopen(_req).read()
@@ -65,10 +59,10 @@ class TmdbScanner(pluginbase.Movie):
             return result
 
     def get_tmdb_id(self, title=None, year=None, imdb_id=None):
-        result = self.search(title=title, lang=_config.pyscrape.language, year=year, imdb_id=imdb_id)
+        result = self.search(title=title, lang=config.pyscrape.language, year=year, imdb_id=imdb_id)
 
         if result is None or len(result) < 1:
-            result = self.search(title=title, lang=_config.pyscrape.fallback_language, year=year, imdb_id=imdb_id)
+            result = self.search(title=title, lang=config.pyscrape.fallback_language, year=year, imdb_id=imdb_id)
 
         if not result:
             log('No Results', LogLevel.Warning)

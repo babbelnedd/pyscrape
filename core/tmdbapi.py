@@ -3,11 +3,10 @@ import operator
 import json
 
 from core.helpers.decorator import Cached
-from core.helpers.config import Config
+from core.helpers.config import config
 from core.helpers.logger import log, LogLevel
 
 
-config = Config()
 url_base = config.tmdb.url_base
 api_key = config.tmdb.api_key
 

@@ -5,7 +5,7 @@ import time
 
 from tvdbapi import get_show_nfo
 from core.helpers import regex
-from core.helpers.config import Config
+from core.helpers.config import config
 from core.helpers.logger import log, LogLevel, whiteline
 from tvdbapi import TvdbApi
 from core.helpers.exception import ShowNotFoundException
@@ -18,7 +18,6 @@ delete_existing = False
 single_show = ''
 single_season = ''
 single_episode = ''
-config = Config()
 
 
 def scrape_shows(shows):

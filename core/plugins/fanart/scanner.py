@@ -2,27 +2,19 @@ import json
 import urllib2
 import time
 
-from core.helpers.config import Config
+from core.helpers.config import config
 from core.helpers.logger import log, LogLevel
 from core.plugins import pluginbase
 from core.plugins.plugintype import PluginType
 from core.helpers.decorator import Cached
 
 
-#region Private Attributes
-
-
-_config = Config()
-
-
-#endregion
-
 #region Private Methods
 
 
 @Cached
 def _request(request):
-    log('Send Fanart request: ' + request.replace(_config.fanart.api_key, 'XXX'), 'DEBUG')
+    log('Send Fanart request: ' + request.replace(config.fanart.api_key, 'XXX'), 'DEBUG')
     headers = {'Accept': 'application/json'}
 
     req = urllib2.Request(request, headers=headers)
@@ -32,7 +24,7 @@ def _request(request):
 
 
 def _get(movie_id):
-    req = '{0}movie/{1}/{2}/JSON'.format(_config.fanart.url_base, _config.fanart.api_key, movie_id)
+    req = '{0}movie/{1}/{2}/JSON'.format(config.fanart.url_base, config.fanart.api_key, movie_id)
     try_again = True
     n = 0
     while try_again and n < 10:

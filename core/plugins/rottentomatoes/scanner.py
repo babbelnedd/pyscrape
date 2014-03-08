@@ -1,20 +1,10 @@
 import json
 import urllib2
 
-from core.helpers.config import Config
 from core.plugins import pluginbase
 from core.helpers.logger import log, LogLevel
 from core.helpers.decorator import Cached
 
-
-
-#region Private Attributes
-
-
-_config = Config()
-
-
-#endregion
 
 #region Private Methods
 

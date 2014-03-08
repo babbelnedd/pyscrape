@@ -1,20 +1,19 @@
 import urllib
 import time
 
-from core.helpers.config import Config
+from core.helpers.config import config
 from core.helpers.logger import log, LogLevel
 from core.helpers.utils import ping
 
 
 class Xbmc(object):
     def __init__(self):
-        self.config = Config()
-        xbmc = self.config.xbmc
+        xbmc = config.xbmc
         self.url_base = '{0}://{1}:{2}@{3}:{4}'.format(xbmc.protocol, xbmc.user, xbmc.password, xbmc.ip, xbmc.port)
 
     def update(self):
         log('Update XBMC database')
-        if not ping(self.config.xbmc.ip, self.config.xbmc.port):
+        if not ping(config.xbmc.ip, config.xbmc.port):
             log('XBMC host is no available')
             return -1
 
@@ -24,7 +23,7 @@ class Xbmc(object):
 
     def clean(self):
         log('Clean XBMC database')
-        if not ping(self.config.xbmc.ip, self.config.xbmc.port):
+        if not ping(config.xbmc.ip, config.xbmc.port):
             log('XBMC host is no available', LogLevel.Warning)
             return -1
 
