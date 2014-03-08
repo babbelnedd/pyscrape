@@ -1,16 +1,16 @@
 import datetime
 import os
 
-import core.helpers.config
+from core.helpers.config import config
 import core.helpers.decorator
 import core
 
 
-__config = core.helpers.config.Config()
 __root = os.path.abspath(os.path.join(core.__path__[0], os.pardir))
 _path = os.path.join(__root, '.logs')
 _logfile = os.path.join(_path, 'pyscrape.log')
 _errorfile = os.path.join(_path, 'error.log')
+quiet = False
 
 if not os.path.exists(_path):
     os.makedirs(_path)
@@ -25,7 +25,7 @@ def log(text, level=''):
     if level == '':
         level = LogLevel.Info
 
-    if not __config.pyscrape.debug_log and level.upper() == 'DEBUG':
+    if not config.pyscrape.debug_log and level.upper() == 'DEBUG':
         return
 
     if level == LogLevel.Error:
@@ -45,12 +45,14 @@ def log(text, level=''):
         with open(_errorfile, 'a') as logFile:
             logFile.write(output + '\n')
 
-    _print(output, level)
+    if not quiet:
+        _print(output, level)
 
 
 def whiteline():
     with open(_logfile, 'a') as logFile:
-        print('\n')
+        if not quiet:
+            print('\n')
         logFile.write('\n')
 
 
