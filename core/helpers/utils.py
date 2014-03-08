@@ -33,7 +33,7 @@ def replace(string):
     chars = _get_chars(os.path.join(core.__path__[0], '../configuration', 'replace'))
     try:
         string = string.encode('utf8')
-    except UnicodeEncodeError:
+    except UnicodeDecodeError:
         pass
     for key in chars.keys():
         value = chars[key]
