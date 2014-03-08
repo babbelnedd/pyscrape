@@ -25,7 +25,7 @@ def log(text, level=''):
     if level == '':
         level = LogLevel.Info
 
-    if not config.pyscrape.debug_log and level.upper() == 'DEBUG':
+    if level == LogLevel.Debug and not config.pyscrape.debug_log:
         return
 
     if level == LogLevel.Error:
