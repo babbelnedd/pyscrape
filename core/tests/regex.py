@@ -142,7 +142,6 @@ class RegExTests(unittest.TestCase):
         assert result['imdbID'] == ''
 
         result = regex.get_movie('Ice.Age.2002')
-        print result
         assert result['title'] == 'Ice Age'
         assert result['year'] == '2002'
         assert result['imdbID'] == ''
