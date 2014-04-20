@@ -1,11 +1,12 @@
-#README  
+# README
+  **README IS NOT UP TO DATE**
  PyScrape is a cross platform aplication that collects information and media artwork for movies in XBMC format  
    Create NFO files
    Download artwork from TheMovieDB.org / Fanart.tv
    Delete unwanted audio-tracks from matroska files
  
  
-##SETUP / REQUIREMENTS  
+## SETUP / REQUIREMENTS  
    Install [python 2.7.6](http://python.org/download/releases/2.7.6/ "python 2.7.6")
    Install [mkvtoolnix](http://www.bunkus.org/videotools/mkvtoolnix/downloads.html "mkvtoolnix")
    Install [mediainfo](http://mediaarea.net/de/MediaInfo/Download "mediainfo") (CLI)   
@@ -13,7 +14,7 @@
    
    
  
-##RESTRICTION / FOLDER NAME  
+## RESTRICTION / FOLDER NAME  
  A movie file **have to be** in a folder  
  The name of the folder has some conditions that must be met  
  Name (Year) (imdbID); example: Ice Age (2001) (tt0268380)  
@@ -27,7 +28,7 @@
  
  
  
-##USAGE  
+## USAGE  
  **Scrape a single movie**  
  python MovieScraper.py -p "c:\movies\Ice Age (2002)"  
  python MovieScraper.py -p "/media/movies/Ice Age (2002)"  
@@ -37,7 +38,7 @@
  python MovieScraper.py  [--r, -u, -f, -nfo-only]
  
  
-##CLI
+## CLI
  **-p path** Ignore 'paths' from config and scrape a single movie dir  
  **--r**     Don't delete existing files, refresh NFO and download *new* images  
  **--u**     Clean and update XBMC library  
