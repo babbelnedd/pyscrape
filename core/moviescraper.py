@@ -159,7 +159,7 @@ def create_nfo(movie):
 
     if movie.trailer is not None and movie.trailer != '':
         child = etree.Element('trailer')
-        child.text = 'plugin://plugin.video.youtube/?action=play_video&amp;videoid={0}'.format(movie.trailer)
+        child.text = 'plugin://plugin.video.youtube/?action=play_video&amp;videoid=' + movie.trailer
         root.append(child)
 
     for genre in movie.genres.split('/'):
