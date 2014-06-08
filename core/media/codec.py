@@ -152,6 +152,9 @@ def get_runtime(videos):
 
     for video in videos:
         duration = _get(video, 'Video', 'Duration')
+        if not duration:
+            # happens, when movie container is corrupt
+            return '0'
 
         if 'h' in duration:
             duration = duration.lower().replace(' ', '').replace('mn', '').split('h')
