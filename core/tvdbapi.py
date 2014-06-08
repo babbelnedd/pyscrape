@@ -227,7 +227,7 @@ class TvdbApi(object):
                     xml += '    <actor>\n'
                     xml += '        <name>{0}</name>\n'.format(actor['name'].encode('utf-8'))
                     if actor['character'] != "" and actor['character'] is not None:
-                        xml += '        <role>{0}</role>\n'.format(actor['character'])
+                        xml += '        <role>{0}</role>\n'.format(actor['character'].encode('utf-8'))
                     if actor['profile_path'] != '' and actor['profile_path'] is not None:
                         xml += '        <thumb>{0}</thumb>\n'.format(
                             'http://image.tmdb.org/t/p/w500' + actor['profile_path'])
