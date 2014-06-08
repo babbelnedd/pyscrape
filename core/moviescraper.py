@@ -58,7 +58,7 @@ def get_movie(root, path):
 
     if len(files) > 1:
         # get only files that are tagged as CD
-        for _file in [f for f in files if rx.get_cd(f) == '']:
+        for _file in [f for f in files if regex.get_cd(f) == '']:
             files.remove(_file)
 
         movie.files = files
