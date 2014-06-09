@@ -20,10 +20,10 @@ import tmdbapi as tmdb
 from Movie import Movie
 from core.helpers.logger import log, LogLevel, whiteline
 from core.helpers.utils import download
-from core.helpers import utils, regex, xbmc
+from core.helpers import utils, regex
 from core.helpers.config import config
 from core.media import codec
-
+from core.helpers.xbmc import Xbmc
 
 delete_existing = False
 refresh = False
@@ -739,8 +739,7 @@ def __start():
             # scrape_from_config()
 
         if parameter['update']:
-            _xbmc = xbmc()
-            _xbmc.full_scan()
+            Xbmc().full_scan()
 
     try:
         if requirements_satisfied():
