@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import getopt
+import argparse
 import os
 import sys
 import time
@@ -21,9 +21,10 @@ from core.media import codec
 
 
 delete_existing = False
-single_show = ''
-single_season = ''
-single_episode = ''
+single_show = None
+single_season = None
+single_episode = None
+paths = None
 
 
 def scrape_shows(shows):
@@ -95,11 +96,12 @@ def scrape_episode(episode_file):
     # extract image from file
     video_source = os.path.join(episode_path, episode_title)
     output = os.path.join(episode_path, root + '.tbn')
-    cmd = '"{0}" -ss {1} -i "{2}" -f image2 -vframes 1 "{3}"'.format(config.codec.ffmpeg,
-                                                                     config.codec.screenshot_time,
-                                                                     video_source, output)
-    log('Extract image from file', LogLevel.Debug)
-    os.system(cmd)
+    if not os.path.exists(output):
+        cmd = '"{0}" -ss {1} -i "{2}" -f image2 -vframes 1 "{3}"'.format(config.codec.ffmpeg,
+                                                                         config.codec.screenshot_time,
+                                                                         video_source, output)
+        log('Extract image from file', LogLevel.Debug)
+        os.system(cmd)
 
 
 def scrape_season(season_path):
@@ -151,45 +153,38 @@ def _delete_existing_files(root):
         os.remove(_file)
 
 
-def _get_parameter(arguments):
-    try:
-        opts, args = getopt.getopt(arguments, "d:p:e:s:", ["delete-existing", "path=", "episode=", "season="])
-    except getopt.GetoptError:
-        log('Wrong arguments', LogLevel.Error)
-        print '--d --delete-existing  Delete all files except for these with a extension from the extension list\n' \
-              '--p --path Scrapes a single show\n' \
-              '--e --episode Scrapes a single episode\n' \
-              '--s --season Scrapes a single season\n'
+def _get_parameter():
+    parser = argparse.ArgumentParser(description='Pyscrape is your automated Media Manager')
 
-        sys.exit(2)
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('--path', '-p', type=str, dest='path',
+                       help='scrapes shows within this path. Multiple paths can be separated with ::')
+    group.add_argument('--episode', '-e', type=str, dest='episode',
+                       help='Scrapes a single episode')
+    group.add_argument('--show', type=str, dest='show',
+                       help='Scrapes a single show')
+    group.add_argument('--season', type=str,
+                       help='Scrapes a single Season')
 
-    global delete_existing, single_show, single_episode, single_season
+    parser.add_argument('--delete', '-d', action='store_true', dest='delete_existing', default=False,
+                        help='Delete all files thus extension is not in ./configuration/extensions')
+    parser.add_argument('--version', '-v', action='version', version='pyscrape 1.0',
+                        help='shows the current version number')
+    results = parser.parse_args()
 
-    for opt, arg in opts:
-        if opt in ("-d", "--delete-existing"):
-            delete_existing = True
-        elif opt in ("-e", "--episode"):
-            try:
-                single_episode = unicode(arg).encode('utf-8')
-            except UnicodeDecodeError:
-                single_episode = arg
-        elif opt in ("-s", "--season"):
-            try:
-                single_season = unicode(arg).encode('utf-8')
-            except UnicodeDecodeError:
-                single_season = arg
-        elif opt in ("-p", "--path"):
-            try:
-                single_show = unicode(arg).encode('utf-8')
-            except UnicodeDecodeError:
-                single_show = arg
+    global delete_existing, single_show, single_episode, single_season, paths
+    delete_existing = results.delete_existing
+    single_show = results.show
+    single_season = results.season
+    single_episode = results.episode
+    paths = results.path
 
 
 if __name__ == '__main__':
     def _start():
         try:
             shows = []
-            if single_episode != '':
+            if single_episode:
                 if not os.path.isfile(single_episode):
                     log(single_episode + ' is not a file', LogLevel.Error)
                     sys.exit()
@@ -203,13 +198,13 @@ if __name__ == '__main__':
                     sys.exit()
 
                 scrape_episode(single_episode)
-            elif single_season != '':
+            elif single_season:
                 if not os.path.isdir(single_season):
                     log(single_season + ' is not a directory', LogLevel.Error)
                     sys.exit()
                 else:
                     scrape_season(season_path=single_season)
-            elif single_show != '':
+            elif single_show:
                 if os.path.exists(single_show) and os.path.isdir(single_show):
                     title = os.path.basename(os.path.normpath(single_show))
                     show = {'title': title, 'path': single_show}
@@ -217,8 +212,8 @@ if __name__ == '__main__':
                     scrape_shows(shows)
                 else:
                     log('Path do not exists', LogLevel.Warning)
-            else:
-                for path in config.show.paths:
+            elif paths:
+                for path in list(set(paths.split('::'))):
                     if not os.path.exists(path):
                         log(path + ' do not exists - SKIP', LogLevel.Warning)
                         continue
@@ -232,12 +227,7 @@ if __name__ == '__main__':
             log("TvScraper was interrupted by user", LogLevel.Warning)
 
     def _initialize():
-        global delete_existing, single_season, single_episode, single_show
-        delete_existing = False
-        single_show = ''
-        single_episode = ''
-        single_season = ''
-        _get_parameter(sys.argv[1:])
+        _get_parameter()
 
     start = time.time()
     _initialize()
