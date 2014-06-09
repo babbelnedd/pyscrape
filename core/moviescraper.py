@@ -5,7 +5,7 @@ import os
 import shutil
 from threading import Thread
 import time
-import getopt
+import argparse
 import traceback
 import operator
 from lxml import etree
@@ -72,13 +72,14 @@ def get_movie(root, path):
     return movie
 
 
-def get_movies(path):
+def get_movies(paths):
     movies = []
-    for movie in os.listdir(path.encode('utf8')):
-        if not os.path.isdir(os.path.join(path, movie)):
-            continue
-        m = get_movie(path, movie)
-        movies.append(m)
+    for path in paths:
+        for movie in os.listdir(path.encode('utf8')):
+            if not os.path.isdir(os.path.join(path, movie)):
+                continue
+            m = get_movie(path, movie)
+            movies.append(m)
     return movies
 
 
@@ -115,7 +116,7 @@ def create_nfo(movie):
     child.text = movie.year
     root.append(child)
 
-    #xml += '    <top250>{0}</top250>\n'.format(0)      # information is still missing
+    # xml += '    <top250>{0}</top250>\n'.format(0)      # information is still missing
 
     if movie.outline is not None and movie.outline != '':
         child = etree.Element('outline')
@@ -475,27 +476,27 @@ def download_images(movie):
                 t = Thread(target=download_banner, args=())
                 t.start()
                 threads.append(t)
-                #download_banner()
+                # download_banner()
             if config.movie.download_logo:
                 t = Thread(target=download_logo, args=())
                 t.start()
                 threads.append(t)
-                #download_logo()
+                # download_logo()
             if config.movie.download_landscape:
                 t = Thread(target=download_thumbs, args=())
                 t.start()
                 threads.append(t)
-                #download_thumbs()
+                # download_thumbs()
             if config.movie.download_disc:
                 t = Thread(target=download_disc, args=())
                 t.start()
                 threads.append(t)
-                #download_disc()
+                # download_disc()
             if config.movie.download_clearart:
                 t = Thread(target=download_clearart, args=())
                 t.start()
                 threads.append(t)
-                #download_clearart()
+                # download_clearart()
 
     log('Download images')
     global delete_existing
@@ -611,7 +612,7 @@ def scrape_movies(path, single=False):
             log(movie.path)
             log('====================================')
             if not force:
-                if not os.path.isfile(os.path.join(movie.path, movie.files[0])):
+                if len(movie.files) == 0 or not os.path.isfile(os.path.join(movie.path, movie.files[0])):
                     log('Skip - No file found', LogLevel.Warning)
                     continue
 
@@ -652,7 +653,8 @@ def scrape_movies(path, single=False):
         m = get_movie(root, directory)
         movies.append(m)
     else:
-        movies = get_movies(path)
+        movies = get_movies(list(path))
+
 
     _scrape(movies)
     log('Scraping done - have fun')
@@ -675,7 +677,7 @@ def __start():
 
         return result
 
-    def main(arguments):
+    def main():
         def scrape_from_config():
             for path in config.movie.paths:
                 if not os.path.isdir(path):
@@ -683,6 +685,9 @@ def __start():
                 if config.pyscrape.rename:
                     utils.rename_subfolder(path)
                 scrape_movies(path, single=False)
+
+        def scrape_paths(paths):
+            scrape_movies(paths, single=False)
 
         def scrape_single_path(path):
             if os.path.isdir(path):
@@ -694,61 +699,44 @@ def __start():
                 log('Path not found!', LogLevel.Error)
                 sys.exit()
 
-        def get_parameter(system_arguments):
-            try:
-                opts, args = getopt.getopt(system_arguments, "p:r:u:f:d",
-                                           ["path=", "refresh", "update-xbmc", "force", "nfo-only",
-                                            "delete-existing"])
-            except getopt.GetoptError:
-                log('Wrong arguments', LogLevel.Error)
-                print '-p --path             paths (separated by "::")'
-                print '-r --refresh          Do not delete existing files'
-                print '-u --update-xbmc      Clean/Update XBMC'
-                print '-f --force            Do not skip even if no movie file was found'
-                print '   --nfo-only         Only creates a .nfo file'
-                print '-d --delete-existing  Delete all files from a movie except ' \
-                      'for these with a extension from the extension list'
+        def get_parameter():
+            parser = argparse.ArgumentParser(description='Pyscrape is your automated Media Manager')
+            parser.add_argument('--path', '-p', type=str, required=True,
+                                help='scrapes movies within this path. Multiple paths can be separated with ::')
+            parser.add_argument('--single', action='store_true', dest='single_path', default=False,
+                                help='--path value is a single movie')
+            parser.add_argument('--refresh', '-r', action='store_true', dest='refresh', default=False,
+                                help='do not delete existing files, only add new files (default)')
+            parser.add_argument('--update-xbmc', '-u', action='store_true', dest='update', default=False,
+                                help='clean and update XBMC database')
+            parser.add_argument('--force', '-f', action='store_true', dest='force', default=False,
+                                help='forces to scrape empty folders')
+            parser.add_argument('--nfo-only', action='store_true', dest='nfo_only', default=False,
+                                help='creates only a .nfo file')
+            parser.add_argument('--delete-existing', '-d', action='store_true', dest='refresh', default=False,
+                                help='Delete all files thus extension is not in ./configuration/extensions')
+            parser.add_argument('--version', '-v', action='version', version='pyscrape 1.0',
+                                help='shows the current version number')
 
-                sys.exit(2)
-            global delete_existing
-            single_path = ''
-            refresh = False
-            update = False
-            force = False
-            nfo_only = False
-
-            for opt, arg in opts:
-                if opt in ("-p", "--path"):
-                    path = arg
-                    try:
-                        path = unicode(arg).encode('utf-8')
-                    except UnicodeDecodeError:
-                        pass
-                    single_path = path
-                elif opt in ("-r", "--refresh"):
-                    refresh = True
-                elif opt in ("-u", "--update-xbmc"):
-                    update = True
-                elif opt in ("-f", "--force"):
-                    force = True
-                elif opt in "--nfo-only":
-                    nfo_only = True
-                elif opt in ("-d", "--delete-existing"):
-                    delete_existing = True
-
-            return {'single_path': single_path, 'refresh': refresh, 'update': update, 'force': force,
-                    'nfo_only': nfo_only}
+            results = parser.parse_args()
+            return {'single_path': results.single_path,
+                    'path': results.path if results.single_path else results.path.split('::'),
+                    'refresh': results.refresh,
+                    'update': results.update,
+                    'force': results.force,
+                    'nfo_only': results.nfo_only}
 
         global refresh, nfo_only, force
-        parameter = get_parameter(arguments)
+        parameter = get_parameter()
         refresh = parameter['refresh']
         nfo_only = parameter['nfo_only']
         force = parameter['force']
 
-        if parameter['single_path'] != '':
-            scrape_single_path(parameter['single_path'])
+        if parameter['single_path'] is True:
+            scrape_single_path(parameter['path'])
         else:
-            scrape_from_config()
+            scrape_paths(parameter['path'])
+            # scrape_from_config()
 
         if parameter['update']:
             _xbmc = xbmc()
@@ -756,7 +744,7 @@ def __start():
 
     try:
         if requirements_satisfied():
-            main(sys.argv[1:])
+            main()
     except Exception, e:
         log('oops something went wrong : /', LogLevel.Error)
         log(unicode(e), LogLevel.Error)
