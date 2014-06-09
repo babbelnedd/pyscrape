@@ -32,6 +32,7 @@ class PyscrapeConfig(object):
         self.backdrop_limit = int(cfg.get('pyscrape', 'backdrop_limit'))
         self.poster_limit = int(cfg.get('pyscrape', 'poster_limit'))
         self.thumb_limit = int(cfg.get('pyscrape', 'thumb_limit'))
+        self.separator = cfg.get('pyscrape', 'separator').strip()
         self.debug_log = cfg.get('pyscrape', 'debug_log').lower().strip() == 'true'
         self.rename = cfg.get('pyscrape', 'rename').lower().strip() == 'true'
 
