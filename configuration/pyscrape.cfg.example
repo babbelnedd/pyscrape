@@ -40,7 +40,6 @@ backdrop=true
 ; extrafanart will only be downloaded when backdrop is true
 extrafanart=true
 folder=true
->>>>>>> dev
 
 [codec]
 mediainfo_path=mediainfo
