@@ -39,7 +39,7 @@ class PyscrapeConfig(object):
 
 class MovieConfig(object):
     def __init__(self, cfg):
-        self.paths = cfg.get('movie', 'paths').split('::')
+        self.paths = list(set(cfg.get('movie', 'paths').split('::')))
         self.download_banner = cfg.get('movie', 'banner').lower().strip() == 'true'
         self.download_backdrop = cfg.get('movie', 'backdrop').lower().strip() == 'true'
         self.download_poster = cfg.get('movie', 'poster').lower().strip() == 'true'
@@ -54,7 +54,7 @@ class MovieConfig(object):
 
 class ShowConfig(object):
     def __init__(self, cfg):
-        self.paths = cfg.get('show', 'paths').split('::')
+        self.paths = list(set(cfg.get('show', 'paths').split('::')))
         self.download_banner = cfg.get('show', 'banner').lower().strip() == 'true'
         self.download_seasonbanner = cfg.get('show', 'seasonbanner').lower().strip() == 'true'
         self.download_seasonthumbs = cfg.get('show', 'seasonthumbs').lower().strip() == 'true'
@@ -96,7 +96,7 @@ class CodecConfig(object):
             self.keep_subs = 'all'
         self.keep_tracks = []
         try:
-            self.keep_tracks = cfg.get('codec', 'keep_tracks').split('::')
+            self.keep_tracks = list(set(cfg.get('codec', 'keep_tracks').split('::')))
         except NoOptionError:
             pass
 
