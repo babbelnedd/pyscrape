@@ -678,14 +678,6 @@ def __start():
         return result
 
     def main():
-        def scrape_from_config():
-            for path in config.movie.paths:
-                if not os.path.isdir(path):
-                    continue
-                if config.pyscrape.rename:
-                    utils.rename_subfolder(path)
-                scrape_movies(path, single=False)
-
         def scrape_paths(paths):
             scrape_movies(paths, single=False)
 
