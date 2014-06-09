@@ -660,7 +660,7 @@ def scrape_movies(path, single=False):
 
 def __start():
     def requirements_satisfied():
-
+        # todo: pass to utils, reuse in tvscraper
         result = True
         if config.fanart.api_key == '':
             log('FanartTV Api Key is missing', LogLevel.Error)
