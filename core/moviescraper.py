@@ -655,7 +655,6 @@ def scrape_movies(path, single=False):
     else:
         movies = get_movies(list(path))
 
-
     _scrape(movies)
     log('Scraping done - have fun')
 
@@ -697,15 +696,13 @@ def __start():
                                 help='scrapes movies within this path. Multiple paths can be separated with ::')
             parser.add_argument('--single', action='store_true', dest='single_path', default=False,
                                 help='--path value is a single movie')
-            parser.add_argument('--refresh', '-r', action='store_true', dest='refresh', default=False,
-                                help='do not delete existing files, only add new files (default)')
             parser.add_argument('--update-xbmc', '-u', action='store_true', dest='update', default=False,
                                 help='clean and update XBMC database')
             parser.add_argument('--force', '-f', action='store_true', dest='force', default=False,
                                 help='forces to scrape empty folders')
             parser.add_argument('--nfo-only', action='store_true', dest='nfo_only', default=False,
                                 help='creates only a .nfo file')
-            parser.add_argument('--delete-existing', '-d', action='store_true', dest='refresh', default=False,
+            parser.add_argument('--delete', '-d', action='store_true', dest='delete_existing', default=False,
                                 help='Delete all files thus extension is not in ./configuration/extensions')
             parser.add_argument('--version', '-v', action='version', version='pyscrape 1.0',
                                 help='shows the current version number')
@@ -713,14 +710,14 @@ def __start():
             results = parser.parse_args()
             return {'single_path': results.single_path,
                     'path': results.path if results.single_path else results.path.split('::'),
-                    'refresh': results.refresh,
+                    'delete_existing': results.delete_existing,
                     'update': results.update,
                     'force': results.force,
                     'nfo_only': results.nfo_only}
 
-        global refresh, nfo_only, force
+        global refresh, nfo_only, force, delete_existing
         parameter = get_parameter()
-        refresh = parameter['refresh']
+        delete_existing = parameter['delete_existing']
         nfo_only = parameter['nfo_only']
         force = parameter['force']
 
@@ -728,7 +725,6 @@ def __start():
             scrape_single_path(parameter['path'])
         else:
             scrape_paths(parameter['path'])
-            # scrape_from_config()
 
         if parameter['update']:
             Xbmc().full_scan()
