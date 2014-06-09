@@ -661,13 +661,12 @@ def get_show_nfo(show):
         child = etree.Element('actor')
         name = etree.SubElement(child, 'name')
         role = etree.SubElement(child, 'role')
-        name.text = actor['name']
-        role.text = actor['role']
+        name.text = actor['name'].decode(encoding='utf8')
+        role.text = actor['role'].decode(encoding='utf8')
         if actor['thumb'] != '':
             thumb = etree.SubElement(child, 'thumb')
             thumb.text = actor['thumb']
         root.append(child)
-
     return etree.tostring(root, pretty_print=True, encoding='utf8', xml_declaration=True)
 
 
