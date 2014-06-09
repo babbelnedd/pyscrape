@@ -58,8 +58,12 @@ def scrape_episode(episode_file):
 
     if delete_existing:
         root = os.path.splitext(episode_title)[0]
-        for _file in [f for f in os.listdir(episode_path) if
-                      root in f and os.path.splitext(f)[1] not in get_movie_extensions() and os.path.isfile(f)]:
+        files = [f for f in os.listdir(episode_path)
+                 if root == os.path.splitext(f)[0]
+                 and len(os.path.splitext(f)) == 2
+                 and os.path.splitext(f)[1] not in get_movie_extensions()
+                 and os.path.isfile(os.path.join(episode_path, f))]
+        for _file in files:
             _file = os.path.join(episode_path, _file)
             log('Remove ' + _file, LogLevel.Debug)
             os.remove(_file)
