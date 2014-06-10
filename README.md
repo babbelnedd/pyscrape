@@ -37,8 +37,7 @@ Coming soon
 
 Thanks for interest in contributing to PyScrape.
 
-When you want to report any bugs or request a feautre use the [issues](/issues) section on GitHub.  
+When you want to report any bugs or request a feautre use the [issues](https://github.com/SchadLucas/pyscrape/issues) section on GitHub.  
 
 Please consider submitting a pull request instead just forking the project helps everyone.  
 When you want to submit a pull
-
