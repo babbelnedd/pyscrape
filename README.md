@@ -1,47 +1,44 @@
-#README  
- PyScrape is a cross platform aplication that collects information and media artwork for movies in XBMC format  
-   Create NFO files
-   Download artwork from TheMovieDB.org / Fanart.tv
-   Delete unwanted audio-tracks from matroska files
- 
- 
-##SETUP / REQUIREMENTS  
-   Install [python 2.7.6](http://python.org/download/releases/2.7.6/ "python 2.7.6")
-   Install [mkvtoolnix](http://www.bunkus.org/videotools/mkvtoolnix/downloads.html "mkvtoolnix")
-   Install [mediainfo](http://mediaarea.net/de/MediaInfo/Download "mediainfo") (CLI)   
-   Copy pyscrape.cfg.example to pyscrape.cfg and set it up (explanation will follow..)
-   
-   
- 
-##RESTRICTION / FOLDER NAME  
- A movie file **have to be** in a folder  
- The name of the folder has some conditions that must be met  
- Name (Year) (imdbID); example: Ice Age (2001) (tt0268380)  
- 
- The order of year and imdb id do not matter
- Neither year nor imdb id are necessary
- Values can be in parentheses `(` `)` or in square brackets `[` `]`  
- **But it is highly recommend to use one of both** (id is better than year)  
-   
- The name of the movie file do not matter  
- 
- 
- 
-##USAGE  
- **Scrape a single movie**  
- python MovieScraper.py -p "c:\movies\Ice Age (2002)"  
- python MovieScraper.py -p "/media/movies/Ice Age (2002)"  
-   
- **Scrape all movies of a folder**
- Set the path(s) of your movies in *pyscrape.cfg*  
- python MovieScraper.py  [--r, -u, -f, -nfo-only]
- 
- 
-##CLI
- **-p path** Ignore 'paths' from config and scrape a single movie dir  
- **--r**     Don't delete existing files, refresh NFO and download *new* images  
- **--u**     Clean and update XBMC library  
- **--f**     Forces to scrape a folder  even is there no movie file  
- **--r**     Refresh  only download new images  
- **--nfo-only** Only create a .nfo file (can be combined with -f and -r)  
- **--d --delete-existing** Will delete all files that aren't a movie / subtitle file. You can add file extensions to [this](https://github.com/SchadLucas/pyscrape/blob/master/pyscrape/system/extensions "extensions") file to keep specific files
+PyScrape - Your automated fanart management
+=====
+
+PyScrape is an automatic fanart downloader and much more adapted for XBMC. You can download fanart and meta information for movies and TV Shows.  
+PyScrape comes without any GUI (Graphical User Interface). It is planned to have a web interface, where you can handle configuration and fanart.
+
+This project is currently released as an **alpha**, this means there can be bugs. Feel free to use the issues section on GitHub to report bugs and request features.
+
+## Features
+PyScrape **can** do a lot for you. Here a list of features
+
+ - scrape Movies, TV Shows / Seasons / Episodes, ~~Music~~
+ - download a lot of different fanart types (banner, backdrop, poster, landscape, logo, much more ...)
+ - download information and create a .nfo file (ratings, actors, plot, summary, set, much more ...)
+ - service that scans your media, once it's set up you don't have to do anything but enjoy your media
+ - delete unwanted audio tracks
+ - delete existing files (incomplete nfo, etc)
+ - optimize images
+ - highly configurable settings. You can set up almost everything.
+
+## Requirements
+Since PyScrape does a lot for you, there are some external dependencies to use all features.
+
+    sudo apt-get install python2.7 imagemagick mkvtoolnix ffmpeg libav-tools # incomplete, have to be updated
+
+When the binaries are not in your PATH, you have to fix it in the configuration.
+
+## Usage examples
+
+Coming soon
+
+## Configuration
+
+Coming soon
+
+## Contribute
+
+Thanks for interest in contributing to PyScrape.
+
+When you want to report any bugs or request a feautre use the [issues](/issues) section on GitHub.  
+
+Please consider submitting a pull request instead just forking the project helps everyone.  
+When you want to submit a pull
+
