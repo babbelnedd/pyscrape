@@ -202,7 +202,8 @@ def optimize_image(src):
         return
 
     cmd.communicate()
-    log('Optimized: {0} [{1}]'.format(src, time.time() - start), LogLevel.Debug)
+    end = round(time.time() - start, 2)
+    log('Optimized: {0} [{1} s]'.format(src, end), LogLevel.Debug)
 
 
 if __name__ != 'main':
