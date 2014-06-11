@@ -160,8 +160,10 @@ def _try_download(src, dst, attempts=10, refresh=False):
 
 def download(src, dst, refresh=False):
     start = time.time()
-    if _try_download(src=src, dst=dst, refresh=refresh) == 0:
+    result = _try_download(src=src, dst=dst, refresh=refresh)
+    if result == -1 or result == 0:
         return
+
     elapsed = time.time() - start
     kbps = '[%.2f kbps]' % ((os.path.getsize(dst) / 1024) / elapsed)
     elapsed = '[%.2f s]' % elapsed
