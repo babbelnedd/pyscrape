@@ -473,30 +473,15 @@ def download_images(movie):
                 config.movie.download_disc or config.movie.download_clearart:
             log('Download Fanart', LogLevel.Debug)
             if config.movie.download_banner:
-                t = Thread(target=download_banner, args=())
-                t.start()
-                threads.append(t)
-                # download_banner()
+                add_thread(download_banner)
             if config.movie.download_logo:
-                t = Thread(target=download_logo, args=())
-                t.start()
-                threads.append(t)
-                # download_logo()
+                add_thread(download_logo)
             if config.movie.download_landscape:
-                t = Thread(target=download_thumbs, args=())
-                t.start()
-                threads.append(t)
-                # download_thumbs()
+                add_thread(download_thumbs)
             if config.movie.download_disc:
-                t = Thread(target=download_disc, args=())
-                t.start()
-                threads.append(t)
-                # download_disc()
+                add_thread(download_disc)
             if config.movie.download_clearart:
-                t = Thread(target=download_clearart, args=())
-                t.start()
-                threads.append(t)
-                # download_clearart()
+                add_thread(download_clearart)
 
     log('Download images')
     global delete_existing
@@ -505,15 +490,21 @@ def download_images(movie):
         _refresh = False
 
     if config.movie.download_backdrop:
-        t = Thread(target=download_backdrops, args=())
-        t.start()
-        threads.append(t)
+        add_thread(download_backdrops)
     if config.movie.download_poster:
-        t = Thread(target=download_posters, args=())
-        t.start()
-        threads.append(t)
+        add_thread(download_posters)
 
     download_fanart()
+
+
+def add_thread(target, args=()):
+    t = Thread(target=target, args=args)
+    t.start()
+    while len(threads) >= config.pyscrape.download_threads:
+        [threads.remove(thread) for thread in threads if not thread.isAlive()]
+        time.sleep(0.1)
+
+    threads.append(t)
 
 
 def get_metadata(movie):

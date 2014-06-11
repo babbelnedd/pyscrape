@@ -35,6 +35,7 @@ class PyscrapeConfig(object):
         self.separator = cfg.get('pyscrape', 'separator').strip()
         self.debug_log = cfg.get('pyscrape', 'debug_log').lower().strip() == 'true'
         self.rename = cfg.get('pyscrape', 'rename').lower().strip() == 'true'
+        self.download_threads = int(cfg.get('pyscrape', 'dl_threads'))
 
 
 class MovieConfig(object):
