@@ -158,7 +158,7 @@ def _try_download(src, dst, attempts=10, refresh=False):
     return 1
 
 
-def download(src, dst, refresh=False):
+def download(src, dst, refresh=False, optimize=True):
     start = time.time()
     result = _try_download(src=src, dst=dst, refresh=refresh)
     if result == -1 or result == 0:
@@ -181,9 +181,33 @@ def download(src, dst, refresh=False):
 
     log('Downloaded: ' + msg, LogLevel.Debug)
 
+    if optimize:
+        optimize_image(dst)
+
+
+def optimize_image(src):
+    from subprocess import Popen, PIPE, STDOUT
+
+    png = config.codec.optipng
+    jpg = config.codec.jpegoptim
+    filename = os.path.basename(src)
+    ext = os.path.splitext(filename)
+    start = time.time()
+
+    if png and len(ext) == 2 and ext[1].lower() == '.png':
+        cmd = Popen([png, '-o 7', src], stdout=PIPE, stderr=STDOUT)
+    elif jpg and len(ext) == 2 and (ext[1].lower() == '.jpg' or ext[1].lower() == '.jpeg'):
+        cmd = Popen([jpg, '--strip-all', src], stdout=PIPE, stderr=STDOUT)
+    else:
+        return
+
+    cmd.communicate()
+    log('Optimized: {0} [{1}]'.format(src, time.time() - start), LogLevel.Debug)
+
 
 if __name__ != 'main':
     from core.helpers.logger import log, LogLevel
     import os
     import urllib
     import time
+    from config import config

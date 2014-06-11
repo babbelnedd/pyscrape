@@ -46,6 +46,8 @@ folder=true
 mediainfo_path=mediainfo
 mkvmerge=mkvmerge
 ffmpeg=ffmpeg
+jpegoptim=jpegoptim
+optipng=optipng
 screenshot_time=00:03:00.000
 
 ; deletes all audio tracks but the given from a mkv file (needs mkvmerge (installed by mkvtoolnix))

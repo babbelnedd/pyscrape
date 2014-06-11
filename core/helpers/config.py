@@ -88,6 +88,8 @@ class CodecConfig(object):
         self.mediainfo_path = cfg.get('codec', 'mediainfo_path')
         self.mkvmerge = cfg.get('codec', 'mkvmerge')
         self.ffmpeg = cfg.get('codec', 'ffmpeg')
+        self.optipng = cfg.get('codec', 'optipng')
+        self.jpegoptim = cfg.get('codec', 'jpegoptim')
         self.screenshot_time = cfg.get('codec', 'screenshot_time')
 
         try:
