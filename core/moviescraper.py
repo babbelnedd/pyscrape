@@ -727,8 +727,6 @@ def __start():
         log('oops something went wrong : /', LogLevel.Error)
         log(unicode(e), LogLevel.Error)
         log('sys.argv:', LogLevel.Error)
-        for a in sys.argv:
-            log(a, LogLevel.Error)
         log(traceback.format_exc(), LogLevel.Error)
 
 
