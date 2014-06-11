@@ -706,7 +706,7 @@ def __start():
                     'force': results.force,
                     'nfo_only': results.nfo_only}
 
-        global refresh, nfo_only, force, delete_existing
+        global nfo_only, force, delete_existing
         parameter = get_parameter()
         delete_existing = parameter['delete_existing']
         nfo_only = parameter['nfo_only']
