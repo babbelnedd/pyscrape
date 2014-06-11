@@ -145,13 +145,14 @@ def _try_download(src, dst, attempts=10, refresh=False):
             urllib.urlretrieve(src, dst)
             try_again = False
         except IOError, e:
-            log(dst + " could not be downloaded", LogLevel.Error)
-            log(unicode(e), 'ERROR')
+            log('{0} could not be downloaded'.format(src), LogLevel.Error)
+            log(unicode(e), LogLevel.Error)
             if count < attempts:
-                log('Wait 10 Seconds and try it again', LogLevel.Error)
+                log('Wait 10 Seconds and try again', LogLevel.Error)
                 time.sleep(10)
             else:
-                try_again = False
+                log('Download of {0} failed'.format(src))
+                return -1
         finally:
             count += 1
     return 1
