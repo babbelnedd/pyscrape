@@ -8,6 +8,7 @@ from core.helpers.config import config
 from core.helpers.logger import log, LogLevel
 
 
+
 #region private methods
 
 
@@ -157,6 +158,7 @@ def get_runtime(videos):
             return '0'
 
         import re
+
         d = {'h': 0, 'm': 0, 's': 0, 'ms': 0}
         hours = re.search('[0-9]{1,2}h(?![^ ])', duration)
         minutes = re.search('[0-9]{1,3}m(?![^ ])', duration)
@@ -319,5 +321,8 @@ def get_video_xml(videos):
 
 def merge_files(files, target):
     if config.codec.mkvmerge != '':
-        cmd = config.codec.mkvmerge + ' -o "' + target + '" "' + files[0] + '" + "' + files[1] + '"'
-        os.system(cmd)
+        mkv = config.codec.mkvmerge
+        args = [mkv, '-o', target]
+        [args.append(f) for f in files]
+        cmd = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        cmd.communicate()
