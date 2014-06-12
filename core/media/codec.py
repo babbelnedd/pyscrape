@@ -148,7 +148,7 @@ def get_vinfo(video):
 
 
 def get_runtime(videos):
-    _duration = '0'
+    _duration = 0
 
     for video in videos:
         duration = _get(video, 'Video', 'Duration')
@@ -156,25 +156,22 @@ def get_runtime(videos):
             # happens, when movie container is corrupt
             return '0'
 
-        if 'h' in duration:
-            duration = duration.lower().replace(' ', '').replace('mn', '').split('h')
-        elif 'm' in duration and 'h' not in duration:
-            duration = duration.replace(' ', '').lower().split('mn')
+        import re
+        d = {'h': 0, 'm': 0, 's': 0, 'ms': 0}
+        hours = re.search('[0-9]{1,2}h(?![^ ])', duration)
+        minutes = re.search('[0-9]{1,3}m(?![^ ])', duration)
+        seconds = re.search('[0-9]{1,2}s(?![^ ])', duration)
+        ms = re.search('[0-9]{1,3}ms(?![^ ])', duration)
+        del re
 
-        if len(duration) > 0 and 's' in duration[0]:
-            return 0
-        if len(duration) == 2 and 's' not in duration[1]:
-            h = int(duration[0]) * 60
-            m = int(duration[1])
-            duration = h + m
-        elif len(duration) == 2 and 's' in duration[1]:
-            duration = duration[0]
-        elif len(duration) == 1:
-            duration = duration[0].replace('s', '').strip()
+        if hours: d['h'] = int(hours.group().replace('h', '')) * 60 * 60 * 1000
+        if minutes: d['m'] = int(minutes.group().replace('m', '')) * 60 * 1000
+        if seconds: d['s'] = int(seconds.group().replace('s', '')) * 1000
+        if ms: d['ms'] = int(ms.group().replace('ms', ''))
 
-        _duration = str(int(duration) + int(_duration))
+        _duration += float(d['h'] + d['m'] + d['s'] + d['ms']) / 1000
 
-    return _duration
+    return str(_duration)
 
 
 def delete_audio_tracks(videos):
