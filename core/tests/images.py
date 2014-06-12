@@ -14,12 +14,12 @@ from core.helpers import utils
 class RegExTests(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(RegExTests, self).__init__(*args, **kwargs)
-        self.original_png = os.path.join(os.path.join(os.path.dirname(__file__), 'images'), 'original.png')
-        self.original_jpg = os.path.join(os.path.join(os.path.dirname(__file__), 'images'), 'original.jpg')
-        self.expected_png = os.path.join(os.path.join(os.path.dirname(__file__), 'images'), 'expected.png')
-        self.expected_jpg = os.path.join(os.path.join(os.path.dirname(__file__), 'images'), 'expected.jpg')
-        self.tmp_png = os.path.join(os.path.join(os.path.dirname(__file__), 'images'), 'tmp.png')
-        self.tmp_jpg = os.path.join(os.path.join(os.path.dirname(__file__), 'images'), 'tmp.jpg')
+        self.original_png = os.path.join(os.path.dirname(__file__), 'images', 'original.png')
+        self.original_jpg = os.path.join(os.path.dirname(__file__), 'images', 'original.jpg')
+        self.expected_png = os.path.join(os.path.dirname(__file__), 'images', 'expected.png')
+        self.expected_jpg = os.path.join(os.path.dirname(__file__), 'images', 'expected.jpg')
+        self.tmp_png = os.path.join(os.path.dirname(__file__), 'images', 'tmp.png')
+        self.tmp_jpg = os.path.join(os.path.dirname(__file__), 'images', 'tmp.jpg')
 
         if os.path.exists(self.tmp_jpg):
             os.remove(self.tmp_jpg)
