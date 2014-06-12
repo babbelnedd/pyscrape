@@ -7,3 +7,5 @@ install:
  - sudo apt-get install -y -qq imagemagick mkvtoolnix ffmpeg libav-tools optipng jpegoptim python-nose
 before_script: mv configuration/pyscrape.cfg.example configuration/pyscrape.cfg
 script: python -m unittest discover core/tests/ --pattern=*.py --verbose
+notifications:
+  email: false
