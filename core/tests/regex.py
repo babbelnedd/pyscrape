@@ -1,4 +1,11 @@
+import os
+import sys
 import unittest
+
+path = os.path.abspath(os.path.join(os.path.join(os.path.dirname(__file__), '..'), '..'))
+if not path in sys.path:
+    sys.path.insert(1, path)
+del path
 
 from core.helpers import regex
 
@@ -294,7 +301,7 @@ class RegExTests(unittest.TestCase):
 
         result = regex.get_cd('Ice.Age.2002.cd4.mkv')
         assert result == '4'
-        
+
         result = regex.get_cd('Ice.Age.2002.cd1.avi')
         assert result == '1'
 
@@ -321,3 +328,7 @@ class RegExTests(unittest.TestCase):
 
         result = regex.get_cd('Ice Age 2002.avi')
         assert result == ''
+
+
+if __name__ == '__main__':
+    unittest.main()
