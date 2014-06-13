@@ -69,7 +69,6 @@ class MkvTests(unittest.TestCase):
         self.assertEqual(len(info), 1)
 
     def test_get_runtime(self):
-        # todo: parse time with regex and datetime.timedelta
         runtime = codec.get_runtime([self.tmp_mkv])
         self.assertEqual(str(3.633), runtime)
 
