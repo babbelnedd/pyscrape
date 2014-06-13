@@ -76,6 +76,8 @@ def get_movie(root, path):
 
 
 def get_movies(paths):
+    if isinstance(paths, str):
+        paths = [paths]
     if not isinstance(paths, list):
         raise Exception('Parameter \'paths\' have to be a list')
 

@@ -150,6 +150,8 @@ def get_vinfo(video):
 
 
 def get_runtime(videos):
+    if isinstance(videos, str):
+        videos = [videos]
     if not isinstance(videos, list):
         raise Exception('Videos have to be a list')
 
