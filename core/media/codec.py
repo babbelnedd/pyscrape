@@ -321,12 +321,3 @@ def get_video_xml(videos):
 
     log('Load Video Codec Information')
     return video_xml()
-
-
-def merge_files(files, target):
-    if config.codec.mkvmerge != '':
-        mkv = config.codec.mkvmerge
-        args = [mkv, '-o', target]
-        [args.append(f) for f in files]
-        cmd = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        cmd.communicate()
