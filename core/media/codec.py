@@ -9,7 +9,8 @@ from core.helpers.logger import log, LogLevel
 
 
 
-#region private methods
+
+# region private methods
 
 
 def _get_codec_info(video, extra_attribute=''):
@@ -149,6 +150,9 @@ def get_vinfo(video):
 
 
 def get_runtime(videos):
+    if not isinstance(videos, list):
+        raise Exception('Videos have to be a list')
+
     _duration = 0
 
     for video in videos:
