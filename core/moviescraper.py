@@ -260,7 +260,8 @@ def create_nfo(movie):
     if filename == '':
         filename = os.path.basename(movie.path)
     nfo_file = os.path.join(movie.path, filename + '.nfo')
-    file(nfo_file, 'w').write(etree.tostring(root, pretty_print=True, encoding='utf8', xml_declaration=True))
+    with file(nfo_file, 'w') as f:
+        f.write(etree.tostring(root, pretty_print=True, encoding='utf8', xml_declaration=True))
 
 
 def cleanup_dir(movie):
