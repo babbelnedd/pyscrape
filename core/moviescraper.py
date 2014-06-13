@@ -596,7 +596,6 @@ def get_metadata(movie):
     movie.posters = tmdb.get_posters(movie.id)
     movie.thumb = tmdb.get_thumb(movie.id)
     movie.runtime = codec.get_runtime(files)
-    create_nfo(movie)
     return movie
 
 
@@ -621,7 +620,8 @@ def scrape_movies(path, single=False):
                 cleanup_dir(movie)
 
             if nfo_only:
-                get_metadata(movie)
+                movie = get_metadata(movie)
+                create_nfo(movie)
             else:
                 files = []
                 for movie_file in movie.files:
@@ -631,6 +631,7 @@ def scrape_movies(path, single=False):
                     codec.delete_audio_tracks(files)
 
                 movie = get_metadata(movie)
+                create_nfo(movie)
                 if movie == -1:  # no movie found
                     continue
 
