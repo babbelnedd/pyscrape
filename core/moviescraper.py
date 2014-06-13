@@ -39,6 +39,9 @@ def get_movie(root, path):
                 if os.path.isfile(os.path.join(movie_path, movie_file))
                 and (os.path.splitext(movie_file)[1] in utils.get_movie_extensions())]
 
+    if not os.path.exists(os.path.join(root, path)):
+        raise OSError('Path do not exist')
+
     movie = Movie()
     movie.path = path
 
