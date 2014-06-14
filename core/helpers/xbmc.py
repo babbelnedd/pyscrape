@@ -14,7 +14,7 @@ class Xbmc(object):
     def update(self):
         log('Update XBMC database')
         if not ping(config.xbmc.ip, config.xbmc.port):
-            log('XBMC host is no available')
+            log('XBMC host is not available')
             return -1
 
         url = self.url_base + '/jsonrpc?request={"jsonrpc":"2.0","method":"VideoLibrary.Scan"}'
