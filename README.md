@@ -21,7 +21,7 @@ PyScrape **can** do a lot for you. Here a list of features
 ## Requirements
 Since PyScrape does a lot for you, there are some external dependencies to use all features.
 
-    sudo apt-get install python2.7 imagemagick mkvtoolnix ffmpeg libav-tools optipng jpegoptim # incomplete, have to be updated
+    sudo apt-get install python2.7 imagemagick mkvtoolnix ffmpeg libav-tools optipng jpegoptim python-lxml
 
 When the binaries are not in your PATH, you have to fix it in the configuration.
 
