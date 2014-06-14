@@ -3,6 +3,7 @@ import argparse
 import os
 import sys
 import time
+import subprocess
 
 path = os.path.abspath(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 if not path in sys.path:
@@ -97,11 +98,10 @@ def scrape_episode(episode_file):
     video_source = os.path.join(episode_path, episode_title)
     output = os.path.join(episode_path, root + '.tbn')
     if not os.path.exists(output):
-        cmd = '"{0}" -ss {1} -i "{2}" -f image2 -vframes 1 "{3}"'.format(config.codec.ffmpeg,
-                                                                         config.codec.screenshot_time,
-                                                                         video_source, output)
         log('Extract image from file', LogLevel.Debug)
-        os.system(cmd)
+        cmd = subprocess.Popen([config.codec.ffmpeg, '-ss', config.codec.screenshot_time, '-i', video_source, '-f',
+                                'image2', '-vframes', '1', output], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        cmd.communicate()
 
 
 def scrape_season(season_path):
