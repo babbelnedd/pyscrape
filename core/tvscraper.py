@@ -9,11 +9,11 @@ if not path in sys.path:
     sys.path.insert(1, path)
 del path
 
-from tvdbapi import get_show_nfo
+from core.tvdbapi import get_show_nfo
+from core.tvdbapi import TvdbApi
 from core.helpers import regex
 from core.helpers.config import config
 from core.helpers.logger import log, LogLevel, whiteline
-from tvdbapi import TvdbApi
 from core.helpers.exception import ShowNotFoundException
 from core.helpers.utils import get_all_extensions
 from core.helpers.utils import get_movie_extensions
