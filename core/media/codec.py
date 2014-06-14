@@ -314,7 +314,7 @@ def get_video_xml(videos):
             xml += '                <aspect>{0}</aspect>\n'.format(vinfo['aspect'])
 
         xml += '                <codec>{0}</codec>\n'.format(vinfo['codec'])
-        dur = str(int(float(get_runtime(videos)) * 60))
+        dur = int(float(get_runtime(videos)) * 60)
         xml += '                <durationinseconds>{0}</durationinseconds>\n'.format(dur)
         xml += '                <width>{0}</width>\n'.format(vinfo['width'])
         xml += '                <height>{0}</height>\n'.format(vinfo['height'])
